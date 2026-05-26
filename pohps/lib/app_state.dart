@@ -61,14 +61,23 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> addFood(FoodItem food, {int quantity = 1}) async {
+  Future<void> addFood(FoodItem food, {double fraction = 1.0}) async {
     final entry = LogEntry(
       id: '${DateTime.now().millisecondsSinceEpoch}',
       food: food,
       timestamp: DateTime.now(),
-      quantity: quantity,
+      fraction: fraction,
     );
     _todayLog.add(entry);
+    await _storage.saveDailyLog(DateTime.now(), _todayLog);
+    _checkAchievements();
+    notifyListeners();
+  }
+
+  Future<void> updateEntryFraction(String entryId, double fraction) async {
+    final index = _todayLog.indexWhere((e) => e.id == entryId);
+    if (index == -1) return;
+    _todayLog[index] = _todayLog[index].copyWith(fraction: fraction);
     await _storage.saveDailyLog(DateTime.now(), _todayLog);
     _checkAchievements();
     notifyListeners();

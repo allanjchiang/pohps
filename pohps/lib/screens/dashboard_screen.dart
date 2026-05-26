@@ -200,11 +200,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
             child: ListTile(
               contentPadding:
                   const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              onTap: () => _showFractionPicker(context, appState, entry),
               leading:
                   Text(entry.food.emoji, style: const TextStyle(fontSize: 32)),
               title: Text(entry.food.name, style: theme.textTheme.titleMedium),
               subtitle: Text(
-                entry.food.servingSize,
+                entry.fraction == 1.0
+                    ? entry.food.servingSize
+                    : '${entry.fraction}× ${entry.food.servingSize}',
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
@@ -220,6 +223,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
         );
       },
+    );
+  }
+
+  void _showFractionPicker(
+      BuildContext context, AppState appState, LogEntry entry) {
+    showDialog(
+      context: context,
+      builder: (ctx) => _FractionPickerDialog(
+        foodName: entry.food.name,
+        fullProtein: entry.food.proteinGrams,
+        initialFraction: entry.fraction,
+        onChanged: (fraction) {
+          appState.updateEntryFraction(entry.id, fraction);
+          Navigator.pop(ctx);
+        },
+      ),
     );
   }
 
@@ -310,4 +329,106 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   ThemeData get theme => Theme.of(context);
+}
+
+class _FractionPickerDialog extends StatefulWidget {
+  final String foodName;
+  final double fullProtein;
+  final double initialFraction;
+  final ValueChanged<double> onChanged;
+
+  const _FractionPickerDialog({
+    required this.foodName,
+    required this.fullProtein,
+    required this.initialFraction,
+    required this.onChanged,
+  });
+
+  @override
+  State<_FractionPickerDialog> createState() => _FractionPickerDialogState();
+}
+
+class _FractionPickerDialogState extends State<_FractionPickerDialog> {
+  late double _fraction;
+
+  static const _presets = [0.25, 0.5, 0.75, 1.0];
+
+  @override
+  void initState() {
+    super.initState();
+    _fraction = widget.initialFraction;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final protein = (widget.fullProtein * _fraction);
+
+    return AlertDialog(
+      title: Text('How much ${widget.foodName}?'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            '${protein.toStringAsFixed(1)}g protein',
+            style: theme.textTheme.headlineMedium?.copyWith(
+              color: theme.colorScheme.primary,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            '${(_fraction * 100).round()}% of a full serving',
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: 20),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            alignment: WrapAlignment.center,
+            children: _presets.map((p) {
+              final selected = (_fraction - p).abs() < 0.01;
+              return ChoiceChip(
+                label: Text(
+                  p == 1.0 ? 'Full' : '${(p * 100).round()}%',
+                  style: const TextStyle(fontSize: 16),
+                ),
+                selected: selected,
+                onSelected: (_) => setState(() => _fraction = p),
+              );
+            }).toList(),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              const Text('0%'),
+              Expanded(
+                child: Slider(
+                  value: _fraction,
+                  min: 0.0,
+                  max: 1.0,
+                  divisions: 20,
+                  label: '${(_fraction * 100).round()}%',
+                  onChanged: (v) => setState(() => _fraction = v),
+                ),
+              ),
+              const Text('100%'),
+            ],
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cancel'),
+        ),
+        FilledButton(
+          onPressed: () => widget.onChanged(_fraction),
+          child: const Text('Save'),
+        ),
+      ],
+    );
+  }
 }

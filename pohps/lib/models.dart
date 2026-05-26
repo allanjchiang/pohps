@@ -42,29 +42,38 @@ class LogEntry {
   final String id;
   final FoodItem food;
   final DateTime timestamp;
-  final int quantity;
+  final double fraction;
 
   const LogEntry({
     required this.id,
     required this.food,
     required this.timestamp,
-    this.quantity = 1,
+    this.fraction = 1.0,
   });
 
-  double get totalProtein => food.proteinGrams * quantity;
+  double get totalProtein => food.proteinGrams * fraction;
+
+  LogEntry copyWith({double? fraction}) => LogEntry(
+        id: id,
+        food: food,
+        timestamp: timestamp,
+        fraction: fraction ?? this.fraction,
+      );
 
   Map<String, dynamic> toJson() => {
         'id': id,
         'food': food.toJson(),
         'timestamp': timestamp.toIso8601String(),
-        'quantity': quantity,
+        'fraction': fraction,
       };
 
   factory LogEntry.fromJson(Map<String, dynamic> json) => LogEntry(
         id: json['id'] as String,
         food: FoodItem.fromJson(json['food'] as Map<String, dynamic>),
         timestamp: DateTime.parse(json['timestamp'] as String),
-        quantity: (json['quantity'] as int?) ?? 1,
+        fraction: (json['fraction'] as num?)?.toDouble() ??
+            (json['quantity'] as num?)?.toDouble() ??
+            1.0,
       );
 }
 
