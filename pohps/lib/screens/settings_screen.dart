@@ -38,6 +38,9 @@ class SettingsScreen extends StatelessWidget {
                       const Spacer(),
                       FilledButton.tonal(
                         onPressed: () => _editGoal(context, appState),
+                        style: FilledButton.styleFrom(
+                          minimumSize: const Size(0, 48),
+                        ),
                         child: const Text('Change'),
                       ),
                     ],
