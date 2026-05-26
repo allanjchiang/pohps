@@ -197,32 +197,34 @@ class _FoodCardState extends State<_FoodCard> {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                if (!_justAdded)
-                  Text(
-                    widget.food.servingSize,
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
-                    textAlign: TextAlign.center,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                if (_justAdded)
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.check_circle,
-                          color: theme.colorScheme.primary, size: 16),
-                      const SizedBox(width: 4),
-                      Text(
-                        'Added!',
-                        style: theme.textTheme.labelSmall?.copyWith(
-                          color: theme.colorScheme.primary,
-                          fontWeight: FontWeight.w600,
+                SizedBox(
+                  height: 18,
+                  child: _justAdded
+                      ? Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.check_circle,
+                                color: theme.colorScheme.primary, size: 14),
+                            const SizedBox(width: 4),
+                            Text(
+                              'Added!',
+                              style: theme.textTheme.labelSmall?.copyWith(
+                                color: theme.colorScheme.primary,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        )
+                      : Text(
+                          widget.food.servingSize,
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                          textAlign: TextAlign.center,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                      ),
-                    ],
-                  ),
+                ),
               ],
             ),
           ),
