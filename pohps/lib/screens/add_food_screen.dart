@@ -164,24 +164,27 @@ class _FoodCardState extends State<_FoodCard> {
       duration: const Duration(milliseconds: 250),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
-        border: _justAdded
-            ? Border.all(color: theme.colorScheme.primary, width: 2.5)
-            : null,
+        border: Border.all(
+          color: _justAdded
+              ? theme.colorScheme.primary
+              : Colors.transparent,
+          width: 2.5,
+        ),
       ),
       child: Card(
         margin: EdgeInsets.zero,
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: _handleTap,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(14),
           child: Padding(
-            padding: const EdgeInsets.all(10),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(widget.food.emoji,
-                    style: const TextStyle(fontSize: 34)),
-                const SizedBox(height: 4),
+                    style: const TextStyle(fontSize: 32)),
+                const SizedBox(height: 2),
                 Text(
                   widget.food.name,
                   style: theme.textTheme.titleSmall,
@@ -189,7 +192,6 @@ class _FoodCardState extends State<_FoodCard> {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 2),
                 Text(
                   '${widget.food.proteinGrams.round()}g protein',
                   style: theme.textTheme.bodySmall?.copyWith(
@@ -197,33 +199,18 @@ class _FoodCardState extends State<_FoodCard> {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                SizedBox(
-                  height: 18,
-                  child: _justAdded
-                      ? Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.check_circle,
-                                color: theme.colorScheme.primary, size: 14),
-                            const SizedBox(width: 4),
-                            Text(
-                              'Added!',
-                              style: theme.textTheme.labelSmall?.copyWith(
-                                color: theme.colorScheme.primary,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
-                        )
-                      : Text(
-                          widget.food.servingSize,
-                          style: theme.textTheme.labelSmall?.copyWith(
-                            color: theme.colorScheme.onSurfaceVariant,
-                          ),
-                          textAlign: TextAlign.center,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
+                Text(
+                  _justAdded ? '✓ Added!' : widget.food.servingSize,
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: _justAdded
+                        ? theme.colorScheme.primary
+                        : theme.colorScheme.onSurfaceVariant,
+                    fontWeight:
+                        _justAdded ? FontWeight.w600 : FontWeight.normal,
+                  ),
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
