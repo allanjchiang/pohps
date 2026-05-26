@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 
 class ProgressRing extends StatelessWidget {
   final double progress;
@@ -20,6 +21,7 @@ class ProgressRing extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final completed = progress >= 1.0;
+    final l10n = AppLocalizations.of(context);
 
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0, end: progress.clamp(0.0, 1.0)),
@@ -52,7 +54,7 @@ class ProgressRing extends StatelessWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    'of ${goal.round()}g',
+                    l10n.ofGoal(goal.round()),
                     style: theme.textTheme.bodyLarge?.copyWith(
                       color: colorScheme.onSurfaceVariant,
                     ),

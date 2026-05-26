@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../app_state.dart';
 import '../models.dart';
 import '../food_data.dart';
+import '../l10n/app_localizations.dart';
 
 class AddFoodSheet extends StatefulWidget {
   const AddFoodSheet({super.key});
@@ -18,6 +19,7 @@ class _AddFoodSheetState extends State<AddFoodSheet> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final appState = context.watch<AppState>();
+    final l10n = AppLocalizations.of(context);
 
     final allCategories = [
       'All',
@@ -59,12 +61,12 @@ class _AddFoodSheetState extends State<AddFoodSheet> {
               padding: const EdgeInsets.fromLTRB(20, 8, 8, 0),
               child: Row(
                 children: [
-                  Text('Add Food', style: theme.textTheme.headlineSmall),
+                  Text(l10n.addFood, style: theme.textTheme.headlineSmall),
                   const Spacer(),
                   TextButton.icon(
                     onPressed: () => Navigator.pop(context, 'create_custom'),
                     icon: const Icon(Icons.add_circle_outline, size: 22),
-                    label: const Text('Custom'),
+                    label: Text(l10n.custom),
                   ),
                 ],
               ),
@@ -78,10 +80,15 @@ class _AddFoodSheetState extends State<AddFoodSheet> {
                 itemBuilder: (context, index) {
                   final cat = allCategories[index];
                   final selected = cat == _selectedCategory;
+                  final label = switch (cat) {
+                    'All' => l10n.allCategory,
+                    'My Foods' => l10n.myFoods,
+                    _ => l10n.categoryName(cat),
+                  };
                   return Padding(
                     padding: const EdgeInsets.only(right: 8),
                     child: FilterChip(
-                      label: Text(cat, style: const TextStyle(fontSize: 14)),
+                      label: Text(label, style: const TextStyle(fontSize: 14)),
                       selected: selected,
                       onSelected: (_) =>
                           setState(() => _selectedCategory = cat),
@@ -101,7 +108,7 @@ class _AddFoodSheetState extends State<AddFoodSheet> {
                               style: TextStyle(fontSize: 40)),
                           const SizedBox(height: 8),
                           Text(
-                            'No foods in this category',
+                            l10n.noFoodsInCategory,
                             style: theme.textTheme.bodyLarge?.copyWith(
                               color: theme.colorScheme.onSurfaceVariant,
                             ),
@@ -160,6 +167,7 @@ class _FoodCardState extends State<_FoodCard> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     return AnimatedContainer(
       duration: const Duration(milliseconds: 250),
       decoration: BoxDecoration(
@@ -186,21 +194,23 @@ class _FoodCardState extends State<_FoodCard> {
                     style: const TextStyle(fontSize: 32)),
                 const SizedBox(height: 2),
                 Text(
-                  widget.food.name,
+                  l10n.foodDisplayName(widget.food.id, widget.food.name),
                   style: theme.textTheme.titleSmall,
                   textAlign: TextAlign.center,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
                 Text(
-                  '${widget.food.proteinGrams.round()}g protein',
+                  l10n.gProtein('${widget.food.proteinGrams.round()}'),
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.primary,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 Text(
-                  _justAdded ? '✓ Added!' : widget.food.servingSize,
+                  _justAdded
+                      ? l10n.added
+                      : l10n.servingDisplay(widget.food.servingSize),
                   style: theme.textTheme.labelSmall?.copyWith(
                     color: _justAdded
                         ? theme.colorScheme.primary

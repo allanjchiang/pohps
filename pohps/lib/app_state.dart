@@ -9,6 +9,7 @@ class AppState extends ChangeNotifier {
   bool _disclaimerAccepted = false;
   int _dailyGoal = 0;
   ThemeMode _themeMode = ThemeMode.system;
+  Locale? _locale;
   List<LogEntry> _todayLog = [];
   List<FoodItem> _customFoods = [];
   Set<String> _unlockedAchievements = {};
@@ -17,6 +18,7 @@ class AppState extends ChangeNotifier {
   bool get disclaimerAccepted => _disclaimerAccepted;
   int get dailyGoal => _dailyGoal;
   ThemeMode get themeMode => _themeMode;
+  Locale? get locale => _locale;
   List<LogEntry> get todayLog => List.unmodifiable(_todayLog);
   List<FoodItem> get customFoods => List.unmodifiable(_customFoods);
   Set<String> get unlockedAchievements =>
@@ -37,6 +39,7 @@ class AppState extends ChangeNotifier {
     _disclaimerAccepted = _storage.disclaimerAccepted;
     _dailyGoal = _storage.dailyGoal;
     _themeMode = _storage.themeMode;
+    _locale = _parseLocale(_storage.localeCode);
     _customFoods = _storage.customFoods;
     _unlockedAchievements = _storage.unlockedAchievements;
     _todayLog = _storage.getDailyLog(DateTime.now());
@@ -59,6 +62,24 @@ class AppState extends ChangeNotifier {
     _themeMode = mode;
     await _storage.setThemeMode(mode);
     notifyListeners();
+  }
+
+  Future<void> setLocale(Locale? locale) async {
+    _locale = locale;
+    final code = locale == null
+        ? null
+        : locale.countryCode != null
+            ? '${locale.languageCode}_${locale.countryCode}'
+            : locale.languageCode;
+    await _storage.setLocaleCode(code);
+    notifyListeners();
+  }
+
+  static Locale? _parseLocale(String? code) {
+    if (code == null) return null;
+    final parts = code.split('_');
+    if (parts.length == 2) return Locale(parts[0], parts[1]);
+    return Locale(parts[0]);
   }
 
   Future<void> addFood(FoodItem food, {double fraction = 1.0}) async {

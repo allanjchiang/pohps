@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../app_state.dart';
+import '../l10n/app_localizations.dart';
 import '../models.dart';
 import '../widgets/progress_ring.dart';
 import '../widgets/achievement_dialog.dart';
@@ -48,6 +49,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final appState = context.watch<AppState>();
+    final l10n = AppLocalizations.of(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -62,13 +64,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.emoji_events_outlined),
-            tooltip: 'Achievements',
+            tooltip: l10n.achievementsTitle,
             iconSize: 26,
             onPressed: () => _showAchievementsSheet(context, appState),
           ),
           IconButton(
             icon: const Icon(Icons.settings_outlined),
-            tooltip: 'Settings',
+            tooltip: l10n.settings,
             iconSize: 26,
             onPressed: () => Navigator.push(
               context,
@@ -89,7 +91,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             Padding(
               padding: const EdgeInsets.only(top: 8),
               child: Text(
-                'Goal reached! Well done!',
+                l10n.goalReachedWellDone,
                 style: theme.textTheme.titleMedium?.copyWith(
                   color: theme.colorScheme.primary,
                   fontWeight: FontWeight.bold,
@@ -101,11 +103,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Row(
               children: [
-                Text("Today's Foods", style: theme.textTheme.titleLarge),
+                Text(l10n.todaysFoods, style: theme.textTheme.titleLarge),
                 const Spacer(),
                 if (appState.todayLog.isNotEmpty)
                   Text(
-                    '${appState.todayLog.length} item${appState.todayLog.length == 1 ? '' : 's'}',
+                    l10n.itemCount(appState.todayLog.length),
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
                     ),
@@ -116,20 +118,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
           const SizedBox(height: 8),
           Expanded(
             child: appState.todayLog.isEmpty
-                ? _buildEmptyState(theme)
-                : _buildFoodList(theme, appState),
+                ? _buildEmptyState(theme, l10n)
+                : _buildFoodList(theme, appState, l10n),
           ),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _openAddFood(context),
         icon: const Icon(Icons.add, size: 28),
-        label: Text('Add Food', style: theme.textTheme.labelLarge),
+        label: Text(l10n.addFood, style: theme.textTheme.labelLarge),
       ),
     );
   }
 
-  Widget _buildEmptyState(ThemeData theme) {
+  Widget _buildEmptyState(ThemeData theme, AppLocalizations l10n) {
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -137,14 +139,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
           const Text('🥗', style: TextStyle(fontSize: 48)),
           const SizedBox(height: 12),
           Text(
-            'No foods logged yet',
+            l10n.noFoodsLoggedYet,
             style: theme.textTheme.bodyLarge?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
             ),
           ),
           const SizedBox(height: 4),
           Text(
-            'Tap + Add Food to get started',
+            l10n.tapAddFoodToStart,
             style: theme.textTheme.bodyMedium?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
             ),
@@ -154,12 +156,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildFoodList(ThemeData theme, AppState appState) {
+  Widget _buildFoodList(
+      ThemeData theme, AppState appState, AppLocalizations l10n) {
     return ListView.builder(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 100),
       itemCount: appState.todayLog.length,
       itemBuilder: (context, index) {
         final entry = appState.todayLog[index];
+        final displayName =
+            l10n.foodDisplayName(entry.food.id, entry.food.name);
+        final displayServing = l10n.servingDisplay(entry.food.servingSize);
         return Dismissible(
           key: Key(entry.id),
           direction: DismissDirection.endToStart,
@@ -178,17 +184,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
             return await showDialog<bool>(
               context: context,
               builder: (ctx) => AlertDialog(
-                title: const Text('Remove Food?'),
-                content:
-                    Text('Remove ${entry.food.name} from today\'s log?'),
+                title: Text(l10n.removeFoodTitle),
+                content: Text(l10n.removeFoodConfirm(displayName)),
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.pop(ctx, false),
-                    child: const Text('Cancel'),
+                    child: Text(l10n.cancel),
                   ),
                   FilledButton(
                     onPressed: () => Navigator.pop(ctx, true),
-                    child: const Text('Remove'),
+                    child: Text(l10n.remove),
                   ),
                 ],
               ),
@@ -203,11 +208,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
               onTap: () => _showFractionPicker(context, appState, entry),
               leading:
                   Text(entry.food.emoji, style: const TextStyle(fontSize: 32)),
-              title: Text(entry.food.name, style: theme.textTheme.titleMedium),
+              title: Text(displayName, style: theme.textTheme.titleMedium),
               subtitle: Text(
                 entry.fraction == 1.0
-                    ? entry.food.servingSize
-                    : '${entry.fraction}× ${entry.food.servingSize}',
+                    ? displayServing
+                    : '${entry.fraction}× $displayServing',
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
@@ -228,10 +233,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   void _showFractionPicker(
       BuildContext context, AppState appState, LogEntry entry) {
+    final l10n = AppLocalizations.of(context);
     showDialog(
       context: context,
       builder: (ctx) => _FractionPickerDialog(
-        foodName: entry.food.name,
+        foodName: l10n.foodDisplayName(entry.food.id, entry.food.name),
         fullProtein: entry.food.proteinGrams,
         initialFraction: entry.fraction,
         onChanged: (fraction) {
@@ -269,6 +275,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   void _showAchievementsSheet(BuildContext context, AppState appState) {
+    final l10n = AppLocalizations.of(context);
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -292,7 +299,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-              Text('Achievements',
+              Text(l10n.achievementsTitle,
                   style: Theme.of(context).textTheme.headlineSmall),
               const SizedBox(height: 12),
               ...allAchievements.map((a) {
@@ -305,7 +312,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     style: const TextStyle(fontSize: 32),
                   ),
                   title: Text(
-                    a.title,
+                    l10n.achievementTitle(a.type.name, a.title),
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w500,
@@ -313,7 +320,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                   ),
                   subtitle: Text(
-                    a.description,
+                    l10n.achievementDesc(a.type.name, a.description),
                     style: TextStyle(
                       fontSize: 15,
                       color: unlocked ? null : Colors.grey,
@@ -362,15 +369,16 @@ class _FractionPickerDialogState extends State<_FractionPickerDialog> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final protein = (widget.fullProtein * _fraction);
 
     return AlertDialog(
-      title: Text('How much ${widget.foodName}?'),
+      title: Text(l10n.howMuchFood(widget.foodName)),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            '${protein.toStringAsFixed(1)}g protein',
+            l10n.gProtein(protein.toStringAsFixed(1)),
             style: theme.textTheme.headlineMedium?.copyWith(
               color: theme.colorScheme.primary,
               fontWeight: FontWeight.bold,
@@ -378,7 +386,7 @@ class _FractionPickerDialogState extends State<_FractionPickerDialog> {
           ),
           const SizedBox(height: 4),
           Text(
-            '${(_fraction * 100).round()}% of a full serving',
+            l10n.percentOfServing((_fraction * 100).round()),
             style: theme.textTheme.bodyMedium?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
             ),
@@ -392,7 +400,7 @@ class _FractionPickerDialogState extends State<_FractionPickerDialog> {
               final selected = (_fraction - p).abs() < 0.01;
               return ChoiceChip(
                 label: Text(
-                  p == 1.0 ? 'Full' : '${(p * 100).round()}%',
+                  p == 1.0 ? l10n.full : '${(p * 100).round()}%',
                   style: const TextStyle(fontSize: 16),
                 ),
                 selected: selected,
@@ -422,11 +430,11 @@ class _FractionPickerDialogState extends State<_FractionPickerDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
+          child: Text(l10n.cancel),
         ),
         FilledButton(
           onPressed: () => widget.onChanged(_fraction),
-          child: const Text('Save'),
+          child: Text(l10n.save),
         ),
       ],
     );

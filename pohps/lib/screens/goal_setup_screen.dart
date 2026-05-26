@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../app_state.dart';
+import '../l10n/app_localizations.dart';
 
 class GoalSetupScreen extends StatefulWidget {
   const GoalSetupScreen({super.key});
@@ -22,6 +23,7 @@ class _GoalSetupScreenState extends State<GoalSetupScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -32,7 +34,7 @@ class _GoalSetupScreenState extends State<GoalSetupScreen> {
               const Text('🎯', style: TextStyle(fontSize: 64)),
               const SizedBox(height: 16),
               Text(
-                'Set Your Daily Goal',
+                l10n.setYourDailyGoal,
                 style: theme.textTheme.headlineLarge?.copyWith(
                   color: theme.colorScheme.primary,
                 ),
@@ -40,7 +42,7 @@ class _GoalSetupScreenState extends State<GoalSetupScreen> {
               ),
               const SizedBox(height: 12),
               Text(
-                'How many grams of protein did\nyour dietitian prescribe per day?',
+                l10n.howManyGramsOfProtein,
                 style: theme.textTheme.bodyLarge?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
@@ -54,14 +56,14 @@ class _GoalSetupScreenState extends State<GoalSetupScreen> {
                 textAlign: TextAlign.center,
                 style: theme.textTheme.headlineMedium,
                 decoration: InputDecoration(
-                  hintText: 'e.g. 60',
-                  suffixText: 'grams',
+                  hintText: l10n.egGoal,
+                  suffixText: l10n.grams,
                   suffixStyle: theme.textTheme.titleMedium,
                 ),
               ),
               const SizedBox(height: 12),
               Text(
-                'You can change this later in Settings.',
+                l10n.canChangeLater,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
@@ -69,7 +71,7 @@ class _GoalSetupScreenState extends State<GoalSetupScreen> {
               const SizedBox(height: 36),
               FilledButton(
                 onPressed: _submit,
-                child: const Text('Start Tracking'),
+                child: Text(l10n.startTracking),
               ),
             ],
           ),
@@ -82,8 +84,8 @@ class _GoalSetupScreenState extends State<GoalSetupScreen> {
     final value = int.tryParse(_controller.text);
     if (value == null || value <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please enter a valid protein goal in grams.'),
+        SnackBar(
+          content: Text(AppLocalizations.of(context).invalidGoalMessage),
         ),
       );
       return;

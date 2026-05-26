@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../app_state.dart';
 import '../food_data.dart';
+import '../l10n/app_localizations.dart';
 import '../models.dart';
 
 class CustomFoodScreen extends StatefulWidget {
@@ -36,14 +37,15 @@ class _CustomFoodScreenState extends State<CustomFoodScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('Create Custom Food')),
+      appBar: AppBar(title: Text(l10n.createCustomFood)),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Choose an Icon', style: theme.textTheme.titleMedium),
+            Text(l10n.chooseAnIcon, style: theme.textTheme.titleMedium),
             const SizedBox(height: 12),
             Wrap(
               spacing: 10,
@@ -73,23 +75,22 @@ class _CustomFoodScreenState extends State<CustomFoodScreen> {
               }).toList(),
             ),
             const SizedBox(height: 28),
-            Text('Food Name', style: theme.textTheme.titleMedium),
+            Text(l10n.foodName, style: theme.textTheme.titleMedium),
             const SizedBox(height: 8),
             TextField(
               controller: _nameController,
-              decoration:
-                  const InputDecoration(hintText: 'e.g. My Special Smoothie'),
+              decoration: InputDecoration(hintText: l10n.egFoodName),
               textCapitalization: TextCapitalization.words,
               style: theme.textTheme.bodyLarge,
             ),
             const SizedBox(height: 28),
-            Text('Protein per Serving', style: theme.textTheme.titleMedium),
+            Text(l10n.proteinPerServing, style: theme.textTheme.titleMedium),
             const SizedBox(height: 8),
             TextField(
               controller: _proteinController,
-              decoration: const InputDecoration(
-                hintText: 'e.g. 15',
-                suffixText: 'grams',
+              decoration: InputDecoration(
+                hintText: l10n.egProtein,
+                suffixText: l10n.grams,
               ),
               keyboardType:
                   const TextInputType.numberWithOptions(decimal: true),
@@ -99,16 +100,16 @@ class _CustomFoodScreenState extends State<CustomFoodScreen> {
               style: theme.textTheme.bodyLarge,
             ),
             const SizedBox(height: 28),
-            Text('Serving Size', style: theme.textTheme.titleMedium),
+            Text(l10n.servingSizeLabel, style: theme.textTheme.titleMedium),
             const SizedBox(height: 8),
             TextField(
               controller: _servingController,
-              decoration: const InputDecoration(hintText: 'e.g. 1 bowl'),
+              decoration: InputDecoration(hintText: l10n.egServingSize),
               textCapitalization: TextCapitalization.sentences,
               style: theme.textTheme.bodyLarge,
             ),
             const SizedBox(height: 28),
-            Text('Category', style: theme.textTheme.titleMedium),
+            Text(l10n.categoryLabel, style: theme.textTheme.titleMedium),
             const SizedBox(height: 12),
             Wrap(
               spacing: 8,
@@ -116,7 +117,7 @@ class _CustomFoodScreenState extends State<CustomFoodScreen> {
               children: categories.map((cat) {
                 final selected = cat == _selectedCategory;
                 return ChoiceChip(
-                  label: Text(cat),
+                  label: Text(l10n.categoryName(cat)),
                   selected: selected,
                   onSelected: (_) =>
                       setState(() => _selectedCategory = cat),
@@ -126,7 +127,7 @@ class _CustomFoodScreenState extends State<CustomFoodScreen> {
             const SizedBox(height: 36),
             FilledButton(
               onPressed: _save,
-              child: const Text('Save Food'),
+              child: Text(l10n.saveFood),
             ),
             const SizedBox(height: 24),
           ],
@@ -136,20 +137,21 @@ class _CustomFoodScreenState extends State<CustomFoodScreen> {
   }
 
   void _save() {
+    final l10n = AppLocalizations.of(context);
     final name = _nameController.text.trim();
     final protein = double.tryParse(_proteinController.text);
     final serving = _servingController.text.trim();
 
     if (name.isEmpty) {
-      _showError('Please enter a food name.');
+      _showError(l10n.enterFoodName);
       return;
     }
     if (protein == null || protein < 0) {
-      _showError('Please enter a valid protein amount.');
+      _showError(l10n.enterProteinAmount);
       return;
     }
     if (serving.isEmpty) {
-      _showError('Please enter a serving size.');
+      _showError(l10n.enterServingSize);
       return;
     }
 
@@ -165,7 +167,8 @@ class _CustomFoodScreenState extends State<CustomFoodScreen> {
     context.read<AppState>().addCustomFood(food);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('$name has been created!', style: const TextStyle(fontSize: 16)),
+        content: Text(l10n.foodCreated(name),
+            style: const TextStyle(fontSize: 16)),
         behavior: SnackBarBehavior.floating,
       ),
     );

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 import '../models.dart';
 
 class AchievementDialog extends StatelessWidget {
@@ -14,6 +15,7 @@ class AchievementDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
       child: Padding(
@@ -24,20 +26,21 @@ class AchievementDialog extends StatelessWidget {
             Text(achievement.emoji, style: const TextStyle(fontSize: 64)),
             const SizedBox(height: 16),
             Text(
-              'Achievement Unlocked!',
+              l10n.achievementUnlocked,
               style: theme.textTheme.titleMedium?.copyWith(
                 color: theme.colorScheme.primary,
               ),
             ),
             const SizedBox(height: 8),
             Text(
-              achievement.title,
+              l10n.achievementTitle(achievement.type.name, achievement.title),
               style: theme.textTheme.headlineSmall,
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
             Text(
-              achievement.description,
+              l10n.achievementDesc(
+                  achievement.type.name, achievement.description),
               style: theme.textTheme.bodyLarge?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
@@ -46,7 +49,7 @@ class AchievementDialog extends StatelessWidget {
             const SizedBox(height: 28),
             FilledButton(
               onPressed: onDismiss,
-              child: const Text('Wonderful!'),
+              child: Text(l10n.wonderful),
             ),
           ],
         ),

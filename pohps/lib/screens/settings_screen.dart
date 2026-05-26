@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../app_state.dart';
+import '../l10n/app_localizations.dart';
 import '../models.dart';
 
 class SettingsScreen extends StatelessWidget {
@@ -11,9 +12,10 @@ class SettingsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final appState = context.watch<AppState>();
+    final l10n = AppLocalizations.of(context);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Settings')),
+      appBar: AppBar(title: Text(l10n.settings)),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -24,7 +26,7 @@ class SettingsScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Daily Protein Goal',
+                  Text(l10n.dailyProteinGoal,
                       style: theme.textTheme.titleLarge),
                   const SizedBox(height: 12),
                   Row(
@@ -41,7 +43,56 @@ class SettingsScreen extends StatelessWidget {
                         style: FilledButton.styleFrom(
                           minimumSize: const Size(0, 48),
                         ),
-                        child: const Text('Change'),
+                        child: Text(l10n.change),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          // Language
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(l10n.language, style: theme.textTheme.titleLarge),
+                  const SizedBox(height: 16),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      _languageChip(
+                        context,
+                        label: l10n.languageSystem,
+                        locale: null,
+                        current: appState.locale,
+                        appState: appState,
+                      ),
+                      _languageChip(
+                        context,
+                        label: 'English',
+                        locale: const Locale('en'),
+                        current: appState.locale,
+                        appState: appState,
+                      ),
+                      _languageChip(
+                        context,
+                        label: '繁體中文',
+                        locale: const Locale('zh', 'TW'),
+                        current: appState.locale,
+                        appState: appState,
+                      ),
+                      _languageChip(
+                        context,
+                        label: '简体中文',
+                        locale: const Locale('zh', 'CN'),
+                        current: appState.locale,
+                        appState: appState,
                       ),
                     ],
                   ),
@@ -58,24 +109,24 @@ class SettingsScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Appearance', style: theme.textTheme.titleLarge),
+                  Text(l10n.appearance, style: theme.textTheme.titleLarge),
                   const SizedBox(height: 16),
                   SegmentedButton<ThemeMode>(
-                    segments: const [
+                    segments: [
                       ButtonSegment(
                         value: ThemeMode.system,
-                        label: Text('Auto'),
-                        icon: Icon(Icons.brightness_auto),
+                        label: Text(l10n.themeAuto),
+                        icon: const Icon(Icons.brightness_auto),
                       ),
                       ButtonSegment(
                         value: ThemeMode.light,
-                        label: Text('Light'),
-                        icon: Icon(Icons.light_mode),
+                        label: Text(l10n.themeLight),
+                        icon: const Icon(Icons.light_mode),
                       ),
                       ButtonSegment(
                         value: ThemeMode.dark,
-                        label: Text('Dark'),
-                        icon: Icon(Icons.dark_mode),
+                        label: Text(l10n.themeDark),
+                        icon: const Icon(Icons.dark_mode),
                       ),
                     ],
                     selected: {appState.themeMode},
@@ -97,7 +148,7 @@ class SettingsScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('My Custom Foods',
+                    Text(l10n.myCustomFoods,
                         style: theme.textTheme.titleLarge),
                     const SizedBox(height: 8),
                     ...appState.customFoods.map((food) => ListTile(
@@ -130,17 +181,15 @@ class SettingsScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('About POHPS', style: theme.textTheme.titleLarge),
+                  Text(l10n.aboutPohps, style: theme.textTheme.titleLarge),
                   const SizedBox(height: 12),
                   Text(
-                    'A free, open-source protein tracking app designed for elderly lacto-ovo vegetarians.',
+                    l10n.aboutDescription,
                     style: theme.textTheme.bodyLarge,
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    '• No ads, no paywalls, no data collection\n'
-                    '• All data stored locally on your device\n'
-                    '• Protein values are estimates — always consult your dietitian',
+                    l10n.aboutBullets,
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
                     ),
@@ -162,19 +211,35 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
+  Widget _languageChip(
+    BuildContext context, {
+    required String label,
+    required Locale? locale,
+    required Locale? current,
+    required AppState appState,
+  }) {
+    final selected = locale == current;
+    return ChoiceChip(
+      label: Text(label),
+      selected: selected,
+      onSelected: (_) => appState.setLocale(locale),
+    );
+  }
+
   void _editGoal(BuildContext context, AppState appState) {
+    final l10n = AppLocalizations.of(context);
     final controller =
         TextEditingController(text: appState.dailyGoal.toString());
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Change Protein Goal'),
+        title: Text(l10n.changeProteinGoal),
         content: TextField(
           controller: controller,
           keyboardType: TextInputType.number,
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-          decoration: const InputDecoration(
-            hintText: 'Grams per day',
+          decoration: InputDecoration(
+            hintText: l10n.gramsPerDay,
             suffixText: 'g',
           ),
           autofocus: true,
@@ -183,7 +248,7 @@ class SettingsScreen extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           FilledButton(
             onPressed: () {
@@ -193,7 +258,7 @@ class SettingsScreen extends StatelessWidget {
                 Navigator.pop(ctx);
               }
             },
-            child: const Text('Save'),
+            child: Text(l10n.save),
           ),
         ],
       ),
@@ -202,15 +267,16 @@ class SettingsScreen extends StatelessWidget {
 
   void _confirmDelete(
       BuildContext context, AppState appState, FoodItem food) {
+    final l10n = AppLocalizations.of(context);
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Delete Custom Food?'),
-        content: Text('Are you sure you want to delete "${food.name}"?'),
+        title: Text(l10n.deleteCustomFoodTitle),
+        content: Text(l10n.deleteConfirm(food.name)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           FilledButton(
             style: FilledButton.styleFrom(
@@ -220,7 +286,7 @@ class SettingsScreen extends StatelessWidget {
               appState.removeCustomFood(food.id);
               Navigator.pop(ctx);
             },
-            child: const Text('Delete'),
+            child: Text(l10n.delete),
           ),
         ],
       ),

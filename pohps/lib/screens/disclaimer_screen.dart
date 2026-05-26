@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../app_state.dart';
+import '../l10n/app_localizations.dart';
 
 class DisclaimerScreen extends StatelessWidget {
   const DisclaimerScreen({super.key});
@@ -8,6 +9,7 @@ class DisclaimerScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -23,7 +25,7 @@ class DisclaimerScreen extends StatelessWidget {
                 ),
               ),
               Text(
-                'Protein Tracker for\nLacto-Ovo Vegetarians',
+                l10n.appSubtitle,
                 style: theme.textTheme.titleMedium?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
@@ -41,37 +43,28 @@ class DisclaimerScreen extends StatelessWidget {
                           Icon(Icons.warning_amber_rounded,
                               color: theme.colorScheme.error, size: 28),
                           const SizedBox(width: 8),
-                          Text(
-                            'Important Disclaimer',
-                            style: theme.textTheme.titleLarge?.copyWith(
-                              color: theme.colorScheme.error,
+                          Expanded(
+                            child: Text(
+                              l10n.importantDisclaimer,
+                              style: theme.textTheme.titleLarge?.copyWith(
+                                color: theme.colorScheme.error,
+                              ),
                             ),
                           ),
                         ],
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        'Please read carefully before using this app:',
+                        l10n.disclaimerReadCarefully,
                         style: theme.textTheme.bodyLarge?.copyWith(
                           fontWeight: FontWeight.w600,
                         ),
                       ),
                       const SizedBox(height: 16),
-                      _bullet(theme,
-                          'This app is NOT a substitute for professional medical or dietary advice. Always consult your doctor or registered dietitian before making changes to your diet.'),
-                      _bullet(theme,
-                          'The protein values provided are approximate estimates and may vary depending on brands, preparation methods, and serving sizes.'),
-                      _bullet(theme,
-                          'This app is provided "AS-IS" without any warranties of any kind, either express or implied, including but not limited to fitness for a particular purpose.'),
-                      _bullet(theme,
-                          'You use this app entirely at your own risk. The developers accept no liability for any health outcomes resulting from use of this app.'),
-                      _bullet(theme,
-                          'No personal data is collected. All information is stored locally on your device only.'),
-                      _bullet(theme,
-                          'This is free, open-source software. There are no ads, no paywalls, and no in-app purchases.'),
+                      ...l10n.disclaimerBullets.map((text) => _bullet(theme, text)),
                       const SizedBox(height: 8),
                       Text(
-                        'By tapping "I Understand & Accept" below, you acknowledge that you have read, understood, and agree to these terms.',
+                        l10n.disclaimerAcceptNote,
                         style: theme.textTheme.bodyMedium?.copyWith(
                           fontStyle: FontStyle.italic,
                           color: theme.colorScheme.onSurfaceVariant,
@@ -86,12 +79,12 @@ class DisclaimerScreen extends StatelessWidget {
                 onPressed: () {
                   context.read<AppState>().acceptDisclaimer();
                 },
-                child: const Text('I Understand & Accept'),
+                child: Text(l10n.iUnderstandAndAccept),
               ),
               const SizedBox(height: 12),
               OutlinedButton(
                 onPressed: () => _showDeclineDialog(context),
-                child: const Text('I Do Not Agree'),
+                child: Text(l10n.iDoNotAgree),
               ),
               const SizedBox(height: 32),
             ],
@@ -120,18 +113,16 @@ class DisclaimerScreen extends StatelessWidget {
   }
 
   void _showDeclineDialog(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Cannot Continue'),
-        content: const Text(
-          'You must accept the disclaimer to use this app. '
-          'Please close the app if you do not agree with the terms.',
-        ),
+        title: Text(l10n.cannotContinue),
+        content: Text(l10n.mustAcceptDisclaimer),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Go Back'),
+            child: Text(l10n.goBack),
           ),
         ],
       ),

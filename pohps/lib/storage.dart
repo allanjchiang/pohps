@@ -17,6 +17,14 @@ class StorageService {
   int get dailyGoal => _prefs.getInt('daily_goal') ?? 0;
   Future<void> setDailyGoal(int value) => _prefs.setInt('daily_goal', value);
 
+  String? get localeCode => _prefs.getString('locale');
+  Future<void> setLocaleCode(String? code) {
+    if (code == null) {
+      return _prefs.remove('locale');
+    }
+    return _prefs.setString('locale', code);
+  }
+
   ThemeMode get themeMode {
     final mode = _prefs.getString('theme_mode');
     return switch (mode) {

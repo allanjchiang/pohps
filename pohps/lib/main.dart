@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'app_state.dart';
+import 'l10n/app_localizations.dart';
 import 'theme.dart';
 import 'screens/disclaimer_screen.dart';
 import 'screens/goal_setup_screen.dart';
@@ -30,6 +32,14 @@ class PohpsApp extends StatelessWidget {
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
       themeMode: appState.themeMode,
+      locale: appState.locale,
+      supportedLocales: AppLocalizations.supportedLocales,
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
       home: _buildHome(appState),
     );
   }
