@@ -1,10 +1,13 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'models.dart';
 import 'food_data.dart';
 import 'storage.dart';
 
-class AppState extends ChangeNotifier {
+class AppState extends ChangeNotifier with WidgetsBindingObserver {
   final StorageService _storage = StorageService();
+  Timer? _resetTimer;
+  late DateTime _currentEffectiveDate;
 
   bool _disclaimerAccepted = false;
   int _dailyGoal = 0;
@@ -14,6 +17,17 @@ class AppState extends ChangeNotifier {
   List<FoodItem> _customFoods = [];
   Set<String> _unlockedAchievements = {};
   final List<Achievement> _pendingAchievements = [];
+
+  /// The "logical" date for tracking purposes.
+  /// Before 3 AM local time, entries still belong to the previous day.
+  static DateTime effectiveDate() {
+    final now = DateTime.now();
+    if (now.hour < 3) {
+      return DateTime(now.year, now.month, now.day)
+          .subtract(const Duration(days: 1));
+    }
+    return DateTime(now.year, now.month, now.day);
+  }
 
   bool get disclaimerAccepted => _disclaimerAccepted;
   int get dailyGoal => _dailyGoal;
@@ -42,8 +56,48 @@ class AppState extends ChangeNotifier {
     _locale = _parseLocale(_storage.localeCode);
     _customFoods = _storage.customFoods;
     _unlockedAchievements = _storage.unlockedAchievements;
-    _todayLog = _storage.getDailyLog(DateTime.now());
+    _currentEffectiveDate = effectiveDate();
+    _todayLog = _storage.getDailyLog(_currentEffectiveDate);
+    WidgetsBinding.instance.addObserver(this);
+    _scheduleNextReset();
     notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _resetTimer?.cancel();
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _refreshLogIfDateChanged();
+      _scheduleNextReset();
+    }
+  }
+
+  void _refreshLogIfDateChanged() {
+    final newDate = effectiveDate();
+    if (newDate != _currentEffectiveDate) {
+      _currentEffectiveDate = newDate;
+      _todayLog = _storage.getDailyLog(newDate);
+      notifyListeners();
+    }
+  }
+
+  void _scheduleNextReset() {
+    _resetTimer?.cancel();
+    final now = DateTime.now();
+    var next3am = DateTime(now.year, now.month, now.day, 3);
+    if (!now.isBefore(next3am)) {
+      next3am = next3am.add(const Duration(days: 1));
+    }
+    _resetTimer = Timer(next3am.difference(now), () {
+      _refreshLogIfDateChanged();
+      _scheduleNextReset();
+    });
   }
 
   Future<void> acceptDisclaimer() async {
@@ -83,6 +137,7 @@ class AppState extends ChangeNotifier {
   }
 
   Future<void> addFood(FoodItem food, {double fraction = 1.0}) async {
+    _refreshLogIfDateChanged();
     final entry = LogEntry(
       id: '${DateTime.now().millisecondsSinceEpoch}',
       food: food,
@@ -90,23 +145,25 @@ class AppState extends ChangeNotifier {
       fraction: fraction,
     );
     _todayLog.add(entry);
-    await _storage.saveDailyLog(DateTime.now(), _todayLog);
+    await _storage.saveDailyLog(_currentEffectiveDate, _todayLog);
     _checkAchievements();
     notifyListeners();
   }
 
   Future<void> updateEntryFraction(String entryId, double fraction) async {
+    _refreshLogIfDateChanged();
     final index = _todayLog.indexWhere((e) => e.id == entryId);
     if (index == -1) return;
     _todayLog[index] = _todayLog[index].copyWith(fraction: fraction);
-    await _storage.saveDailyLog(DateTime.now(), _todayLog);
+    await _storage.saveDailyLog(_currentEffectiveDate, _todayLog);
     _checkAchievements();
     notifyListeners();
   }
 
   Future<void> removeEntry(String entryId) async {
+    _refreshLogIfDateChanged();
     _todayLog.removeWhere((e) => e.id == entryId);
-    await _storage.saveDailyLog(DateTime.now(), _todayLog);
+    await _storage.saveDailyLog(_currentEffectiveDate, _todayLog);
     notifyListeners();
   }
 
@@ -154,7 +211,7 @@ class AppState extends ChangeNotifier {
 
   void _checkStreaks() {
     int streak = 1;
-    final today = DateTime.now();
+    final today = _currentEffectiveDate;
     for (int i = 1; i <= 30; i++) {
       final date = today.subtract(Duration(days: i));
       final log = _storage.getDailyLog(date);
