@@ -17,7 +17,8 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
-  static const _progressFadeDistance = 180.0;
+  /// Pixels of scroll before the progress ring fully hides (higher = slower fade).
+  static const _progressFadeDistance = 400.0;
 
   final _scrollController = ScrollController();
   final _progressCollapse = ValueNotifier<double>(0);
@@ -40,8 +41,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   void _onFoodListScroll() {
-    final collapse = (_scrollController.offset / _progressFadeDistance)
+    final linear = (_scrollController.offset / _progressFadeDistance)
         .clamp(0.0, 1.0);
+    // Ease-in keeps the ring visible longer at the start of the scroll.
+    final collapse = Curves.easeInCubic.transform(linear);
     if (collapse != _progressCollapse.value) {
       _progressCollapse.value = collapse;
     }
@@ -103,6 +106,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
       body: CustomScrollView(
         controller: _scrollController,
+        physics: const _PreciseScrollPhysics(),
         slivers: [
           SliverToBoxAdapter(
             child: ValueListenableBuilder<double>(
@@ -355,6 +359,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   ThemeData get theme => Theme.of(context);
+}
+
+/// Requires a bit more finger movement per pixel scrolled for easier control.
+class _PreciseScrollPhysics extends ClampingScrollPhysics {
+  const _PreciseScrollPhysics({super.parent});
+
+  static const _dragFactor = 0.72;
+
+  @override
+  _PreciseScrollPhysics applyTo(ScrollPhysics? ancestor) {
+    return _PreciseScrollPhysics(parent: buildParent(ancestor));
+  }
+
+  @override
+  double applyPhysicsToUserOffset(ScrollMetrics position, double offset) {
+    return super.applyPhysicsToUserOffset(position, offset) * _dragFactor;
+  }
 }
 
 /// Fades and collapses while the user scrolls Today's Foods.
