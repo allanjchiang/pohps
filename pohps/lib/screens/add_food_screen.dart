@@ -30,9 +30,10 @@ class _AddFoodModalState extends State<_AddFoodModal>
     with SingleTickerProviderStateMixin {
   static const _sheetHeightFactor = 0.85;
 
-  double _dragOffset = 0;
+  final _dragOffset = ValueNotifier<double>(0);
   late AnimationController _snapController;
   Animation<double>? _snapAnimation;
+  late double _sheetHeightPx;
 
   @override
   void initState() {
@@ -44,28 +45,29 @@ class _AddFoodModalState extends State<_AddFoodModal>
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _sheetHeightPx = MediaQuery.sizeOf(context).height * _sheetHeightFactor;
+  }
+
+  @override
   void dispose() {
+    _dragOffset.dispose();
     _snapController.dispose();
     super.dispose();
   }
 
-  double _sheetHeight(BuildContext context) =>
-      MediaQuery.sizeOf(context).height * _sheetHeightFactor;
-
   void _onDragUpdate(DragUpdateDetails details) {
     if (_snapController.isAnimating) return;
-    setState(() {
-      _dragOffset =
-          (_dragOffset + details.delta.dy).clamp(0.0, _sheetHeight(context));
-    });
+    _dragOffset.value = (_dragOffset.value + details.delta.dy)
+        .clamp(0.0, _sheetHeightPx);
   }
 
   void _onDragEnd(DragEndDetails details) {
     if (_snapController.isAnimating) return;
-    final sheetHeight = _sheetHeight(context);
     final velocity = details.primaryVelocity ?? 0;
-    if (_dragOffset > sheetHeight * 0.18 || velocity > 600) {
-      _animateTo(sheetHeight).then((_) {
+    if (_dragOffset.value > _sheetHeightPx * 0.18 || velocity > 600) {
+      _animateTo(_sheetHeightPx).then((_) {
         if (mounted) Navigator.of(context).pop();
       });
       return;
@@ -74,16 +76,17 @@ class _AddFoodModalState extends State<_AddFoodModal>
   }
 
   void _onDragCancel() {
-    if (_dragOffset > 0) _animateTo(0);
+    if (_dragOffset.value > 0) _animateTo(0);
   }
 
   Future<void> _animateTo(double target) async {
-    _snapAnimation = Tween<double>(begin: _dragOffset, end: target).animate(
+    _snapAnimation = Tween<double>(begin: _dragOffset.value, end: target)
+        .animate(
       CurvedAnimation(parent: _snapController, curve: Curves.easeOutCubic),
     );
     void listener() {
       if (_snapAnimation != null) {
-        setState(() => _dragOffset = _snapAnimation!.value);
+        _dragOffset.value = _snapAnimation!.value;
       }
     }
 
@@ -97,7 +100,24 @@ class _AddFoodModalState extends State<_AddFoodModal>
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.sizeOf(context).height;
-    final sheetHeight = _sheetHeight(context);
+
+    final sheetPanel = RepaintBoundary(
+      child: ClipRRect(
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        child: Material(
+          color: Theme.of(context).colorScheme.surface,
+          child: SizedBox(
+            height: _sheetHeightPx,
+            child: _AddFoodPanel(
+              onDragUpdate: _onDragUpdate,
+              onDragEnd: _onDragEnd,
+              onDragCancel: _onDragCancel,
+              onCreateCustom: () => Navigator.pop(context, 'create_custom'),
+            ),
+          ),
+        ),
+      ),
+    );
 
     return ChangeNotifierProvider.value(
       value: widget.appState,
@@ -114,25 +134,13 @@ class _AddFoodModalState extends State<_AddFoodModal>
                 child: const SizedBox.expand(),
               ),
             ),
-            Transform.translate(
-              offset: Offset(0, _dragOffset),
-              child: ClipRRect(
-                borderRadius:
-                    const BorderRadius.vertical(top: Radius.circular(24)),
-                child: Material(
-                  color: Theme.of(context).colorScheme.surface,
-                  child: SizedBox(
-                    height: sheetHeight,
-                    child: _AddFoodPanel(
-                      onDragUpdate: _onDragUpdate,
-                      onDragEnd: _onDragEnd,
-                      onDragCancel: _onDragCancel,
-                      onCreateCustom: () =>
-                          Navigator.pop(context, 'create_custom'),
-                    ),
-                  ),
-                ),
+            ValueListenableBuilder<double>(
+              valueListenable: _dragOffset,
+              builder: (context, offset, child) => Transform.translate(
+                offset: Offset(0, offset),
+                child: child,
               ),
+              child: sheetPanel,
             ),
           ],
         ),
