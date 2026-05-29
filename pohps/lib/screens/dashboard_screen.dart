@@ -54,7 +54,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'POHPS',
+          l10n.formatDashboardDate(AppState.effectiveDate()),
           style: TextStyle(
             fontWeight: FontWeight.bold,
             color: theme.colorScheme.primary,

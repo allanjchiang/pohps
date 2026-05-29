@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class AppLocalizations {
   final Locale locale;
@@ -43,6 +44,16 @@ class AppLocalizations {
   String get delete => _t('Delete', '刪除', '删除');
   String get goBack => _t('Go Back', '返回', '返回');
   String get grams => _t('grams', '公克', '克');
+
+  String get _dateLocaleTag => switch (_langKey) {
+        'zh_TW' => 'zh_TW',
+        'zh_CN' => 'zh_CN',
+        _ => 'en_US',
+      };
+
+  /// Localized calendar date for the dashboard header.
+  String formatDashboardDate(DateTime date) =>
+      DateFormat.yMMMEd(_dateLocaleTag).format(date);
 
   // ── Disclaimer Screen ──────────────────────────────────────────────────
 
