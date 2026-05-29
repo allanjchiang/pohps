@@ -5,6 +5,45 @@ import '../models.dart';
 import '../food_data.dart';
 import '../l10n/app_localizations.dart';
 
+/// Full-height modal: swipe down on the dimmed area above the panel to close.
+Future<String?> showAddFoodSheet(BuildContext context, AppState appState) {
+  return showModalBottomSheet<String>(
+    context: context,
+    isScrollControlled: true,
+    useSafeArea: true,
+    backgroundColor: Colors.transparent,
+    enableDrag: false,
+    builder: (ctx) {
+      final height = MediaQuery.sizeOf(ctx).height;
+      return ChangeNotifierProvider.value(
+        value: appState,
+        child: SizedBox(
+          height: height,
+          child: Column(
+            children: [
+              Expanded(
+                child: _DragToDismissScrim(
+                  onDismiss: () => Navigator.pop(ctx),
+                ),
+              ),
+              ClipRRect(
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+                child: Material(
+                  color: Theme.of(ctx).colorScheme.surface,
+                  child: SizedBox(
+                    height: height * 0.85,
+                    child: const AddFoodSheet(),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
+}
+
 class AddFoodSheet extends StatefulWidget {
   const AddFoodSheet({super.key});
 
@@ -38,13 +77,10 @@ class _AddFoodSheetState extends State<AddFoodSheet> {
           .toList();
     }
 
-    return FractionallySizedBox(
-      heightFactor: 0.85,
-      alignment: Alignment.bottomCenter,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          _DragToCloseZone(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _DragToCloseZone(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -145,12 +181,50 @@ class _AddFoodSheetState extends State<AddFoodSheet> {
                   ),
           ),
         ],
-      ),
     );
   }
 }
 
-/// Large touch target at the top of the sheet — swipe down anywhere here to close.
+/// Swipe down (or tap) on the dimmed area above the food panel to close.
+class _DragToDismissScrim extends StatefulWidget {
+  final VoidCallback onDismiss;
+
+  const _DragToDismissScrim({required this.onDismiss});
+
+  @override
+  State<_DragToDismissScrim> createState() => _DragToDismissScrimState();
+}
+
+class _DragToDismissScrimState extends State<_DragToDismissScrim> {
+  double _dragDistance = 0;
+
+  void _onDragEnd(DragEndDetails details) {
+    final velocity = details.primaryVelocity ?? 0;
+    if (_dragDistance > 24 || velocity > 300) {
+      widget.onDismiss();
+    }
+    _dragDistance = 0;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: widget.onDismiss,
+      onVerticalDragStart: (_) => _dragDistance = 0,
+      onVerticalDragUpdate: (details) {
+        if (details.delta.dy > 0) {
+          _dragDistance += details.delta.dy;
+        }
+      },
+      onVerticalDragEnd: _onDragEnd,
+      onVerticalDragCancel: () => _dragDistance = 0,
+      child: const SizedBox.expand(),
+    );
+  }
+}
+
+/// Large touch target at the top of the panel — swipe down anywhere here to close.
 class _DragToCloseZone extends StatefulWidget {
   final Widget child;
 

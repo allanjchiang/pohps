@@ -251,19 +251,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   void _openAddFood(BuildContext context) async {
     final appState = context.read<AppState>();
     final nav = Navigator.of(context);
-    final result = await showModalBottomSheet<String>(
-      context: context,
-      isScrollControlled: true,
-      useSafeArea: true,
-      enableDrag: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (_) => ChangeNotifierProvider.value(
-        value: appState,
-        child: const AddFoodSheet(),
-      ),
-    );
+    final result = await showAddFoodSheet(context, appState);
     if (!mounted) return;
 
     if (result == 'create_custom') {
