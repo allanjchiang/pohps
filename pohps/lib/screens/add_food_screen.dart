@@ -5,7 +5,7 @@ import '../models.dart';
 import '../food_data.dart';
 import '../l10n/app_localizations.dart';
 
-/// Full-height modal: swipe down on the dimmed area above the panel to close.
+/// Full-height modal with interactive drag (panel follows the finger).
 Future<String?> showAddFoodSheet(BuildContext context, AppState appState) {
   return showModalBottomSheet<String>(
     context: context,
@@ -13,45 +13,180 @@ Future<String?> showAddFoodSheet(BuildContext context, AppState appState) {
     useSafeArea: true,
     backgroundColor: Colors.transparent,
     enableDrag: false,
-    builder: (ctx) {
-      final height = MediaQuery.sizeOf(ctx).height;
-      return ChangeNotifierProvider.value(
-        value: appState,
-        child: SizedBox(
-          height: height,
-          child: Column(
-            children: [
-              Expanded(
-                child: _DragToDismissScrim(
-                  onDismiss: () => Navigator.pop(ctx),
-                ),
-              ),
-              ClipRRect(
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-                child: Material(
-                  color: Theme.of(ctx).colorScheme.surface,
-                  child: SizedBox(
-                    height: height * 0.85,
-                    child: const AddFoodSheet(),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    },
+    builder: (ctx) => _AddFoodModal(appState: appState),
   );
 }
 
-class AddFoodSheet extends StatefulWidget {
-  const AddFoodSheet({super.key});
+class _AddFoodModal extends StatefulWidget {
+  final AppState appState;
+
+  const _AddFoodModal({required this.appState});
 
   @override
-  State<AddFoodSheet> createState() => _AddFoodSheetState();
+  State<_AddFoodModal> createState() => _AddFoodModalState();
 }
 
-class _AddFoodSheetState extends State<AddFoodSheet> {
+class _AddFoodModalState extends State<_AddFoodModal>
+    with SingleTickerProviderStateMixin {
+  static const _sheetHeightFactor = 0.85;
+
+  double _dragOffset = 0;
+  late AnimationController _snapController;
+  Animation<double>? _snapAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _snapController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 220),
+    );
+  }
+
+  @override
+  void dispose() {
+    _snapController.dispose();
+    super.dispose();
+  }
+
+  double _sheetHeight(BuildContext context) =>
+      MediaQuery.sizeOf(context).height * _sheetHeightFactor;
+
+  void _onDragUpdate(DragUpdateDetails details) {
+    if (_snapController.isAnimating) return;
+    setState(() {
+      _dragOffset =
+          (_dragOffset + details.delta.dy).clamp(0.0, _sheetHeight(context));
+    });
+  }
+
+  void _onDragEnd(DragEndDetails details) {
+    if (_snapController.isAnimating) return;
+    final sheetHeight = _sheetHeight(context);
+    final velocity = details.primaryVelocity ?? 0;
+    if (_dragOffset > sheetHeight * 0.18 || velocity > 600) {
+      _animateTo(sheetHeight).then((_) {
+        if (mounted) Navigator.of(context).pop();
+      });
+      return;
+    }
+    _animateTo(0);
+  }
+
+  void _onDragCancel() {
+    if (_dragOffset > 0) _animateTo(0);
+  }
+
+  Future<void> _animateTo(double target) async {
+    _snapAnimation = Tween<double>(begin: _dragOffset, end: target).animate(
+      CurvedAnimation(parent: _snapController, curve: Curves.easeOutCubic),
+    );
+    void listener() {
+      if (_snapAnimation != null) {
+        setState(() => _dragOffset = _snapAnimation!.value);
+      }
+    }
+
+    _snapAnimation!.addListener(listener);
+    await _snapController.forward(from: 0);
+    _snapAnimation!.removeListener(listener);
+    _snapController.reset();
+    _snapAnimation = null;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final height = MediaQuery.sizeOf(context).height;
+    final sheetHeight = _sheetHeight(context);
+
+    return ChangeNotifierProvider.value(
+      value: widget.appState,
+      child: SizedBox(
+        height: height,
+        child: Column(
+          children: [
+            Expanded(
+              child: _SheetDragListener(
+                onDragUpdate: _onDragUpdate,
+                onDragEnd: _onDragEnd,
+                onDragCancel: _onDragCancel,
+                onTap: () => Navigator.of(context).pop(),
+                child: const SizedBox.expand(),
+              ),
+            ),
+            Transform.translate(
+              offset: Offset(0, _dragOffset),
+              child: ClipRRect(
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(24)),
+                child: Material(
+                  color: Theme.of(context).colorScheme.surface,
+                  child: SizedBox(
+                    height: sheetHeight,
+                    child: _AddFoodPanel(
+                      onDragUpdate: _onDragUpdate,
+                      onDragEnd: _onDragEnd,
+                      onDragCancel: _onDragCancel,
+                      onCreateCustom: () =>
+                          Navigator.pop(context, 'create_custom'),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SheetDragListener extends StatelessWidget {
+  final void Function(DragUpdateDetails) onDragUpdate;
+  final void Function(DragEndDetails) onDragEnd;
+  final VoidCallback? onDragCancel;
+  final VoidCallback? onTap;
+  final Widget child;
+
+  const _SheetDragListener({
+    required this.onDragUpdate,
+    required this.onDragEnd,
+    this.onDragCancel,
+    this.onTap,
+    required this.child,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      onVerticalDragUpdate: onDragUpdate,
+      onVerticalDragEnd: onDragEnd,
+      onVerticalDragCancel: onDragCancel,
+      child: child,
+    );
+  }
+}
+
+class _AddFoodPanel extends StatefulWidget {
+  final void Function(DragUpdateDetails) onDragUpdate;
+  final void Function(DragEndDetails) onDragEnd;
+  final VoidCallback? onDragCancel;
+  final VoidCallback onCreateCustom;
+
+  const _AddFoodPanel({
+    required this.onDragUpdate,
+    required this.onDragEnd,
+    this.onDragCancel,
+    required this.onCreateCustom,
+  });
+
+  @override
+  State<_AddFoodPanel> createState() => _AddFoodPanelState();
+}
+
+class _AddFoodPanelState extends State<_AddFoodPanel> {
   String _selectedCategory = 'All';
 
   @override
@@ -80,7 +215,12 @@ class _AddFoodSheetState extends State<AddFoodSheet> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _DragToCloseZone(
+        _SheetDragListener(
+          onDragUpdate: widget.onDragUpdate,
+          onDragEnd: widget.onDragEnd,
+          onDragCancel: widget.onDragCancel,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 128),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -104,8 +244,7 @@ class _AddFoodSheetState extends State<AddFoodSheet> {
                           style: theme.textTheme.headlineSmall),
                       const Spacer(),
                       TextButton.icon(
-                        onPressed: () =>
-                            Navigator.pop(context, 'create_custom'),
+                        onPressed: widget.onCreateCustom,
                         icon: const Icon(Icons.add_circle_outline, size: 22),
                         label: Text(l10n.custom),
                       ),
@@ -130,8 +269,8 @@ class _AddFoodSheetState extends State<AddFoodSheet> {
                       return Padding(
                         padding: const EdgeInsets.only(right: 8),
                         child: FilterChip(
-                          label:
-                              Text(label, style: const TextStyle(fontSize: 14)),
+                          label: Text(label,
+                              style: const TextStyle(fontSize: 14)),
                           selected: selected,
                           onSelected: (_) =>
                               setState(() => _selectedCategory = cat),
@@ -144,123 +283,43 @@ class _AddFoodSheetState extends State<AddFoodSheet> {
               ],
             ),
           ),
-          Expanded(
-            child: filteredFoods.isEmpty
-                ? Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Text('🍽️', style: TextStyle(fontSize: 40)),
-                        const SizedBox(height: 8),
-                        Text(
-                          l10n.noFoodsInCategory,
-                          style: theme.textTheme.bodyLarge?.copyWith(
-                            color: theme.colorScheme.onSurfaceVariant,
-                          ),
+        ),
+        Expanded(
+          child: filteredFoods.isEmpty
+              ? Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Text('🍽️', style: TextStyle(fontSize: 40)),
+                      const SizedBox(height: 8),
+                      Text(
+                        l10n.noFoodsInCategory,
+                        style: theme.textTheme.bodyLarge?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
                         ),
-                      ],
-                    ),
-                  )
-                : GridView.builder(
-                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      childAspectRatio: 1.25,
-                      mainAxisSpacing: 10,
-                      crossAxisSpacing: 10,
-                    ),
-                    itemCount: filteredFoods.length,
-                    itemBuilder: (context, index) {
-                      final food = filteredFoods[index];
-                      return _FoodCard(
-                        food: food,
-                        onTap: () => appState.addFood(food),
-                      );
-                    },
+                      ),
+                    ],
                   ),
-          ),
-        ],
-    );
-  }
-}
-
-/// Swipe down (or tap) on the dimmed area above the food panel to close.
-class _DragToDismissScrim extends StatefulWidget {
-  final VoidCallback onDismiss;
-
-  const _DragToDismissScrim({required this.onDismiss});
-
-  @override
-  State<_DragToDismissScrim> createState() => _DragToDismissScrimState();
-}
-
-class _DragToDismissScrimState extends State<_DragToDismissScrim> {
-  double _dragDistance = 0;
-
-  void _onDragEnd(DragEndDetails details) {
-    final velocity = details.primaryVelocity ?? 0;
-    if (_dragDistance > 24 || velocity > 300) {
-      widget.onDismiss();
-    }
-    _dragDistance = 0;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: widget.onDismiss,
-      onVerticalDragStart: (_) => _dragDistance = 0,
-      onVerticalDragUpdate: (details) {
-        if (details.delta.dy > 0) {
-          _dragDistance += details.delta.dy;
-        }
-      },
-      onVerticalDragEnd: _onDragEnd,
-      onVerticalDragCancel: () => _dragDistance = 0,
-      child: const SizedBox.expand(),
-    );
-  }
-}
-
-/// Large touch target at the top of the panel — swipe down anywhere here to close.
-class _DragToCloseZone extends StatefulWidget {
-  final Widget child;
-
-  const _DragToCloseZone({required this.child});
-
-  @override
-  State<_DragToCloseZone> createState() => _DragToCloseZoneState();
-}
-
-class _DragToCloseZoneState extends State<_DragToCloseZone> {
-  double _dragDistance = 0;
-
-  void _onDragEnd(DragEndDetails details) {
-    final velocity = details.primaryVelocity ?? 0;
-    if (_dragDistance > 48 || velocity > 400) {
-      Navigator.of(context).pop();
-    }
-    _dragDistance = 0;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onVerticalDragStart: (_) => _dragDistance = 0,
-      onVerticalDragUpdate: (details) {
-        if (details.delta.dy > 0) {
-          _dragDistance += details.delta.dy;
-        }
-      },
-      onVerticalDragEnd: _onDragEnd,
-      onVerticalDragCancel: () => _dragDistance = 0,
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(minHeight: 128),
-        child: widget.child,
-      ),
+                )
+              : GridView.builder(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    childAspectRatio: 1.25,
+                    mainAxisSpacing: 10,
+                    crossAxisSpacing: 10,
+                  ),
+                  itemCount: filteredFoods.length,
+                  itemBuilder: (context, index) {
+                    final food = filteredFoods[index];
+                    return _FoodCard(
+                      food: food,
+                      onTap: () => appState.addFood(food),
+                    );
+                  },
+                ),
+        ),
+      ],
     );
   }
 }
