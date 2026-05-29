@@ -17,12 +17,34 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
+  static const _progressFadeDistance = 180.0;
+
+  final _scrollController = ScrollController();
+  final _progressCollapse = ValueNotifier<double>(0);
+
   @override
   void initState() {
     super.initState();
+    _scrollController.addListener(_onFoodListScroll);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _showPendingAchievements();
     });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onFoodListScroll);
+    _scrollController.dispose();
+    _progressCollapse.dispose();
+    super.dispose();
+  }
+
+  void _onFoodListScroll() {
+    final collapse = (_scrollController.offset / _progressFadeDistance)
+        .clamp(0.0, 1.0);
+    if (collapse != _progressCollapse.value) {
+      _progressCollapse.value = collapse;
+    }
   }
 
   void _showPendingAchievements() {
@@ -79,48 +101,60 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          const SizedBox(height: 20),
-          ProgressRing(
-            progress: appState.progressPercent,
-            current: appState.todayProtein,
-            goal: appState.dailyGoal.toDouble(),
+      body: CustomScrollView(
+        controller: _scrollController,
+        slivers: [
+          SliverToBoxAdapter(
+            child: ValueListenableBuilder<double>(
+              valueListenable: _progressCollapse,
+              builder: (context, collapse, _) => _CollapsibleProgressSection(
+                collapse: collapse,
+                progress: appState.progressPercent,
+                current: appState.todayProtein,
+                goal: appState.dailyGoal.toDouble(),
+                goalReached: appState.goalReached,
+                goalReachedText: l10n.goalReachedWellDone,
+              ),
+            ),
           ),
-          if (appState.goalReached)
-            Padding(
-              padding: const EdgeInsets.only(top: 8),
-              child: Text(
-                l10n.goalReachedWellDone,
-                style: theme.textTheme.titleMedium?.copyWith(
-                  color: theme.colorScheme.primary,
-                  fontWeight: FontWeight.bold,
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
+              child: Row(
+                children: [
+                  Text(l10n.todaysFoods, style: theme.textTheme.titleLarge),
+                  const Spacer(),
+                  if (appState.todayLog.isNotEmpty)
+                    Text(
+                      l10n.itemCount(appState.todayLog.length),
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+          if (appState.todayLog.isEmpty)
+            SliverFillRemaining(
+              hasScrollBody: false,
+              child: _buildEmptyState(theme, l10n),
+            )
+          else
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 100),
+              sliver: SliverList(
+                delegate: SliverChildBuilderDelegate(
+                  (context, index) => _buildFoodListItem(
+                    theme,
+                    appState,
+                    l10n,
+                    appState.todayLog[index],
+                  ),
+                  childCount: appState.todayLog.length,
                 ),
               ),
             ),
-          const SizedBox(height: 24),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: Row(
-              children: [
-                Text(l10n.todaysFoods, style: theme.textTheme.titleLarge),
-                const Spacer(),
-                if (appState.todayLog.isNotEmpty)
-                  Text(
-                    l10n.itemCount(appState.todayLog.length),
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 8),
-          Expanded(
-            child: appState.todayLog.isEmpty
-                ? _buildEmptyState(theme, l10n)
-                : _buildFoodList(theme, appState, l10n),
-          ),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
@@ -156,17 +190,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildFoodList(
-      ThemeData theme, AppState appState, AppLocalizations l10n) {
-    return ListView.builder(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 100),
-      itemCount: appState.todayLog.length,
-      itemBuilder: (context, index) {
-        final entry = appState.todayLog[index];
-        final displayName =
-            l10n.foodDisplayName(entry.food.id, entry.food.name);
-        final displayServing = l10n.servingDisplay(entry.food.servingSize);
-        return Dismissible(
+  Widget _buildFoodListItem(
+    ThemeData theme,
+    AppState appState,
+    AppLocalizations l10n,
+    LogEntry entry,
+  ) {
+    final displayName = l10n.foodDisplayName(entry.food.id, entry.food.name);
+    final displayServing = l10n.servingDisplay(entry.food.servingSize);
+    return Dismissible(
           key: Key(entry.id),
           direction: DismissDirection.endToStart,
           background: Container(
@@ -227,8 +259,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
           ),
         );
-      },
-    );
   }
 
   void _showFractionPicker(
@@ -325,6 +355,67 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   ThemeData get theme => Theme.of(context);
+}
+
+/// Fades and collapses while the user scrolls Today's Foods.
+class _CollapsibleProgressSection extends StatelessWidget {
+  final double collapse;
+  final double progress;
+  final double current;
+  final double goal;
+  final bool goalReached;
+  final String goalReachedText;
+
+  const _CollapsibleProgressSection({
+    required this.collapse,
+    required this.progress,
+    required this.current,
+    required this.goal,
+    required this.goalReached,
+    required this.goalReachedText,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final visibility = (1 - collapse).clamp(0.0, 1.0);
+
+    return ClipRect(
+      child: Align(
+        alignment: Alignment.topCenter,
+        heightFactor: visibility,
+        child: Opacity(
+          opacity: visibility,
+          child: IgnorePointer(
+            ignoring: collapse > 0.85,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(height: 20),
+                ProgressRing(
+                  progress: progress,
+                  current: current,
+                  goal: goal,
+                ),
+                if (goalReached)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: Text(
+                      goalReachedText,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        color: theme.colorScheme.primary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                const SizedBox(height: 24),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 class _FractionPickerDialog extends StatefulWidget {
