@@ -38,134 +38,155 @@ class _AddFoodSheetState extends State<AddFoodSheet> {
           .toList();
     }
 
-    return DraggableScrollableSheet(
-      initialChildSize: 0.85,
-      minChildSize: 0.5,
-      maxChildSize: 0.95,
-      expand: false,
-      builder: (context, scrollController) {
-        return CustomScrollView(
-          controller: scrollController,
-          slivers: [
-            SliverToBoxAdapter(
-              child: _SheetHeader(
-                theme: theme,
-                l10n: l10n,
-                onCreateCustom: () =>
-                    Navigator.pop(context, 'create_custom'),
-              ),
-            ),
-            SliverToBoxAdapter(
-              child: SizedBox(
-                height: 48,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  itemCount: allCategories.length,
-                  itemBuilder: (context, index) {
-                    final cat = allCategories[index];
-                    final selected = cat == _selectedCategory;
-                    final label = switch (cat) {
-                      'All' => l10n.allCategory,
-                      'My Foods' => l10n.myFoods,
-                      _ => l10n.categoryName(cat),
-                    };
-                    return Padding(
-                      padding: const EdgeInsets.only(right: 8),
-                      child: FilterChip(
-                        label: Text(label, style: const TextStyle(fontSize: 14)),
-                        selected: selected,
-                        onSelected: (_) =>
-                            setState(() => _selectedCategory = cat),
-                      ),
-                    );
-                  },
+    return FractionallySizedBox(
+      heightFactor: 0.85,
+      alignment: Alignment.bottomCenter,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _DragToCloseZone(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(height: 8),
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.outlineVariant,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            const SliverToBoxAdapter(child: SizedBox(height: 4)),
-            if (filteredFoods.isEmpty)
-              SliverFillRemaining(
-                hasScrollBody: false,
-                child: Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
+                const SizedBox(height: 12),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 0, 8, 0),
+                  child: Row(
                     children: [
-                      const Text('🍽️', style: TextStyle(fontSize: 40)),
-                      const SizedBox(height: 8),
-                      Text(
-                        l10n.noFoodsInCategory,
-                        style: theme.textTheme.bodyLarge?.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant,
-                        ),
+                      Text(l10n.addFood,
+                          style: theme.textTheme.headlineSmall),
+                      const Spacer(),
+                      TextButton.icon(
+                        onPressed: () =>
+                            Navigator.pop(context, 'create_custom'),
+                        icon: const Icon(Icons.add_circle_outline, size: 22),
+                        label: Text(l10n.custom),
                       ),
                     ],
                   ),
                 ),
-              )
-            else
-              SliverPadding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-                sliver: SliverGrid(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    childAspectRatio: 1.25,
-                    mainAxisSpacing: 10,
-                    crossAxisSpacing: 10,
+                const SizedBox(height: 8),
+                SizedBox(
+                  height: 48,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    itemCount: allCategories.length,
+                    itemBuilder: (context, index) {
+                      final cat = allCategories[index];
+                      final selected = cat == _selectedCategory;
+                      final label = switch (cat) {
+                        'All' => l10n.allCategory,
+                        'My Foods' => l10n.myFoods,
+                        _ => l10n.categoryName(cat),
+                      };
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: FilterChip(
+                          label:
+                              Text(label, style: const TextStyle(fontSize: 14)),
+                          selected: selected,
+                          onSelected: (_) =>
+                              setState(() => _selectedCategory = cat),
+                        ),
+                      );
+                    },
                   ),
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) {
+                ),
+                const SizedBox(height: 8),
+              ],
+            ),
+          ),
+          Expanded(
+            child: filteredFoods.isEmpty
+                ? Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Text('🍽️', style: TextStyle(fontSize: 40)),
+                        const SizedBox(height: 8),
+                        Text(
+                          l10n.noFoodsInCategory,
+                          style: theme.textTheme.bodyLarge?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                : GridView.builder(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      childAspectRatio: 1.25,
+                      mainAxisSpacing: 10,
+                      crossAxisSpacing: 10,
+                    ),
+                    itemCount: filteredFoods.length,
+                    itemBuilder: (context, index) {
                       final food = filteredFoods[index];
                       return _FoodCard(
                         food: food,
                         onTap: () => appState.addFood(food),
                       );
                     },
-                    childCount: filteredFoods.length,
                   ),
-                ),
-              ),
-          ],
-        );
-      },
+          ),
+        ],
+      ),
     );
   }
 }
 
-/// Title row included in the sheet scroll view so it participates in drag-to-dismiss.
-class _SheetHeader extends StatelessWidget {
-  final ThemeData theme;
-  final AppLocalizations l10n;
-  final VoidCallback onCreateCustom;
+/// Large touch target at the top of the sheet — swipe down anywhere here to close.
+class _DragToCloseZone extends StatefulWidget {
+  final Widget child;
 
-  const _SheetHeader({
-    required this.theme,
-    required this.l10n,
-    required this.onCreateCustom,
-  });
+  const _DragToCloseZone({required this.child});
+
+  @override
+  State<_DragToCloseZone> createState() => _DragToCloseZoneState();
+}
+
+class _DragToCloseZoneState extends State<_DragToCloseZone> {
+  double _dragDistance = 0;
+
+  void _onDragEnd(DragEndDetails details) {
+    final velocity = details.primaryVelocity ?? 0;
+    if (_dragDistance > 48 || velocity > 400) {
+      Navigator.of(context).pop();
+    }
+    _dragDistance = 0;
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        // Tall top region: drag works here via the sheet's scroll controller.
-        const SizedBox(height: 4),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(20, 4, 8, 8),
-          child: Row(
-            children: [
-              Text(l10n.addFood, style: theme.textTheme.headlineSmall),
-              const Spacer(),
-              TextButton.icon(
-                onPressed: onCreateCustom,
-                icon: const Icon(Icons.add_circle_outline, size: 22),
-                label: Text(l10n.custom),
-              ),
-            ],
-          ),
-        ),
-      ],
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onVerticalDragStart: (_) => _dragDistance = 0,
+      onVerticalDragUpdate: (details) {
+        if (details.delta.dy > 0) {
+          _dragDistance += details.delta.dy;
+        }
+      },
+      onVerticalDragEnd: _onDragEnd,
+      onVerticalDragCancel: () => _dragDistance = 0,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 128),
+        child: widget.child,
+      ),
     );
   }
 }
