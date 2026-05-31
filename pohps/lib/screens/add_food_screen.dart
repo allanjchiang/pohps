@@ -319,9 +319,10 @@ class _AddFoodPanelState extends State<_AddFoodPanel> {
                     16,
                     24 + MediaQuery.viewPaddingOf(context).bottom,
                   ),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
-                    childAspectRatio: 1.25,
+                    childAspectRatio:
+                        appState.waterTrackerEnabled ? 1.12 : 1.25,
                     mainAxisSpacing: 10,
                     crossAxisSpacing: 10,
                   ),
@@ -384,13 +385,13 @@ class _FoodCardState extends State<_FoodCard> {
           onTap: _handleTap,
           borderRadius: BorderRadius.circular(14),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Text(widget.food.emoji,
-                    style: const TextStyle(fontSize: 32)),
-                const SizedBox(height: 2),
+                    style: const TextStyle(fontSize: 28)),
                 Text(
                   l10n.foodDisplayName(widget.food.id, widget.food.name),
                   style: theme.textTheme.titleSmall,
@@ -398,22 +399,38 @@ class _FoodCardState extends State<_FoodCard> {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                Text(
-                  l10n.gProtein('${widget.food.proteinGrams.round()}'),
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.primary,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
                 if (appState.waterTrackerEnabled &&
                     widget.food.waterMlPerServing > 0)
-                  Text(
-                    l10n.waterAmountLabel(
-                      widget.food.waterMlPerServing,
-                      appState.measurementSystem,
+                  Text.rich(
+                    TextSpan(
+                      children: [
+                        TextSpan(
+                          text: l10n
+                              .gProtein('${widget.food.proteinGrams.round()}'),
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.primary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        TextSpan(
+                          text:
+                              ' · ${l10n.waterAmountLabel(widget.food.waterMlPerServing, appState.measurementSystem)}',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: const Color(0xFF1565C0),
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
                     ),
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  )
+                else
+                  Text(
+                    l10n.gProtein('${widget.food.proteinGrams.round()}'),
                     style: theme.textTheme.bodySmall?.copyWith(
-                      color: const Color(0xFF1565C0),
+                      color: theme.colorScheme.primary,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -423,9 +440,7 @@ class _FoodCardState extends State<_FoodCard> {
                       : l10n.servingDisplay(
                           widget.food.servingSize,
                           foodId: widget.food.isCustom ? null : widget.food.id,
-                          system: context
-                              .watch<AppState>()
-                              .measurementSystem,
+                          system: appState.measurementSystem,
                         ),
                   style: theme.textTheme.labelSmall?.copyWith(
                     color: _justAdded
