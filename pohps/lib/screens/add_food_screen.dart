@@ -108,11 +108,14 @@ class _AddFoodModalState extends State<_AddFoodModal>
           color: Theme.of(context).colorScheme.surface,
           child: SizedBox(
             height: _sheetHeightPx,
-            child: _AddFoodPanel(
-              onDragUpdate: _onDragUpdate,
-              onDragEnd: _onDragEnd,
-              onDragCancel: _onDragCancel,
-              onCreateCustom: () => Navigator.pop(context, 'create_custom'),
+            child: SafeArea(
+              top: false,
+              child: _AddFoodPanel(
+                onDragUpdate: _onDragUpdate,
+                onDragEnd: _onDragEnd,
+                onDragCancel: _onDragCancel,
+                onCreateCustom: () => Navigator.pop(context, 'create_custom'),
+              ),
             ),
           ),
         ),
@@ -310,7 +313,12 @@ class _AddFoodPanelState extends State<_AddFoodPanel> {
                   ),
                 )
               : GridView.builder(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+                  padding: EdgeInsets.fromLTRB(
+                    16,
+                    0,
+                    16,
+                    24 + MediaQuery.viewPaddingOf(context).bottom,
+                  ),
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
                     childAspectRatio: 1.25,
