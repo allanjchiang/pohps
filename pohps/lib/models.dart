@@ -3,6 +3,11 @@ enum MeasurementSystem {
   imperial,
 }
 
+enum DietType {
+  lactoOvo,
+  vegan,
+}
+
 class FoodItem {
   final String id;
   final String name;

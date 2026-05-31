@@ -59,6 +59,22 @@ class StorageService {
     return _prefs.setString('measurement_system', value);
   }
 
+  DietType get dietType {
+    final value = _prefs.getString('diet_type');
+    return switch (value) {
+      'vegan' => DietType.vegan,
+      _ => DietType.lactoOvo,
+    };
+  }
+
+  Future<void> setDietType(DietType diet) {
+    final value = switch (diet) {
+      DietType.vegan => 'vegan',
+      DietType.lactoOvo => 'lacto_ovo',
+    };
+    return _prefs.setString('diet_type', value);
+  }
+
   String _dateKey(DateTime date) =>
       'log_${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
 

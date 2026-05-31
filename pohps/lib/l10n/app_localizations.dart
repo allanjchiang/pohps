@@ -227,6 +227,16 @@ class AppLocalizations {
   String get egServingSizeImperial =>
       _t('e.g. 4 oz', '例如：4 oz', '例如：4 oz');
 
+  String get diet => _t('Diet', '飲食類型', '饮食类型');
+  String get dietLactoOvo =>
+      _t('Lacto-Ovo', '蛋奶素', '蛋奶素');
+  String get dietVegan => _t('Vegan', '全素', '全素');
+  String get dietHint => _t(
+        'Vegan hides eggs and dairy from the food list and adds pea protein smoothie.',
+        '全素模式會隱藏蛋類和乳製品，並新增豌豆蛋白奶昔。',
+        '全素模式会隐藏蛋类和乳制品，并新增豌豆蛋白奶昔。',
+      );
+
   String get language => _t('Language', '語言', '语言');
   String get languageSystem => _t('System', '系統', '系统');
 
@@ -403,6 +413,8 @@ class AppLocalizations {
       'greek_yoghurt' => _t('Greek Yoghurt', '希臘優格', '希腊酸奶'),
       'milk' => _t('Milk', '牛奶', '牛奶'),
       'whey_smoothie' => _t('Whey Smoothie', '乳清蛋白奶昔', '乳清蛋白奶昔'),
+      'pea_protein_smoothie' =>
+        _t('Pea Protein Smoothie', '豌豆蛋白奶昔', '豌豆蛋白奶昔'),
       'soy_milk' => _t('Soy Milk', '豆漿', '豆浆'),
       'tofu' => _t('Tofu', '豆腐', '豆腐'),
       'soy_meat' => _t('Soy Meat', '素肉', '素肉'),
@@ -449,6 +461,8 @@ class AppLocalizations {
         _t('1 glass (250ml)', '1 杯（250ml）', '1 杯（250ml）'),
       '1 scoop + milk' =>
         _t('1 scoop + milk', '1 勺 + 牛奶', '1 勺 + 牛奶'),
+      '1 scoop + soy milk' =>
+        _t('1 scoop + soy milk', '1 勺 + 豆漿', '1 勺 + 豆浆'),
       '100g (firm)' => _t('100g (firm)', '100g（板豆腐）', '100g（老豆腐）'),
       '1 serving (85g)' =>
         _t('1 serving (85g)', '1 份（85g）', '1 份（85g）'),
@@ -468,6 +482,7 @@ class AppLocalizations {
         'greek_yoghurt' => '5.6 oz container',
         'milk' => '½ pint (8 fl oz)',
         'whey_smoothie' => '1 scoop + ½ pint milk',
+        'pea_protein_smoothie' => '1 scoop + ½ pint soy milk',
         'soy_milk' => '½ pint (8 fl oz)',
         'tofu' => '3.5 oz (firm)',
         'soy_meat' => '3 oz',
@@ -496,6 +511,8 @@ class AppLocalizations {
 
     return switch (original) {
       '1 glass (250ml)' => '½ pint (8 fl oz)',
+      '1 scoop + milk' => '1 scoop + ½ pint milk',
+      '1 scoop + soy milk' => '1 scoop + ½ pint soy milk',
       '100g (firm)' => '3.5 oz (firm)',
       '1 serving (85g)' => '3 oz',
       '1 pot (160g)' => '5.6 oz container',

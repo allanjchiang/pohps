@@ -229,3 +229,30 @@ const List<FoodItem> defaultFoods = [
     emoji: '🫒',
   ),
 ];
+
+/// Foods excluded when the user selects a vegan diet.
+const Set<String> lactoOvoOnlyFoodIds = {
+  'egg',
+  'greek_yoghurt',
+  'milk',
+  'whey_smoothie',
+};
+
+const List<FoodItem> veganOnlyFoods = [
+  FoodItem(
+    id: 'pea_protein_smoothie',
+    name: 'Pea Protein Smoothie',
+    category: categoryProteinBoosters,
+    proteinGrams: 22,
+    servingSize: '1 scoop + soy milk',
+    emoji: '🥤',
+  ),
+];
+
+List<FoodItem> foodsForDiet(DietType diet) {
+  if (diet == DietType.lactoOvo) return defaultFoods;
+  return [
+    ...defaultFoods.where((f) => !lactoOvoOnlyFoodIds.contains(f.id)),
+    ...veganOnlyFoods,
+  ];
+}

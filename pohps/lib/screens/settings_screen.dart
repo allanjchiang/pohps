@@ -53,6 +53,44 @@ class SettingsScreen extends StatelessWidget {
           ),
           const SizedBox(height: 12),
 
+          // Diet
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(l10n.diet, style: theme.textTheme.titleLarge),
+                  const SizedBox(height: 8),
+                  Text(
+                    l10n.dietHint,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  SegmentedButton<DietType>(
+                    segments: [
+                      ButtonSegment(
+                        value: DietType.lactoOvo,
+                        label: Text(l10n.dietLactoOvo),
+                      ),
+                      ButtonSegment(
+                        value: DietType.vegan,
+                        label: Text(l10n.dietVegan),
+                      ),
+                    ],
+                    selected: {appState.dietType},
+                    onSelectionChanged: (diets) {
+                      appState.setDietType(diets.first);
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+
           // Language
           Card(
             child: Padding(

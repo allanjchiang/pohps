@@ -14,6 +14,7 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
   ThemeMode _themeMode = ThemeMode.system;
   Locale? _locale;
   MeasurementSystem _measurementSystem = MeasurementSystem.metric;
+  DietType _dietType = DietType.lactoOvo;
   List<LogEntry> _todayLog = [];
   List<FoodItem> _customFoods = [];
   Set<String> _unlockedAchievements = {};
@@ -35,11 +36,12 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
   ThemeMode get themeMode => _themeMode;
   Locale? get locale => _locale;
   MeasurementSystem get measurementSystem => _measurementSystem;
+  DietType get dietType => _dietType;
   List<LogEntry> get todayLog => List.unmodifiable(_todayLog);
   List<FoodItem> get customFoods => List.unmodifiable(_customFoods);
   Set<String> get unlockedAchievements =>
       Set.unmodifiable(_unlockedAchievements);
-  List<FoodItem> get allFoods => [...defaultFoods, ..._customFoods];
+  List<FoodItem> get allFoods => [...foodsForDiet(_dietType), ..._customFoods];
 
   double get todayProtein =>
       _todayLog.fold(0.0, (sum, e) => sum + e.totalProtein);
@@ -57,6 +59,7 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
     _themeMode = _storage.themeMode;
     _locale = _parseLocale(_storage.localeCode);
     _measurementSystem = _storage.measurementSystem;
+    _dietType = _storage.dietType;
     _customFoods = _storage.customFoods;
     _unlockedAchievements = _storage.unlockedAchievements;
     _currentEffectiveDate = effectiveDate();
@@ -135,6 +138,12 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
   Future<void> setMeasurementSystem(MeasurementSystem system) async {
     _measurementSystem = system;
     await _storage.setMeasurementSystem(system);
+    notifyListeners();
+  }
+
+  Future<void> setDietType(DietType diet) async {
+    _dietType = diet;
+    await _storage.setDietType(diet);
     notifyListeners();
   }
 
