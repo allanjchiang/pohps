@@ -85,7 +85,8 @@ class _RingPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
-    final radius = (size.width - strokeWidth) / 2;
+    // Inset so round stroke caps are not clipped by the canvas edge.
+    final radius = (size.shortestSide - strokeWidth * 2) / 2;
 
     final trackPaint = Paint()
       ..color = trackColor

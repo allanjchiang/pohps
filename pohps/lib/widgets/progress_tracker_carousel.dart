@@ -42,6 +42,8 @@ class ProgressTrackerCarousel extends StatefulWidget {
 }
 
 class _ProgressTrackerCarouselState extends State<ProgressTrackerCarousel> {
+  static const _ringSize = 220.0;
+
   final _pageController = PageController();
   int _page = 0;
 
@@ -61,22 +63,29 @@ class _ProgressTrackerCarouselState extends State<ProgressTrackerCarousel> {
       mainAxisSize: MainAxisSize.min,
       children: [
         SizedBox(
-          height: 220,
+          height: _ringSize,
           child: PageView(
+            clipBehavior: Clip.none,
             controller: _pageController,
             onPageChanged: (i) => setState(() => _page = i),
             children: [
-              ProgressRing(
-                progress: widget.proteinProgress,
-                current: widget.proteinCurrent,
-                goal: widget.proteinGoal,
+              Center(
+                child: ProgressRing(
+                  progress: widget.proteinProgress,
+                  current: widget.proteinCurrent,
+                  goal: widget.proteinGoal,
+                  size: _ringSize,
+                ),
               ),
               if (widget.waterTrackerEnabled)
-                WaterProgressRing(
-                  progress: widget.waterProgress,
-                  currentMl: widget.waterCurrentMl,
-                  goalMl: widget.waterGoalMl,
-                  measurementSystem: widget.measurementSystem,
+                Center(
+                  child: WaterProgressRing(
+                    progress: widget.waterProgress,
+                    currentMl: widget.waterCurrentMl,
+                    goalMl: widget.waterGoalMl,
+                    measurementSystem: widget.measurementSystem,
+                    size: _ringSize,
+                  ),
                 ),
             ],
           ),

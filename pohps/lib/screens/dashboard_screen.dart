@@ -416,6 +416,7 @@ class _CollapsibleProgressSection extends StatelessWidget {
     final visibility = (1 - collapse).clamp(0.0, 1.0);
 
     return ClipRect(
+      clipBehavior: visibility >= 1 ? Clip.none : Clip.hardEdge,
       child: Align(
         alignment: Alignment.topCenter,
         heightFactor: visibility,
@@ -426,7 +427,7 @@ class _CollapsibleProgressSection extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const SizedBox(height: 20),
+                const SizedBox(height: 12),
                 ProgressTrackerCarousel(
                   proteinProgress: appState.progressPercent,
                   proteinCurrent: appState.todayProtein,
