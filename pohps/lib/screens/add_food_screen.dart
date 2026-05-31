@@ -208,7 +208,7 @@ class _AddFoodPanelState extends State<_AddFoodPanel> {
 
     final allCategories = [
       'All',
-      ...categories,
+      ...categoriesForPicker(waterTrackerEnabled: appState.waterTrackerEnabled),
       if (appState.customFoods.isNotEmpty) 'My Foods',
     ];
 

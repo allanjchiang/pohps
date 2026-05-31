@@ -45,13 +45,10 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
   List<FoodItem> get customFoods => List.unmodifiable(_customFoods);
   Set<String> get unlockedAchievements =>
       Set.unmodifiable(_unlockedAchievements);
-  List<FoodItem> get allFoods {
-    final base = [...foodsForDiet(_dietType), ..._customFoods];
-    if (_waterTrackerEnabled) {
-      return [...beverageFoods, ...base];
-    }
-    return base;
-  }
+  List<FoodItem> get allFoods => [
+        ...foodsForDiet(_dietType, includeBeverages: _waterTrackerEnabled),
+        ..._customFoods,
+      ];
 
   double get todayProtein =>
       _todayLog.fold(0.0, (sum, e) => sum + e.totalProtein);

@@ -9,7 +9,6 @@ const String categoryVegetables = 'Vegetables';
 const String categoryOther = 'Other';
 
 const List<String> categories = [
-  categoryBeverages,
   categoryDairyEggs,
   categoryProteinBoosters,
   categoryLegumes,
@@ -18,8 +17,14 @@ const List<String> categories = [
   categoryOther,
 ];
 
-/// Drinks logged explicitly for water intake (shown when water tracker is on).
-const List<FoodItem> beverageFoods = [
+/// Category chips shown in Add Food (includes Beverages when water tracker is on).
+List<String> categoriesForPicker({required bool waterTrackerEnabled}) {
+  if (!waterTrackerEnabled) return categories;
+  return [categoryBeverages, ...categories];
+}
+
+/// Shown after milk in the All list when the water tracker is on.
+const List<FoodItem> dairyBeverageFoods = [
   FoodItem(
     id: 'water',
     name: 'Water',
@@ -47,6 +52,10 @@ const List<FoodItem> beverageFoods = [
     servingSize: '1 cup (240ml)',
     emoji: '🍵',
   ),
+];
+
+/// Shown after mushroom in the All list when the water tracker is on.
+const List<FoodItem> vegetableBeverageFoods = [
   FoodItem(
     id: 'sugar_free_soda',
     name: 'Sugar-Free Soda',
@@ -353,10 +362,61 @@ const List<FoodItem> veganOnlyFoods = [
   ),
 ];
 
-List<FoodItem> foodsForDiet(DietType diet) {
-  if (diet == DietType.lactoOvo) return defaultFoods;
+List<FoodItem> _insertAfterId(
+  List<FoodItem> foods,
+  String afterId,
+  List<FoodItem> items,
+) {
+  final index = foods.indexWhere((f) => f.id == afterId);
+  if (index == -1) return foods;
   return [
-    ...defaultFoods.where((f) => !lactoOvoOnlyFoodIds.contains(f.id)),
-    ...veganOnlyFoods,
+    ...foods.sublist(0, index + 1),
+    ...items,
+    ...foods.sublist(index + 1),
   ];
+}
+
+List<FoodItem> _insertAfterFirstFound(
+  List<FoodItem> foods,
+  List<String> anchorIds,
+  List<FoodItem> items,
+) {
+  for (final id in anchorIds) {
+    final index = foods.indexWhere((f) => f.id == id);
+    if (index != -1) {
+      return [
+        ...foods.sublist(0, index + 1),
+        ...items,
+        ...foods.sublist(index + 1),
+      ];
+    }
+  }
+  final fallback =
+      foods.indexWhere((f) => f.category == categoryProteinBoosters);
+  if (fallback == -1) return [...foods, ...items];
+  return [
+    ...foods.sublist(0, fallback),
+    ...items,
+    ...foods.sublist(fallback),
+  ];
+}
+
+List<FoodItem> foodsForDiet(DietType diet, {bool includeBeverages = false}) {
+  final List<FoodItem> base;
+  if (diet == DietType.lactoOvo) {
+    base = defaultFoods;
+  } else {
+    base = [
+      ...defaultFoods.where((f) => !lactoOvoOnlyFoodIds.contains(f.id)),
+      ...veganOnlyFoods,
+    ];
+  }
+  if (!includeBeverages) return base;
+
+  final withDairyDrinks = _insertAfterFirstFound(
+    base,
+    ['milk', 'greek_yoghurt', 'egg'],
+    dairyBeverageFoods,
+  );
+  return _insertAfterId(withDairyDrinks, 'mushroom', vegetableBeverageFoods);
 }
