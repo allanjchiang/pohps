@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../models.dart';
 
 class AppLocalizations {
   final Locale locale;
@@ -214,6 +215,18 @@ class AppLocalizations {
   String get themeLight => _t('Light', '淺色', '浅色');
   String get themeDark => _t('Dark', '深色', '深色');
 
+  String get measurements => _t('Measurements', '計量單位', '计量单位');
+  String get measurementMetric => _t('Metric', '公制', '公制');
+  String get measurementImperial => _t('Imperial', '英制', '英制');
+  String get measurementImperialHint => _t(
+        'Uses cups, fl oz, and oz for serving sizes.',
+        '份量以杯、液量盎司和盎司顯示。',
+        '份量以杯、液量盎司和盎司显示。',
+      );
+
+  String get egServingSizeImperial =>
+      _t('e.g. 4 oz', '例如：4 oz', '例如：4 oz');
+
   String get language => _t('Language', '語言', '语言');
   String get languageSystem => _t('System', '系統', '系统');
 
@@ -417,7 +430,18 @@ class AppLocalizations {
 
   // ── Default Serving Sizes ──────────────────────────────────────────────
 
-  String servingDisplay(String original) {
+  String servingDisplay(
+    String original, {
+    String? foodId,
+    MeasurementSystem system = MeasurementSystem.metric,
+  }) {
+    if (system == MeasurementSystem.imperial) {
+      return _imperialServing(foodId, original);
+    }
+    return _metricServing(original);
+  }
+
+  String _metricServing(String original) {
     return switch (original) {
       '1 large' => _t('1 large', '1 顆（大）', '1 个（大）'),
       '1 pot (160g)' => _t('1 pot (160g)', '1 杯（160g）', '1 杯（160g）'),
@@ -433,6 +457,51 @@ class AppLocalizations {
       '1 cup' => _t('1 cup', '1 杯', '1 杯'),
       '30g (1 oz)' => _t('30g (1 oz)', '30g（1 盎司）', '30g（1 盎司）'),
       '1 tbsp' => _t('1 tbsp', '1 湯匙', '1 汤匙'),
+      _ => original,
+    };
+  }
+
+  String _imperialServing(String? foodId, String original) {
+    if (foodId != null) {
+      final byId = switch (foodId) {
+        'egg' => '1 large',
+        'greek_yoghurt' => '5.6 oz container',
+        'milk' => '½ pint (8 fl oz)',
+        'whey_smoothie' => '1 scoop + ½ pint milk',
+        'soy_milk' => '½ pint (8 fl oz)',
+        'tofu' => '3.5 oz (firm)',
+        'soy_meat' => '3 oz',
+        'lentils' => '7 oz cooked',
+        'chickpeas' => '7 oz cooked',
+        'white_rice' => '5 oz cooked',
+        'brown_rice' => '5 oz cooked',
+        'quinoa' => '6 oz cooked',
+        'millet' => '6 oz cooked',
+        'buckwheat' => '6 oz cooked',
+        'noodles' => '5 oz cooked',
+        'potato' => '1 medium (5 oz)',
+        'mushroom' => '3 oz',
+        'cauliflower' => '3 oz',
+        'cabbage' => '2 oz',
+        'bok_choy' => '2 oz',
+        'wombok' => '2 oz',
+        'capsicum' => '1 medium (5 oz)',
+        'fruits' => '1 medium',
+        'nuts_seeds' => '1 oz',
+        'oils' => '1 tbsp',
+        _ => null,
+      };
+      if (byId != null) return byId;
+    }
+
+    return switch (original) {
+      '1 glass (250ml)' => '½ pint (8 fl oz)',
+      '100g (firm)' => '3.5 oz (firm)',
+      '1 serving (85g)' => '3 oz',
+      '1 pot (160g)' => '5.6 oz container',
+      '1 cup cooked' => '6 oz cooked',
+      '1 cup' => '3 oz',
+      '30g (1 oz)' => '1 oz',
       _ => original,
     };
   }

@@ -43,6 +43,22 @@ class StorageService {
     return _prefs.setString('theme_mode', value);
   }
 
+  MeasurementSystem get measurementSystem {
+    final value = _prefs.getString('measurement_system');
+    return switch (value) {
+      'imperial' => MeasurementSystem.imperial,
+      _ => MeasurementSystem.metric,
+    };
+  }
+
+  Future<void> setMeasurementSystem(MeasurementSystem system) {
+    final value = switch (system) {
+      MeasurementSystem.imperial => 'imperial',
+      MeasurementSystem.metric => 'metric',
+    };
+    return _prefs.setString('measurement_system', value);
+  }
+
   String _dateKey(DateTime date) =>
       'log_${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
 

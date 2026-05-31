@@ -37,7 +37,9 @@ class _CustomFoodScreenState extends State<CustomFoodScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final appState = context.watch<AppState>();
     final l10n = AppLocalizations.of(context);
+    final imperial = appState.measurementSystem == MeasurementSystem.imperial;
     return Scaffold(
       appBar: AppBar(title: Text(l10n.createCustomFood)),
       body: SingleChildScrollView(
@@ -104,7 +106,9 @@ class _CustomFoodScreenState extends State<CustomFoodScreen> {
             const SizedBox(height: 8),
             TextField(
               controller: _servingController,
-              decoration: InputDecoration(hintText: l10n.egServingSize),
+              decoration: InputDecoration(
+                hintText: imperial ? l10n.egServingSizeImperial : l10n.egServingSize,
+              ),
               textCapitalization: TextCapitalization.sentences,
               style: theme.textTheme.bodyLarge,
             ),

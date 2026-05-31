@@ -201,7 +201,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
     LogEntry entry,
   ) {
     final displayName = l10n.foodDisplayName(entry.food.id, entry.food.name);
-    final displayServing = l10n.servingDisplay(entry.food.servingSize);
+    final displayServing = l10n.servingDisplay(
+      entry.food.servingSize,
+      foodId: entry.food.isCustom ? null : entry.food.id,
+      system: appState.measurementSystem,
+    );
     return Dismissible(
           key: Key(entry.id),
           direction: DismissDirection.endToStart,

@@ -399,7 +399,13 @@ class _FoodCardState extends State<_FoodCard> {
                 Text(
                   _justAdded
                       ? l10n.added
-                      : l10n.servingDisplay(widget.food.servingSize),
+                      : l10n.servingDisplay(
+                          widget.food.servingSize,
+                          foodId: widget.food.isCustom ? null : widget.food.id,
+                          system: context
+                              .watch<AppState>()
+                              .measurementSystem,
+                        ),
                   style: theme.textTheme.labelSmall?.copyWith(
                     color: _justAdded
                         ? theme.colorScheme.primary

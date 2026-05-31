@@ -1,3 +1,8 @@
+enum MeasurementSystem {
+  metric,
+  imperial,
+}
+
 class FoodItem {
   final String id;
   final String name;

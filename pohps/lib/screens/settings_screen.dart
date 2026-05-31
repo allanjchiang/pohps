@@ -102,6 +102,44 @@ class SettingsScreen extends StatelessWidget {
           ),
           const SizedBox(height: 12),
 
+          // Measurements
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(l10n.measurements, style: theme.textTheme.titleLarge),
+                  const SizedBox(height: 8),
+                  Text(
+                    l10n.measurementImperialHint,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  SegmentedButton<MeasurementSystem>(
+                    segments: [
+                      ButtonSegment(
+                        value: MeasurementSystem.metric,
+                        label: Text(l10n.measurementMetric),
+                      ),
+                      ButtonSegment(
+                        value: MeasurementSystem.imperial,
+                        label: Text(l10n.measurementImperial),
+                      ),
+                    ],
+                    selected: {appState.measurementSystem},
+                    onSelectionChanged: (systems) {
+                      appState.setMeasurementSystem(systems.first);
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+
           // Appearance
           Card(
             child: Padding(
@@ -158,7 +196,8 @@ class SettingsScreen extends StatelessWidget {
                           title: Text(food.name,
                               style: theme.textTheme.titleMedium),
                           subtitle: Text(
-                              '${food.proteinGrams.round()}g · ${food.servingSize}'),
+                            '${food.proteinGrams.round()}g · ${l10n.servingDisplay(food.servingSize, foodId: food.isCustom ? null : food.id, system: appState.measurementSystem)}',
+                          ),
                           trailing: IconButton(
                             icon: Icon(Icons.delete_outline,
                                 color: theme.colorScheme.error),

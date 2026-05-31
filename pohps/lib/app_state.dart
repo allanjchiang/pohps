@@ -13,6 +13,7 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
   int _dailyGoal = 0;
   ThemeMode _themeMode = ThemeMode.system;
   Locale? _locale;
+  MeasurementSystem _measurementSystem = MeasurementSystem.metric;
   List<LogEntry> _todayLog = [];
   List<FoodItem> _customFoods = [];
   Set<String> _unlockedAchievements = {};
@@ -33,6 +34,7 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
   int get dailyGoal => _dailyGoal;
   ThemeMode get themeMode => _themeMode;
   Locale? get locale => _locale;
+  MeasurementSystem get measurementSystem => _measurementSystem;
   List<LogEntry> get todayLog => List.unmodifiable(_todayLog);
   List<FoodItem> get customFoods => List.unmodifiable(_customFoods);
   Set<String> get unlockedAchievements =>
@@ -54,6 +56,7 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
     _dailyGoal = _storage.dailyGoal;
     _themeMode = _storage.themeMode;
     _locale = _parseLocale(_storage.localeCode);
+    _measurementSystem = _storage.measurementSystem;
     _customFoods = _storage.customFoods;
     _unlockedAchievements = _storage.unlockedAchievements;
     _currentEffectiveDate = effectiveDate();
@@ -126,6 +129,12 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
             ? '${locale.languageCode}_${locale.countryCode}'
             : locale.languageCode;
     await _storage.setLocaleCode(code);
+    notifyListeners();
+  }
+
+  Future<void> setMeasurementSystem(MeasurementSystem system) async {
+    _measurementSystem = system;
+    await _storage.setMeasurementSystem(system);
     notifyListeners();
   }
 
