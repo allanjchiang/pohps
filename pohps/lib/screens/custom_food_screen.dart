@@ -164,6 +164,7 @@ class _CustomFoodScreenState extends State<CustomFoodScreen> {
       name: name,
       category: _selectedCategory,
       proteinGrams: protein,
+      waterMlPerServing: 0,
       servingSize: serving,
       emoji: _selectedEmoji,
       isCustom: true,

@@ -75,6 +75,15 @@ class StorageService {
     return _prefs.setString('diet_type', value);
   }
 
+  bool get waterTrackerEnabled =>
+      _prefs.getBool('water_tracker_enabled') ?? false;
+  Future<void> setWaterTrackerEnabled(bool value) =>
+      _prefs.setBool('water_tracker_enabled', value);
+
+  int get dailyWaterGoalMl => _prefs.getInt('daily_water_goal_ml') ?? 2000;
+  Future<void> setDailyWaterGoalMl(int value) =>
+      _prefs.setInt('daily_water_goal_ml', value);
+
   String _dateKey(DateTime date) =>
       'log_${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
 

@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import '../app_state.dart';
 import '../l10n/app_localizations.dart';
 import '../models.dart';
-import '../widgets/progress_ring.dart';
+import '../widgets/progress_tracker_carousel.dart';
 import '../widgets/achievement_dialog.dart';
 import 'add_food_screen.dart';
 import 'custom_food_screen.dart';
@@ -113,11 +113,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
               valueListenable: _progressCollapse,
               builder: (context, collapse, _) => _CollapsibleProgressSection(
                 collapse: collapse,
-                progress: appState.progressPercent,
-                current: appState.todayProtein,
-                goal: appState.dailyGoal.toDouble(),
-                goalReached: appState.goalReached,
-                goalReachedText: l10n.goalReachedWellDone,
+                appState: appState,
+                l10n: l10n,
               ),
             ),
           ),
@@ -257,12 +254,32 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
               ),
-              trailing: Text(
-                '+${entry.totalProtein.round()}g',
-                style: theme.textTheme.titleLarge?.copyWith(
-                  color: theme.colorScheme.primary,
-                  fontWeight: FontWeight.bold,
-                ),
+              trailing: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    '+${entry.totalProtein.round()}g',
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      color: theme.colorScheme.primary,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  if (appState.waterTrackerEnabled &&
+                      entry.totalWaterMl > 0) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      l10n.waterAmountLabel(
+                        entry.totalWaterMl,
+                        appState.measurementSystem,
+                      ),
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: const Color(0xFF1565C0),
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ],
               ),
             ),
           ),
@@ -385,24 +402,17 @@ class _PreciseScrollPhysics extends ClampingScrollPhysics {
 /// Fades and collapses while the user scrolls Today's Foods.
 class _CollapsibleProgressSection extends StatelessWidget {
   final double collapse;
-  final double progress;
-  final double current;
-  final double goal;
-  final bool goalReached;
-  final String goalReachedText;
+  final AppState appState;
+  final AppLocalizations l10n;
 
   const _CollapsibleProgressSection({
     required this.collapse,
-    required this.progress,
-    required this.current,
-    required this.goal,
-    required this.goalReached,
-    required this.goalReachedText,
+    required this.appState,
+    required this.l10n,
   });
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final visibility = (1 - collapse).clamp(0.0, 1.0);
 
     return ClipRect(
@@ -417,22 +427,20 @@ class _CollapsibleProgressSection extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 const SizedBox(height: 20),
-                ProgressRing(
-                  progress: progress,
-                  current: current,
-                  goal: goal,
+                ProgressTrackerCarousel(
+                  proteinProgress: appState.progressPercent,
+                  proteinCurrent: appState.todayProtein,
+                  proteinGoal: appState.dailyGoal.toDouble(),
+                  proteinGoalReached: appState.goalReached,
+                  proteinGoalReachedText: l10n.goalReachedWellDone,
+                  waterTrackerEnabled: appState.waterTrackerEnabled,
+                  waterProgress: appState.waterProgressPercent,
+                  waterCurrentMl: appState.todayWaterMl,
+                  waterGoalMl: appState.dailyWaterGoalMl.toDouble(),
+                  measurementSystem: appState.measurementSystem,
+                  waterGoalReached: appState.waterGoalReached,
+                  waterGoalReachedText: l10n.waterGoalReachedWellDone,
                 ),
-                if (goalReached)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8),
-                    child: Text(
-                      goalReachedText,
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        color: theme.colorScheme.primary,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
                 const SizedBox(height: 24),
               ],
             ),

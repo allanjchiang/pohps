@@ -365,6 +365,7 @@ class _FoodCardState extends State<_FoodCard> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
+    final appState = context.watch<AppState>();
     return AnimatedContainer(
       duration: const Duration(milliseconds: 250),
       decoration: BoxDecoration(
@@ -404,6 +405,18 @@ class _FoodCardState extends State<_FoodCard> {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
+                if (appState.waterTrackerEnabled &&
+                    widget.food.waterMlPerServing > 0)
+                  Text(
+                    l10n.waterAmountLabel(
+                      widget.food.waterMlPerServing,
+                      appState.measurementSystem,
+                    ),
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: const Color(0xFF1565C0),
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 Text(
                   _justAdded
                       ? l10n.added

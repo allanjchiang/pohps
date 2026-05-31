@@ -53,6 +53,60 @@ class SettingsScreen extends StatelessWidget {
           ),
           const SizedBox(height: 12),
 
+          // Water tracker
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(l10n.waterTracker, style: theme.textTheme.titleLarge),
+                  const SizedBox(height: 8),
+                  Text(
+                    l10n.waterTrackerHint,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  SwitchListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: Text(l10n.waterTracker),
+                    value: appState.waterTrackerEnabled,
+                    activeThumbColor: const Color(0xFF42A5F5),
+                    onChanged: appState.setWaterTrackerEnabled,
+                  ),
+                  if (appState.waterTrackerEnabled) ...[
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Text(
+                          l10n.formatWaterVolume(
+                            appState.dailyWaterGoalMl.toDouble(),
+                            appState.measurementSystem,
+                          ),
+                          style: theme.textTheme.headlineMedium?.copyWith(
+                            color: const Color(0xFF1565C0),
+                          ),
+                        ),
+                        const Spacer(),
+                        FilledButton.tonal(
+                          onPressed: () => _editWaterGoal(context, appState),
+                          style: FilledButton.styleFrom(
+                            minimumSize: const Size(0, 48),
+                            foregroundColor: const Color(0xFF1565C0),
+                          ),
+                          child: Text(l10n.change),
+                        ),
+                      ],
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+
           // Diet
           Card(
             child: Padding(
@@ -332,6 +386,45 @@ class SettingsScreen extends StatelessWidget {
               final value = int.tryParse(controller.text);
               if (value != null && value > 0) {
                 appState.setDailyGoal(value);
+                Navigator.pop(ctx);
+              }
+            },
+            child: Text(l10n.save),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _editWaterGoal(BuildContext context, AppState appState) {
+    final l10n = AppLocalizations.of(context);
+    final controller =
+        TextEditingController(text: appState.dailyWaterGoalMl.toString());
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.changeWaterGoal),
+        content: TextField(
+          controller: controller,
+          keyboardType: TextInputType.number,
+          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+          decoration: InputDecoration(
+            hintText: l10n.mlPerDay,
+            suffixText: 'ml',
+          ),
+          autofocus: true,
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: () {
+              final value = int.tryParse(controller.text);
+              if (value != null && value > 0) {
+                appState.setDailyWaterGoalMl(value);
                 Navigator.pop(ctx);
               }
             },

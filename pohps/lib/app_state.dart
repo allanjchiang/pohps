@@ -15,6 +15,8 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
   Locale? _locale;
   MeasurementSystem _measurementSystem = MeasurementSystem.metric;
   DietType _dietType = DietType.lactoOvo;
+  bool _waterTrackerEnabled = false;
+  int _dailyWaterGoalMl = 2000;
   List<LogEntry> _todayLog = [];
   List<FoodItem> _customFoods = [];
   Set<String> _unlockedAchievements = {};
@@ -37,17 +39,32 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
   Locale? get locale => _locale;
   MeasurementSystem get measurementSystem => _measurementSystem;
   DietType get dietType => _dietType;
+  bool get waterTrackerEnabled => _waterTrackerEnabled;
+  int get dailyWaterGoalMl => _dailyWaterGoalMl;
   List<LogEntry> get todayLog => List.unmodifiable(_todayLog);
   List<FoodItem> get customFoods => List.unmodifiable(_customFoods);
   Set<String> get unlockedAchievements =>
       Set.unmodifiable(_unlockedAchievements);
-  List<FoodItem> get allFoods => [...foodsForDiet(_dietType), ..._customFoods];
+  List<FoodItem> get allFoods {
+    final base = [...foodsForDiet(_dietType), ..._customFoods];
+    if (_waterTrackerEnabled) {
+      return [...beverageFoods, ...base];
+    }
+    return base;
+  }
 
   double get todayProtein =>
       _todayLog.fold(0.0, (sum, e) => sum + e.totalProtein);
+  double get todayWaterMl =>
+      _todayLog.fold(0.0, (sum, e) => sum + e.totalWaterMl);
   double get progressPercent =>
       _dailyGoal > 0 ? (todayProtein / _dailyGoal).clamp(0.0, 1.0) : 0.0;
+  double get waterProgressPercent => _dailyWaterGoalMl > 0
+      ? (todayWaterMl / _dailyWaterGoalMl).clamp(0.0, 1.0)
+      : 0.0;
   bool get goalReached => _dailyGoal > 0 && todayProtein >= _dailyGoal;
+  bool get waterGoalReached =>
+      _dailyWaterGoalMl > 0 && todayWaterMl >= _dailyWaterGoalMl;
 
   Achievement? get pendingAchievement =>
       _pendingAchievements.isNotEmpty ? _pendingAchievements.first : null;
@@ -60,6 +77,8 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
     _locale = _parseLocale(_storage.localeCode);
     _measurementSystem = _storage.measurementSystem;
     _dietType = _storage.dietType;
+    _waterTrackerEnabled = _storage.waterTrackerEnabled;
+    _dailyWaterGoalMl = _storage.dailyWaterGoalMl;
     _customFoods = _storage.customFoods;
     _unlockedAchievements = _storage.unlockedAchievements;
     _currentEffectiveDate = effectiveDate();
@@ -144,6 +163,18 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
   Future<void> setDietType(DietType diet) async {
     _dietType = diet;
     await _storage.setDietType(diet);
+    notifyListeners();
+  }
+
+  Future<void> setWaterTrackerEnabled(bool enabled) async {
+    _waterTrackerEnabled = enabled;
+    await _storage.setWaterTrackerEnabled(enabled);
+    notifyListeners();
+  }
+
+  Future<void> setDailyWaterGoalMl(int goalMl) async {
+    _dailyWaterGoalMl = goalMl;
+    await _storage.setDailyWaterGoalMl(goalMl);
     notifyListeners();
   }
 

@@ -160,6 +160,18 @@ class AppLocalizations {
   String get goalReachedWellDone =>
       _t('Goal reached! Well done!', '目標達成！做得好！', '目标达成！做得好！');
 
+  String get waterGoalReachedWellDone => _t(
+        'Water goal reached! Stay hydrated!',
+        '水分目標達成！記得保持補水！',
+        '水分目标达成！记得保持补水！',
+      );
+
+  String get swipeForWater =>
+      _t('Swipe for water →', '滑動查看水分 →', '滑动查看水分 →');
+
+  String get swipeForProtein =>
+      _t('← Swipe for protein', '← 滑動查看蛋白質', '← 滑动查看蛋白质');
+
   String get todaysFoods => _t("Today's Foods", '今日食物', '今日食物');
 
   String itemCount(int count) => _t(
@@ -207,6 +219,58 @@ class AppLocalizations {
 
   String get dailyProteinGoal =>
       _t('Daily Protein Goal', '每日蛋白質目標', '每日蛋白质目标');
+
+  String get dailyWaterGoal =>
+      _t('Daily Water Goal', '每日水分目標', '每日水分目标');
+
+  String get waterTracker => _t('Water Tracker', '水分追蹤', '水分追踪');
+
+  String get waterTrackerHint => _t(
+        'Track hydration from drinks and water in foods. Swipe the progress ring for water.',
+        '追蹤飲品與食物中的水分。滑動進度環可查看水分。',
+        '追踪饮品与食物中的水分。滑动进度环可查看水分。',
+      );
+
+  String get mlPerDay => _t('Millilitres per day', '每日毫升', '每日毫升');
+
+  String get changeWaterGoal =>
+      _t('Change Water Goal', '更改水分目標', '更改水分目标');
+
+  String get invalidWaterGoalMessage => _t(
+        'Please enter a valid water goal in millilitres.',
+        '請輸入有效的每日水分目標（毫升）。',
+        '请输入有效的每日水分目标（毫升）。',
+      );
+
+  String formatWaterVolume(
+    double ml,
+    MeasurementSystem system, {
+    bool compact = false,
+  }) {
+    if (system == MeasurementSystem.metric) {
+      if (compact && ml >= 1000) {
+        return '${(ml / 1000).toStringAsFixed(1)} L';
+      }
+      return '${ml.round()} ml';
+    }
+    final flOz = ml / 29.5735;
+    if (flOz >= 16) {
+      final pints = flOz / 16;
+      if (pints >= 1.05) {
+        return '${pints.toStringAsFixed(1)} pt';
+      }
+    }
+    return '${flOz.round()} fl oz';
+  }
+
+  String waterOfGoal(double goalMl, MeasurementSystem system) => _t(
+        'of ${formatWaterVolume(goalMl, system, compact: true)}',
+        '目標 ${formatWaterVolume(goalMl, system, compact: true)}',
+        '目标 ${formatWaterVolume(goalMl, system, compact: true)}',
+      );
+
+  String waterAmountLabel(double ml, MeasurementSystem system) =>
+      formatWaterVolume(ml, system);
 
   String get change => _t('Change', '更改', '更改');
 
@@ -339,6 +403,7 @@ class AppLocalizations {
 
   String categoryName(String category) {
     return switch (category) {
+      'Beverages' => _t('Beverages', '飲品', '饮品'),
       'Dairy & Eggs' => _t('Dairy & Eggs', '乳蛋類', '乳蛋类'),
       'Protein Boosters' => _t('Protein Boosters', '蛋白質補充', '蛋白质补充'),
       'Legumes' => _t('Legumes', '豆類', '豆类'),
@@ -415,6 +480,14 @@ class AppLocalizations {
       'whey_smoothie' => _t('Whey Smoothie', '乳清蛋白奶昔', '乳清蛋白奶昔'),
       'pea_protein_smoothie' =>
         _t('Pea Protein Smoothie', '豌豆蛋白奶昔', '豌豆蛋白奶昔'),
+      'water' => _t('Water', '水', '水'),
+      'coffee' => _t('Coffee', '咖啡', '咖啡'),
+      'tea' => _t('Tea', '茶', '茶'),
+      'sugar_free_soda' =>
+        _t('Sugar-Free Soda', '無糖汽水', '无糖汽水'),
+      'milk_tea' => _t('Milk Tea', '奶茶', '奶茶'),
+      'juice' => _t('Juice', '果汁', '果汁'),
+      'fruit_smoothie' => _t('Fruit Smoothie', '水果果昔', '水果果昔'),
       'soy_milk' => _t('Soy Milk', '豆漿', '豆浆'),
       'tofu' => _t('Tofu', '豆腐', '豆腐'),
       'soy_meat' => _t('Soy Meat', '素肉', '素肉'),
@@ -429,6 +502,7 @@ class AppLocalizations {
       'potato' => _t('Potato', '馬鈴薯', '土豆'),
       'mushroom' => _t('Mushroom', '蘑菇', '蘑菇'),
       'cauliflower' => _t('Cauliflower', '花椰菜', '花椰菜'),
+      'broccoli' => _t('Broccoli', '青花菜', '西兰花'),
       'cabbage' => _t('Cabbage', '高麗菜', '卷心菜'),
       'bok_choy' => _t('Bok Choy', '青江菜', '青菜'),
       'wombok' => _t('Wombok', '大白菜', '大白菜'),
@@ -463,6 +537,11 @@ class AppLocalizations {
         _t('1 scoop + milk', '1 勺 + 牛奶', '1 勺 + 牛奶'),
       '1 scoop + soy milk' =>
         _t('1 scoop + soy milk', '1 勺 + 豆漿', '1 勺 + 豆浆'),
+      '1 cup (240ml)' => _t('1 cup (240ml)', '1 杯（240ml）', '1 杯（240ml）'),
+      '1 can (355ml)' => _t('1 can (355ml)', '1 罐（355ml）', '1 罐（355ml）'),
+      '1 cup (350ml)' => _t('1 cup (350ml)', '1 杯（350ml）', '1 杯（350ml）'),
+      '1 glass (350ml)' =>
+        _t('1 glass (350ml)', '1 杯（350ml）', '1 杯（350ml）'),
       '100g (firm)' => _t('100g (firm)', '100g（板豆腐）', '100g（老豆腐）'),
       '1 serving (85g)' =>
         _t('1 serving (85g)', '1 份（85g）', '1 份（85g）'),
@@ -483,7 +562,15 @@ class AppLocalizations {
         'milk' => '½ pint (8 fl oz)',
         'whey_smoothie' => '1 scoop + ½ pint milk',
         'pea_protein_smoothie' => '1 scoop + ½ pint soy milk',
+        'water' => '½ pint (8 fl oz)',
+        'coffee' => '1 cup (8 fl oz)',
+        'tea' => '1 cup (8 fl oz)',
+        'sugar_free_soda' => '12 fl oz can',
+        'milk_tea' => '1 cup (12 fl oz)',
+        'juice' => '½ pint (8 fl oz)',
+        'fruit_smoothie' => '12 fl oz',
         'soy_milk' => '½ pint (8 fl oz)',
+        'broccoli' => '3 oz',
         'tofu' => '3.5 oz (firm)',
         'soy_meat' => '3 oz',
         'lentils' => '7 oz cooked',
