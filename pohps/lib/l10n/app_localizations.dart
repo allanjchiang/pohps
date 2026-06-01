@@ -536,7 +536,10 @@ class AppLocalizations {
       'milk' => _t('Milk', '牛奶', '牛奶'),
       'paneer' => _t('Paneer', '印度起司', '印度奶酪'),
       'cottage_cheese' => _t('Cottage Cheese', '茅屋起司', '茅屋奶酪'),
-      'whey_smoothie' => _t('Whey Smoothie', '乳清蛋白奶昔', '乳清蛋白奶昔'),
+      'whey_smoothie' =>
+        _t('Whey Protein Isolate Powder', '乳清分離蛋白粉', '乳清分离蛋白粉'),
+      'pea_protein_powder' =>
+        _t('Pea Protein Powder', '豌豆蛋白粉', '豌豆蛋白粉'),
       'pea_protein_smoothie' =>
         _t('Pea Protein Smoothie', '豌豆蛋白奶昔', '豌豆蛋白奶昔'),
       'water' => _t('Water', '水', '水'),
@@ -599,6 +602,7 @@ class AppLocalizations {
         _t('1 scoop + milk', '1 勺 + 牛奶', '1 勺 + 牛奶'),
       '1 scoop + soy milk' =>
         _t('1 scoop + soy milk', '1 勺 + 豆漿', '1 勺 + 豆浆'),
+      '1 scoop' => _t('1 scoop', '1 勺', '1 勺'),
       '1 cup (240ml)' => _t('1 cup (240ml)', '1 杯（240ml）', '1 杯（240ml）'),
       '1 can (355ml)' => _t('1 can (355ml)', '1 罐（355ml）', '1 罐（355ml）'),
       '1 cup (350ml)' => _t('1 cup (350ml)', '1 杯（350ml）', '1 杯（350ml）'),
@@ -626,7 +630,8 @@ class AppLocalizations {
         'milk' => '½ pint (8 fl oz)',
         'paneer' => '3.5 oz',
         'cottage_cheese' => '4 oz',
-        'whey_smoothie' => '1 scoop + ½ pint milk',
+        'whey_smoothie' => '1 scoop',
+        'pea_protein_powder' => '1 scoop',
         'pea_protein_smoothie' => '1 scoop + ½ pint soy milk',
         'water' => '½ pint (8 fl oz)',
         'coffee' => '1 cup (8 fl oz)',
@@ -669,6 +674,7 @@ class AppLocalizations {
       '1 glass (250ml)' => '½ pint (8 fl oz)',
       '1 scoop + milk' => '1 scoop + ½ pint milk',
       '1 scoop + soy milk' => '1 scoop + ½ pint soy milk',
+      '1 scoop' => '1 scoop',
       '100g (firm)' => '3.5 oz (firm)',
       '100g' => '3.5 oz',
       '1/2 cup' => '4 oz',

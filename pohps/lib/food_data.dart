@@ -145,12 +145,21 @@ const List<FoodItem> defaultFoods = [
   // Protein Boosters
   FoodItem(
     id: 'whey_smoothie',
-    name: 'Whey Smoothie',
+    name: 'Whey Protein Isolate Powder',
     category: categoryProteinBoosters,
-    proteinGrams: 22,
-    waterMlPerServing: 200,
-    servingSize: '1 scoop + milk',
-    emoji: '🥤',
+    proteinGrams: 24,
+    waterMlPerServing: 0,
+    servingSize: '1 scoop',
+    emoji: '🥄',
+  ),
+  FoodItem(
+    id: 'pea_protein_powder',
+    name: 'Pea Protein Powder',
+    category: categoryProteinBoosters,
+    proteinGrams: 24,
+    waterMlPerServing: 0,
+    servingSize: '1 scoop',
+    emoji: '🥄',
   ),
   FoodItem(
     id: 'soy_milk',
