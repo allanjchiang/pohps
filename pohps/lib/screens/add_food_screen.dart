@@ -421,6 +421,7 @@ class _FoodCardState extends State<_FoodCard> {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
     final appState = context.watch<AppState>();
+    final proteinEditable = appState.isProteinEditableFood(widget.food.id);
     return AnimatedContainer(
       duration: const Duration(milliseconds: 250),
       decoration: BoxDecoration(
@@ -438,81 +439,99 @@ class _FoodCardState extends State<_FoodCard> {
         child: InkWell(
           onTap: _handleTap,
           onLongPress:
-              appState.isProteinEditableFood(widget.food.id)
+              proteinEditable
                   ? () => _maybeEditProtein(appState)
                   : null,
           borderRadius: BorderRadius.circular(14),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(widget.food.emoji,
-                    style: const TextStyle(fontSize: 28)),
-                Text(
-                  l10n.foodDisplayName(widget.food.id, widget.food.name),
-                  style: theme.textTheme.titleSmall,
-                  textAlign: TextAlign.center,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                if (appState.waterTrackerEnabled &&
-                    widget.food.waterMlPerServing > 0)
-                  Text.rich(
-                    TextSpan(
-                      children: [
-                        TextSpan(
-                          text: l10n
-                              .gProtein('${appState.proteinForFood(widget.food).round()}'),
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: theme.colorScheme.primary,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        TextSpan(
-                          text:
-                              ' · ${l10n.waterAmountLabel(widget.food.waterMlPerServing, appState.measurementSystem)}',
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: const Color(0xFF1565C0),
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
+          child: Stack(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(widget.food.emoji,
+                        style: const TextStyle(fontSize: 28)),
+                    Text(
+                      l10n.foodDisplayName(widget.food.id, widget.food.name),
+                      style: theme.textTheme.titleSmall,
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    textAlign: TextAlign.center,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  )
-                else
-                  Text(
-                    l10n.gProtein('${appState.proteinForFood(widget.food).round()}'),
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.primary,
-                      fontWeight: FontWeight.w600,
+                    if (appState.waterTrackerEnabled &&
+                        widget.food.waterMlPerServing > 0)
+                      Text.rich(
+                        TextSpan(
+                          children: [
+                            TextSpan(
+                              text: l10n.gProtein(
+                                  '${appState.proteinForFood(widget.food).round()}'),
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: theme.colorScheme.primary,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            TextSpan(
+                              text:
+                                  ' · ${l10n.waterAmountLabel(widget.food.waterMlPerServing, appState.measurementSystem)}',
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: const Color(0xFF1565C0),
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                        textAlign: TextAlign.center,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      )
+                    else
+                      Text(
+                        l10n.gProtein(
+                            '${appState.proteinForFood(widget.food).round()}'),
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.primary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    Text(
+                      _justAdded
+                          ? l10n.added
+                          : l10n.servingDisplay(
+                              widget.food.servingSize,
+                              foodId:
+                                  widget.food.isCustom ? null : widget.food.id,
+                              system: appState.measurementSystem,
+                            ),
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        color: _justAdded
+                            ? theme.colorScheme.primary
+                            : theme.colorScheme.onSurfaceVariant,
+                        fontWeight:
+                            _justAdded ? FontWeight.w600 : FontWeight.normal,
+                      ),
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              if (proteinEditable)
+                Positioned(
+                  top: 6,
+                  right: 6,
+                  child: Icon(
+                    Icons.edit,
+                    size: 16,
+                    color: theme.colorScheme.onSurfaceVariant.withValues(
+                      alpha: 0.75,
                     ),
                   ),
-                Text(
-                  _justAdded
-                      ? l10n.added
-                      : l10n.servingDisplay(
-                          widget.food.servingSize,
-                          foodId: widget.food.isCustom ? null : widget.food.id,
-                          system: appState.measurementSystem,
-                        ),
-                  style: theme.textTheme.labelSmall?.copyWith(
-                    color: _justAdded
-                        ? theme.colorScheme.primary
-                        : theme.colorScheme.onSurfaceVariant,
-                    fontWeight:
-                        _justAdded ? FontWeight.w600 : FontWeight.normal,
-                  ),
-                  textAlign: TextAlign.center,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
                 ),
-              ],
-            ),
+            ],
           ),
         ),
       ),
