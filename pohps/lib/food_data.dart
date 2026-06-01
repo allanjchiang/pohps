@@ -7,6 +7,7 @@ const String categoryLegumes = 'Legumes';
 const String categoryGrains = 'Grains';
 const String categoryVegetables = 'Vegetables';
 const String categoryFruits = 'Fruits';
+const String categoryNutsSeeds = 'Nuts & Seeds';
 const String categoryOther = 'Other';
 
 const List<String> categories = [
@@ -16,6 +17,7 @@ const List<String> categories = [
   categoryGrains,
   categoryVegetables,
   categoryFruits,
+  categoryNutsSeeds,
   categoryOther,
 ];
 
@@ -460,15 +462,125 @@ const List<FoodItem> defaultFoods = [
     emoji: '🍎',
   ),
 
-  // Other
+  // Nuts & Seeds
   FoodItem(
     id: 'nuts_seeds',
     name: 'Nuts & Seeds',
-    category: categoryOther,
+    category: categoryNutsSeeds,
     proteinGrams: 6,
     waterMlPerServing: 2,
     servingSize: '30g (1 oz)',
     emoji: '🥜',
+  ),
+  FoodItem(
+    id: 'almonds',
+    name: 'Almonds',
+    category: categoryNutsSeeds,
+    proteinGrams: 6,
+    waterMlPerServing: 2,
+    servingSize: '30g (1 oz)',
+    emoji: '🌰',
+  ),
+  FoodItem(
+    id: 'peanuts',
+    name: 'Peanuts',
+    category: categoryNutsSeeds,
+    proteinGrams: 7,
+    waterMlPerServing: 2,
+    servingSize: '30g (1 oz)',
+    emoji: '🥜',
+  ),
+  FoodItem(
+    id: 'cashews',
+    name: 'Cashews',
+    category: categoryNutsSeeds,
+    proteinGrams: 5,
+    waterMlPerServing: 2,
+    servingSize: '30g (1 oz)',
+    emoji: '🌰',
+  ),
+  FoodItem(
+    id: 'pistachios',
+    name: 'Pistachios',
+    category: categoryNutsSeeds,
+    proteinGrams: 6,
+    waterMlPerServing: 2,
+    servingSize: '30g (1 oz)',
+    emoji: '🌰',
+  ),
+  FoodItem(
+    id: 'macadamias',
+    name: 'Macadamias',
+    category: categoryNutsSeeds,
+    proteinGrams: 2,
+    waterMlPerServing: 2,
+    servingSize: '30g (1 oz)',
+    emoji: '🌰',
+  ),
+  FoodItem(
+    id: 'brazil_nuts',
+    name: 'Brazil Nuts',
+    category: categoryNutsSeeds,
+    proteinGrams: 4,
+    waterMlPerServing: 2,
+    servingSize: '30g (1 oz)',
+    emoji: '🌰',
+  ),
+  FoodItem(
+    id: 'pecans',
+    name: 'Pecans',
+    category: categoryNutsSeeds,
+    proteinGrams: 3,
+    waterMlPerServing: 2,
+    servingSize: '30g (1 oz)',
+    emoji: '🌰',
+  ),
+  FoodItem(
+    id: 'flaxseeds',
+    name: 'Flaxseeds',
+    category: categoryNutsSeeds,
+    proteinGrams: 5,
+    waterMlPerServing: 2,
+    servingSize: '30g (1 oz)',
+    emoji: '🌾',
+  ),
+  FoodItem(
+    id: 'chia_seeds',
+    name: 'Chia Seeds',
+    category: categoryNutsSeeds,
+    proteinGrams: 5,
+    waterMlPerServing: 2,
+    servingSize: '30g (1 oz)',
+    emoji: '🌱',
+  ),
+  FoodItem(
+    id: 'sunflower_seeds',
+    name: 'Sunflower Seeds',
+    category: categoryNutsSeeds,
+    proteinGrams: 6,
+    waterMlPerServing: 2,
+    servingSize: '30g (1 oz)',
+    emoji: '🌻',
+  ),
+  FoodItem(
+    id: 'pumpkin_seeds',
+    name: 'Pumpkin Seeds',
+    category: categoryNutsSeeds,
+    proteinGrams: 9,
+    waterMlPerServing: 2,
+    servingSize: '30g (1 oz)',
+    emoji: '🎃',
+  ),
+
+  // Other
+  FoodItem(
+    id: 'nutritional_yeast',
+    name: 'Nutritional Yeast',
+    category: categoryOther,
+    proteinGrams: 3,
+    waterMlPerServing: 0,
+    servingSize: '1 tbsp',
+    emoji: '🧀',
   ),
   FoodItem(
     id: 'oils',
