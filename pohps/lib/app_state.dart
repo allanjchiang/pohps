@@ -17,7 +17,8 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
   DietType _dietType = DietType.lactoOvo;
   bool _waterTrackerEnabled = false;
   int _dailyWaterGoalMl = 2000;
-  List<LogEntry> _todayLog = [];
+  DateTime _viewDate = effectiveDate();
+  List<LogEntry> _viewLog = [];
   List<FoodItem> _customFoods = [];
   Set<String> _unlockedAchievements = {};
   final List<Achievement> _pendingAchievements = [];
@@ -33,6 +34,12 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
     return DateTime(now.year, now.month, now.day);
   }
 
+  static DateTime dateOnly(DateTime date) =>
+      DateTime(date.year, date.month, date.day);
+
+  static bool isSameDay(DateTime a, DateTime b) =>
+      a.year == b.year && a.month == b.month && a.day == b.day;
+
   bool get disclaimerAccepted => _disclaimerAccepted;
   int get dailyGoal => _dailyGoal;
   ThemeMode get themeMode => _themeMode;
@@ -41,7 +48,10 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
   DietType get dietType => _dietType;
   bool get waterTrackerEnabled => _waterTrackerEnabled;
   int get dailyWaterGoalMl => _dailyWaterGoalMl;
-  List<LogEntry> get todayLog => List.unmodifiable(_todayLog);
+  DateTime get viewDate => _viewDate;
+  bool get isViewingToday => isSameDay(_viewDate, _currentEffectiveDate);
+  bool get canViewNextDay => !isViewingToday;
+  List<LogEntry> get viewLog => List.unmodifiable(_viewLog);
   List<FoodItem> get customFoods => List.unmodifiable(_customFoods);
   Set<String> get unlockedAchievements =>
       Set.unmodifiable(_unlockedAchievements);
@@ -50,18 +60,18 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
         ..._customFoods,
       ];
 
-  double get todayProtein =>
-      _todayLog.fold(0.0, (sum, e) => sum + e.totalProtein);
-  double get todayWaterMl =>
-      _todayLog.fold(0.0, (sum, e) => sum + e.totalWaterMl);
-  double get progressPercent =>
-      _dailyGoal > 0 ? (todayProtein / _dailyGoal).clamp(0.0, 1.0) : 0.0;
-  double get waterProgressPercent => _dailyWaterGoalMl > 0
-      ? (todayWaterMl / _dailyWaterGoalMl).clamp(0.0, 1.0)
+  double get viewProtein =>
+      _viewLog.fold(0.0, (sum, e) => sum + e.totalProtein);
+  double get viewWaterMl =>
+      _viewLog.fold(0.0, (sum, e) => sum + e.totalWaterMl);
+  double get viewProgressPercent =>
+      _dailyGoal > 0 ? (viewProtein / _dailyGoal).clamp(0.0, 1.0) : 0.0;
+  double get viewWaterProgressPercent => _dailyWaterGoalMl > 0
+      ? (viewWaterMl / _dailyWaterGoalMl).clamp(0.0, 1.0)
       : 0.0;
-  bool get goalReached => _dailyGoal > 0 && todayProtein >= _dailyGoal;
-  bool get waterGoalReached =>
-      _dailyWaterGoalMl > 0 && todayWaterMl >= _dailyWaterGoalMl;
+  bool get viewGoalReached => _dailyGoal > 0 && viewProtein >= _dailyGoal;
+  bool get viewWaterGoalReached =>
+      _dailyWaterGoalMl > 0 && viewWaterMl >= _dailyWaterGoalMl;
 
   Achievement? get pendingAchievement =>
       _pendingAchievements.isNotEmpty ? _pendingAchievements.first : null;
@@ -79,7 +89,8 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
     _customFoods = _storage.customFoods;
     _unlockedAchievements = _storage.unlockedAchievements;
     _currentEffectiveDate = effectiveDate();
-    _todayLog = _storage.getDailyLog(_currentEffectiveDate);
+    _viewDate = _currentEffectiveDate;
+    _loadViewLog();
     WidgetsBinding.instance.addObserver(this);
     _scheduleNextReset();
     notifyListeners();
@@ -100,12 +111,44 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
     }
   }
 
+  void _loadViewLog() {
+    _viewLog = _storage.getDailyLog(_viewDate);
+  }
+
   void _refreshLogIfDateChanged() {
     final newDate = effectiveDate();
-    if (newDate != _currentEffectiveDate) {
+    if (!isSameDay(newDate, _currentEffectiveDate)) {
+      final wasViewingToday = isSameDay(_viewDate, _currentEffectiveDate);
       _currentEffectiveDate = newDate;
-      _todayLog = _storage.getDailyLog(newDate);
+      if (wasViewingToday) {
+        _viewDate = newDate;
+        _loadViewLog();
+      }
       notifyListeners();
+    }
+  }
+
+  void goToPreviousDay() {
+    _viewDate = dateOnly(_viewDate).subtract(const Duration(days: 1));
+    _loadViewLog();
+    notifyListeners();
+  }
+
+  void goToNextDay() {
+    if (!canViewNextDay) return;
+    final next = dateOnly(_viewDate).add(const Duration(days: 1));
+    _viewDate = next.isAfter(_currentEffectiveDate) ? _currentEffectiveDate : next;
+    _loadViewLog();
+    notifyListeners();
+  }
+
+  List<LogEntry> _todayLogFromStorage() =>
+      List<LogEntry>.from(_storage.getDailyLog(_currentEffectiveDate));
+
+  Future<void> _saveTodayLog(List<LogEntry> log) async {
+    await _storage.saveDailyLog(_currentEffectiveDate, log);
+    if (isViewingToday) {
+      _viewLog = log;
     }
   }
 
@@ -190,26 +233,29 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
       timestamp: DateTime.now(),
       fraction: fraction,
     );
-    _todayLog.add(entry);
-    await _storage.saveDailyLog(_currentEffectiveDate, _todayLog);
+    final log = _todayLogFromStorage()..add(entry);
+    await _saveTodayLog(log);
     _checkAchievements();
     notifyListeners();
   }
 
   Future<void> updateEntryFraction(String entryId, double fraction) async {
+    if (!isViewingToday) return;
     _refreshLogIfDateChanged();
-    final index = _todayLog.indexWhere((e) => e.id == entryId);
+    final log = _todayLogFromStorage();
+    final index = log.indexWhere((e) => e.id == entryId);
     if (index == -1) return;
-    _todayLog[index] = _todayLog[index].copyWith(fraction: fraction);
-    await _storage.saveDailyLog(_currentEffectiveDate, _todayLog);
+    log[index] = log[index].copyWith(fraction: fraction);
+    await _saveTodayLog(log);
     _checkAchievements();
     notifyListeners();
   }
 
   Future<void> removeEntry(String entryId) async {
+    if (!isViewingToday) return;
     _refreshLogIfDateChanged();
-    _todayLog.removeWhere((e) => e.id == entryId);
-    await _storage.saveDailyLog(_currentEffectiveDate, _todayLog);
+    final log = _todayLogFromStorage()..removeWhere((e) => e.id == entryId);
+    await _saveTodayLog(log);
     notifyListeners();
   }
 
@@ -236,8 +282,10 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   void _checkAchievements() {
-    if (!_unlockedAchievements.contains('firstBite') &&
-        _todayLog.isNotEmpty) {
+    final todayLog = _todayLogFromStorage();
+    final todayProtein =
+        todayLog.fold(0.0, (sum, e) => sum + e.totalProtein);
+    if (!_unlockedAchievements.contains('firstBite') && todayLog.isNotEmpty) {
       _unlock(AchievementType.firstBite);
     }
     if (!_unlockedAchievements.contains('halfwayThere') &&

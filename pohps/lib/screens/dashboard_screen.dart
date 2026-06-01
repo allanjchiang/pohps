@@ -4,6 +4,7 @@ import '../app_state.dart';
 import '../l10n/app_localizations.dart';
 import '../models.dart';
 import '../widgets/progress_tracker_carousel.dart';
+import '../widgets/swipeable_date_title.dart';
 import '../widgets/achievement_dialog.dart';
 import 'add_food_screen.dart';
 import 'custom_food_screen.dart';
@@ -70,6 +71,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
+  void _resetScrollForDateChange() {
+    if (_scrollController.hasClients) {
+      _scrollController.jumpTo(0);
+    }
+    _progressCollapse.value = 0;
+  }
+
+  void _goToPreviousDay(AppState appState) {
+    appState.goToPreviousDay();
+    _resetScrollForDateChange();
+  }
+
+  void _goToNextDay(AppState appState) {
+    appState.goToNextDay();
+    _resetScrollForDateChange();
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -78,13 +96,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          l10n.formatDashboardDate(AppState.effectiveDate()),
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: theme.colorScheme.primary,
-            fontSize: 22,
-          ),
+        title: SwipeableDateTitle(
+          date: appState.viewDate,
+          canGoForward: appState.canViewNextDay,
+          onPreviousDay: () => _goToPreviousDay(appState),
+          onNextDay: () => _goToNextDay(appState),
         ),
         actions: [
           IconButton(
@@ -123,11 +139,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
               padding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
               child: Row(
                 children: [
-                  Text(l10n.todaysFoods, style: theme.textTheme.titleLarge),
-                  const Spacer(),
-                  if (appState.todayLog.isNotEmpty)
+                  Expanded(
+                    child: Text(
+                      l10n.foodsSectionTitle(
+                        isToday: appState.isViewingToday,
+                      ),
+                      style: theme.textTheme.titleLarge,
+                    ),
+                  ),
+                  if (appState.viewLog.isNotEmpty)
                     Text(
-                      l10n.itemCount(appState.todayLog.length),
+                      l10n.itemCount(appState.viewLog.length),
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: theme.colorScheme.onSurfaceVariant,
                       ),
@@ -136,10 +158,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             ),
           ),
-          if (appState.todayLog.isEmpty)
+          if (appState.viewLog.isEmpty)
             SliverFillRemaining(
               hasScrollBody: false,
-              child: _buildEmptyState(theme, l10n),
+              child: _buildEmptyState(theme, l10n, appState.isViewingToday),
             )
           else
             SliverPadding(
@@ -150,23 +172,29 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     theme,
                     appState,
                     l10n,
-                    appState.todayLog[index],
+                    appState.viewLog[index],
                   ),
-                  childCount: appState.todayLog.length,
+                  childCount: appState.viewLog.length,
                 ),
               ),
             ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _openAddFood(context),
-        icon: const Icon(Icons.add, size: 28),
-        label: Text(l10n.addFood, style: theme.textTheme.labelLarge),
-      ),
+      floatingActionButton: appState.isViewingToday
+          ? FloatingActionButton.extended(
+              onPressed: () => _openAddFood(context),
+              icon: const Icon(Icons.add, size: 28),
+              label: Text(l10n.addFood, style: theme.textTheme.labelLarge),
+            )
+          : null,
     );
   }
 
-  Widget _buildEmptyState(ThemeData theme, AppLocalizations l10n) {
+  Widget _buildEmptyState(
+    ThemeData theme,
+    AppLocalizations l10n,
+    bool isViewingToday,
+  ) {
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -174,17 +202,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
           const Text('🥗', style: TextStyle(fontSize: 48)),
           const SizedBox(height: 12),
           Text(
-            l10n.noFoodsLoggedYet,
+            isViewingToday ? l10n.noFoodsLoggedYet : l10n.noFoodsLoggedOnDay,
             style: theme.textTheme.bodyLarge?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
             ),
+            textAlign: TextAlign.center,
           ),
           const SizedBox(height: 4),
           Text(
-            l10n.tapAddFoodToStart,
+            isViewingToday
+                ? l10n.tapAddFoodToStart
+                : l10n.swipeDateToBrowseHistory,
             style: theme.textTheme.bodyMedium?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
             ),
+            textAlign: TextAlign.center,
           ),
         ],
       ),
@@ -203,6 +235,55 @@ class _DashboardScreenState extends State<DashboardScreen> {
       foodId: entry.food.isCustom ? null : entry.food.id,
       system: appState.measurementSystem,
     );
+    final tile = Card(
+      margin: const EdgeInsets.symmetric(vertical: 4),
+      child: ListTile(
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        onTap: appState.isViewingToday
+            ? () => _showFractionPicker(context, appState, entry)
+            : null,
+        leading: Text(entry.food.emoji, style: const TextStyle(fontSize: 32)),
+        title: Text(displayName, style: theme.textTheme.titleMedium),
+        subtitle: Text(
+          entry.fraction == 1.0
+              ? displayServing
+              : '${entry.fraction}× $displayServing',
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+        ),
+        trailing: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Text(
+              '+${entry.totalProtein.round()}g',
+              style: theme.textTheme.titleLarge?.copyWith(
+                color: theme.colorScheme.primary,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            if (appState.waterTrackerEnabled && entry.totalWaterMl > 0) ...[
+              const SizedBox(height: 2),
+              Text(
+                l10n.waterAmountLabel(
+                  entry.totalWaterMl,
+                  appState.measurementSystem,
+                ),
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: const Color(0xFF1565C0),
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+
+    if (!appState.isViewingToday) return tile;
+
     return Dismissible(
           key: Key(entry.id),
           direction: DismissDirection.endToStart,
@@ -237,52 +318,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             );
           },
           onDismissed: (_) => appState.removeEntry(entry.id),
-          child: Card(
-            margin: const EdgeInsets.symmetric(vertical: 4),
-            child: ListTile(
-              contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              onTap: () => _showFractionPicker(context, appState, entry),
-              leading:
-                  Text(entry.food.emoji, style: const TextStyle(fontSize: 32)),
-              title: Text(displayName, style: theme.textTheme.titleMedium),
-              subtitle: Text(
-                entry.fraction == 1.0
-                    ? displayServing
-                    : '${entry.fraction}× $displayServing',
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
-              ),
-              trailing: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    '+${entry.totalProtein.round()}g',
-                    style: theme.textTheme.titleLarge?.copyWith(
-                      color: theme.colorScheme.primary,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  if (appState.waterTrackerEnabled &&
-                      entry.totalWaterMl > 0) ...[
-                    const SizedBox(height: 2),
-                    Text(
-                      l10n.waterAmountLabel(
-                        entry.totalWaterMl,
-                        appState.measurementSystem,
-                      ),
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: const Color(0xFF1565C0),
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-          ),
+          child: tile,
         );
   }
 
@@ -429,17 +465,17 @@ class _CollapsibleProgressSection extends StatelessWidget {
               children: [
                 const SizedBox(height: 12),
                 ProgressTrackerCarousel(
-                  proteinProgress: appState.progressPercent,
-                  proteinCurrent: appState.todayProtein,
+                  proteinProgress: appState.viewProgressPercent,
+                  proteinCurrent: appState.viewProtein,
                   proteinGoal: appState.dailyGoal.toDouble(),
-                  proteinGoalReached: appState.goalReached,
+                  proteinGoalReached: appState.viewGoalReached,
                   proteinGoalReachedText: l10n.goalReachedWellDone,
                   waterTrackerEnabled: appState.waterTrackerEnabled,
-                  waterProgress: appState.waterProgressPercent,
-                  waterCurrentMl: appState.todayWaterMl,
+                  waterProgress: appState.viewWaterProgressPercent,
+                  waterCurrentMl: appState.viewWaterMl,
                   waterGoalMl: appState.dailyWaterGoalMl.toDouble(),
                   measurementSystem: appState.measurementSystem,
-                  waterGoalReached: appState.waterGoalReached,
+                  waterGoalReached: appState.viewWaterGoalReached,
                   waterGoalReachedText: l10n.waterGoalReachedWellDone,
                 ),
                 const SizedBox(height: 24),

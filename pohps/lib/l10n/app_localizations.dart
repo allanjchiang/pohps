@@ -172,6 +172,17 @@ class AppLocalizations {
   String get swipeForProtein =>
       _t('← Swipe for protein', '← 滑動查看蛋白質', '← 滑动查看蛋白质');
 
+  String get swipeDateHint => _t(
+        'Swipe the date to view previous days',
+        '滑動日期以查看先前紀錄',
+        '滑动日期以查看先前记录',
+      );
+
+  String foodsSectionTitle({required bool isToday}) {
+    if (isToday) return todaysFoods;
+    return _t('Foods & Drinks', '食物與飲品', '食物与饮品');
+  }
+
   String get todaysFoods => _t("Today's Foods", '今日食物', '今日食物');
 
   String itemCount(int count) => _t(
@@ -183,10 +194,19 @@ class AppLocalizations {
   String get noFoodsLoggedYet =>
       _t('No foods logged yet', '尚未記錄任何食物', '尚未记录任何食物');
 
+  String get noFoodsLoggedOnDay =>
+      _t('No foods logged on this day', '這天尚未記錄任何食物', '这天尚未记录任何食物');
+
   String get tapAddFoodToStart => _t(
         'Tap + Add Food to get started',
         '點擊 + 新增食物 開始記錄',
         '点击 + 添加食物 开始记录',
+      );
+
+  String get swipeDateToBrowseHistory => _t(
+        'Swipe the date above to browse your history',
+        '滑動上方日期以瀏覽紀錄',
+        '滑动上方日期以浏览记录',
       );
 
   String get addFood => _t('Add Food', '新增食物', '添加食物');
