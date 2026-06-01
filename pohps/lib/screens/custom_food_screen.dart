@@ -8,7 +8,9 @@ import '../models.dart';
 import '../widgets/ingredient_picker_sheet.dart';
 
 class CustomFoodScreen extends StatefulWidget {
-  const CustomFoodScreen({super.key});
+  final FoodItem? existingFood;
+
+  const CustomFoodScreen({super.key, this.existingFood});
 
   @override
   State<CustomFoodScreen> createState() => _CustomFoodScreenState();
@@ -22,11 +24,40 @@ class _CustomFoodScreenState extends State<CustomFoodScreen> {
   String _selectedCategory = categoryOther;
   String _selectedEmoji = '🍓';
 
+  bool get _isEditing => widget.existingFood != null;
+
   static const _emojiOptions = [
     '🍓', '🍹', '🥤', '🧋', '🍽️', '🥘', '🍲', '🥗', '🍛', '🥧',
     '🧆', '🥙', '🌮', '🌯', '🥪', '🫕', '🍝', '🍜', '🍱', '🥡',
     '🧁', '🥮', '🍰', '🫓', '🥞', '🧇', '🥣', '🍵',
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    final existing = widget.existingFood;
+    if (existing == null) return;
+
+    _nameController.text = existing.name;
+    _servingController.text = existing.servingSize;
+    _selectedCategory = existing.category;
+    _selectedEmoji = existing.emoji;
+
+    if (existing.hasComponents) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        final appState = context.read<AppState>();
+        setState(() {
+          _ingredients.loadFromComponents(existing.components!, appState);
+        });
+      });
+    } else {
+      final protein = existing.proteinGrams;
+      _proteinController.text = protein == protein.roundToDouble()
+          ? '${protein.round()}'
+          : protein.toStringAsFixed(1);
+    }
+  }
 
   @override
   void dispose() {
@@ -50,7 +81,9 @@ class _CustomFoodScreenState extends State<CustomFoodScreen> {
           );
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.createCustomFood)),
+      appBar: AppBar(
+        title: Text(_isEditing ? l10n.editCustomFood : l10n.createCustomFood),
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
@@ -110,8 +143,8 @@ class _CustomFoodScreenState extends State<CustomFoodScreen> {
             Row(
               children: [
                 Expanded(
-                  child:
-                      Text(l10n.ingredientsLabel, style: theme.textTheme.titleMedium),
+                  child: Text(l10n.ingredientsLabel,
+                      style: theme.textTheme.titleMedium),
                 ),
                 FilledButton.tonalIcon(
                   onPressed: () => _addIngredient(appState),
@@ -296,7 +329,8 @@ class _CustomFoodScreenState extends State<CustomFoodScreen> {
     }
 
     final food = FoodItem(
-      id: 'custom_${DateTime.now().millisecondsSinceEpoch}',
+      id: widget.existingFood?.id ??
+          'custom_${DateTime.now().millisecondsSinceEpoch}',
       name: name,
       category: _selectedCategory,
       proteinGrams: protein,
@@ -306,14 +340,26 @@ class _CustomFoodScreenState extends State<CustomFoodScreen> {
       isCustom: true,
       components: components,
     );
-    appState.addCustomFood(food);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(l10n.foodCreated(name),
-            style: const TextStyle(fontSize: 16)),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
+
+    if (_isEditing) {
+      appState.updateCustomFood(food);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l10n.foodUpdated(name),
+              style: const TextStyle(fontSize: 16)),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } else {
+      appState.addCustomFood(food);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l10n.foodCreated(name),
+              style: const TextStyle(fontSize: 16)),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
     Navigator.pop(context, true);
   }
 

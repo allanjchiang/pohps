@@ -5,6 +5,7 @@ import '../app_state.dart';
 import '../models.dart';
 import '../food_data.dart';
 import '../l10n/app_localizations.dart';
+import 'custom_food_screen.dart';
 
 /// Full-height modal with interactive drag (panel follows the finger).
 Future<String?> showAddFoodSheet(BuildContext context, AppState appState) {
@@ -201,6 +202,14 @@ class _AddFoodPanel extends StatefulWidget {
 class _AddFoodPanelState extends State<_AddFoodPanel> {
   String _selectedCategory = 'All';
 
+  Future<void> _editCustomFood(FoodItem food) async {
+    await Navigator.of(context).push<bool>(
+      MaterialPageRoute(
+        builder: (_) => CustomFoodScreen(existingFood: food),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -333,6 +342,9 @@ class _AddFoodPanelState extends State<_AddFoodPanel> {
                     return _FoodCard(
                       food: food,
                       onTap: () => appState.addFood(food),
+                      onEdit: food.isCustom
+                          ? () => _editCustomFood(food)
+                          : null,
                     );
                   },
                 ),
@@ -345,8 +357,13 @@ class _AddFoodPanelState extends State<_AddFoodPanel> {
 class _FoodCard extends StatefulWidget {
   final FoodItem food;
   final VoidCallback onTap;
+  final VoidCallback? onEdit;
 
-  const _FoodCard({required this.food, required this.onTap});
+  const _FoodCard({
+    required this.food,
+    required this.onTap,
+    this.onEdit,
+  });
 
   @override
   State<_FoodCard> createState() => _FoodCardState();
@@ -438,10 +455,13 @@ class _FoodCardState extends State<_FoodCard> {
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: _handleTap,
-          onLongPress:
-              proteinEditable
-                  ? () => _maybeEditProtein(appState)
-                  : null,
+          onLongPress: () {
+            if (widget.onEdit != null) {
+              widget.onEdit!();
+            } else if (proteinEditable) {
+              _maybeEditProtein(appState);
+            }
+          },
           borderRadius: BorderRadius.circular(14),
           child: Stack(
             children: [
@@ -526,7 +546,26 @@ class _FoodCardState extends State<_FoodCard> {
                   ),
                 ),
               ),
-              if (proteinEditable)
+              if (widget.onEdit != null)
+                Positioned(
+                  top: 0,
+                  right: 0,
+                  child: SizedBox(
+                    width: 44,
+                    height: 44,
+                    child: IconButton(
+                      tooltip: l10n.editCustomFoodHint,
+                      icon: Icon(
+                        Icons.edit,
+                        size: 18,
+                        color: theme.colorScheme.onSurfaceVariant
+                            .withValues(alpha: 0.8),
+                      ),
+                      onPressed: widget.onEdit,
+                    ),
+                  ),
+                )
+              else if (proteinEditable)
                 Positioned(
                   top: 0,
                   right: 0,

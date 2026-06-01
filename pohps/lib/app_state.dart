@@ -324,6 +324,14 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
     notifyListeners();
   }
 
+  Future<void> updateCustomFood(FoodItem food) async {
+    final index = _customFoods.indexWhere((f) => f.id == food.id);
+    if (index == -1) return;
+    _customFoods[index] = food;
+    await _storage.saveCustomFoods(_customFoods);
+    notifyListeners();
+  }
+
   Future<void> removeCustomFood(String foodId) async {
     _customFoods.removeWhere((f) => f.id == foodId);
     await _storage.saveCustomFoods(_customFoods);

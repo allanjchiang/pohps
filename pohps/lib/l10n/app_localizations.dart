@@ -376,6 +376,12 @@ class AppLocalizations {
   String get createCustomFood =>
       _t('Create Custom Food', '建立自訂食物', '创建自定义食物');
 
+  String get editCustomFood =>
+      _t('Edit Custom Food', '編輯自訂食物', '编辑自定义食物');
+
+  String get editCustomFoodHint =>
+      _t('Edit custom food', '編輯自訂食物', '编辑自定义食物');
+
   String get chooseAnIcon => _t('Choose an Icon', '選擇圖示', '选择图标');
   String get foodName => _t('Food Name', '食物名稱', '食物名称');
 
@@ -407,6 +413,9 @@ class AppLocalizations {
 
   String foodCreated(String name) =>
       _t('$name has been created!', '$name 已建立！', '$name 已创建！');
+
+  String foodUpdated(String name) =>
+      _t('$name has been updated!', '$name 已更新！', '$name 已更新！');
 
   String get buildFromIngredients =>
       _t('Build from Ingredients', '以食材組成', '以食材组成');

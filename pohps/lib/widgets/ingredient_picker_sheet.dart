@@ -242,6 +242,18 @@ class CustomIngredientList {
 
   void removeAt(int index) => entries.removeAt(index);
 
+  void loadFromComponents(
+    List<CustomFoodComponent> components,
+    AppState appState,
+  ) {
+    entries.clear();
+    for (final component in components) {
+      final food = appState.baseFoodById(component.sourceFoodId);
+      if (food == null) continue;
+      entries.add(IngredientEntry(food: food, fraction: component.fraction));
+    }
+  }
+
   List<CustomFoodComponent> toComponents() =>
       entries.map((e) => e.toComponent()).toList();
 
