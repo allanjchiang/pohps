@@ -237,11 +237,6 @@ class CustomIngredientList {
   bool get isEmpty => entries.isEmpty;
 
   void add(FoodItem food) {
-    final existing = entries.indexWhere((e) => e.food.id == food.id);
-    if (existing != -1) {
-      entries[existing].fraction = 1.0;
-      return;
-    }
     entries.add(IngredientEntry(food: food));
   }
 
