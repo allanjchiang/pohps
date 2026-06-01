@@ -4,25 +4,33 @@ import '../food_data.dart';
 import '../l10n/app_localizations.dart';
 import '../models.dart';
 
-Future<FoodItem?> showIngredientPickerSheet(
+Future<void> showIngredientPickerSheet(
   BuildContext context,
-  AppState appState,
-) {
-  return showModalBottomSheet<FoodItem>(
+  AppState appState, {
+  required ValueChanged<FoodItem> onIngredientSelected,
+}) {
+  return showModalBottomSheet<void>(
     context: context,
     isScrollControlled: true,
     useSafeArea: true,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
     ),
-    builder: (context) => _IngredientPickerSheet(appState: appState),
+    builder: (context) => _IngredientPickerSheet(
+      appState: appState,
+      onIngredientSelected: onIngredientSelected,
+    ),
   );
 }
 
 class _IngredientPickerSheet extends StatefulWidget {
   final AppState appState;
+  final ValueChanged<FoodItem> onIngredientSelected;
 
-  const _IngredientPickerSheet({required this.appState});
+  const _IngredientPickerSheet({
+    required this.appState,
+    required this.onIngredientSelected,
+  });
 
   @override
   State<_IngredientPickerSheet> createState() => _IngredientPickerSheetState();
@@ -134,7 +142,7 @@ class _IngredientPickerSheetState extends State<_IngredientPickerSheet> {
                               '${l10n.gProtein('${food.proteinGrams.round()}')} · ${l10n.servingDisplay(food.servingSize, foodId: food.id, system: appState.measurementSystem)}',
                             ),
                             trailing: const Icon(Icons.add_circle_outline),
-                            onTap: () => Navigator.pop(context, food),
+                            onTap: () => widget.onIngredientSelected(food),
                           ),
                         );
                       },

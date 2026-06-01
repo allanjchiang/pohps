@@ -247,9 +247,14 @@ class _CustomFoodScreenState extends State<CustomFoodScreen> {
   }
 
   Future<void> _addIngredient(AppState appState) async {
-    final food = await showIngredientPickerSheet(context, appState);
-    if (food == null || !mounted) return;
-    setState(() => _ingredients.add(food));
+    await showIngredientPickerSheet(
+      context,
+      appState,
+      onIngredientSelected: (food) {
+        if (!mounted) return;
+        setState(() => _ingredients.add(food));
+      },
+    );
   }
 
   void _save() {
