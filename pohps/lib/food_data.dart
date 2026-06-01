@@ -6,6 +6,7 @@ const String categoryProteinBoosters = 'Protein Boosters';
 const String categoryLegumes = 'Legumes';
 const String categoryGrains = 'Grains';
 const String categoryVegetables = 'Vegetables';
+const String categoryFruits = 'Fruits';
 const String categoryOther = 'Other';
 
 const List<String> categories = [
@@ -14,6 +15,7 @@ const List<String> categories = [
   categoryLegumes,
   categoryGrains,
   categoryVegetables,
+  categoryFruits,
   categoryOther,
 ];
 
@@ -51,6 +53,24 @@ const List<FoodItem> dairyBeverageFoods = [
     waterMlPerServing: 240,
     servingSize: '1 cup (240ml)',
     emoji: '🍵',
+  ),
+  FoodItem(
+    id: 'oat_milk',
+    name: 'Oat Milk',
+    category: categoryBeverages,
+    proteinGrams: 3,
+    waterMlPerServing: 218,
+    servingSize: '1 glass (250ml)',
+    emoji: '🌾',
+  ),
+  FoodItem(
+    id: 'almond_milk',
+    name: 'Almond Milk',
+    category: categoryBeverages,
+    proteinGrams: 1,
+    waterMlPerServing: 218,
+    servingSize: '1 glass (250ml)',
+    emoji: '🥛',
   ),
 ];
 
@@ -366,16 +386,81 @@ const List<FoodItem> defaultFoods = [
     emoji: '🥬',
   ),
 
-  // Other
+  // Fruits
+  FoodItem(
+    id: 'apple',
+    name: 'Apple',
+    category: categoryFruits,
+    proteinGrams: 0,
+    waterMlPerServing: 130,
+    servingSize: '1 medium',
+    emoji: '🍎',
+  ),
+  FoodItem(
+    id: 'banana',
+    name: 'Banana',
+    category: categoryFruits,
+    proteinGrams: 1,
+    waterMlPerServing: 75,
+    servingSize: '1 medium',
+    emoji: '🍌',
+  ),
+  FoodItem(
+    id: 'strawberries',
+    name: 'Strawberries',
+    category: categoryFruits,
+    proteinGrams: 1,
+    waterMlPerServing: 140,
+    servingSize: '1 cup',
+    emoji: '🍓',
+  ),
+  FoodItem(
+    id: 'blueberries',
+    name: 'Blueberries',
+    category: categoryFruits,
+    proteinGrams: 1,
+    waterMlPerServing: 120,
+    servingSize: '1 cup',
+    emoji: '🫐',
+  ),
+  FoodItem(
+    id: 'blackberries',
+    name: 'Blackberries',
+    category: categoryFruits,
+    proteinGrams: 2,
+    waterMlPerServing: 130,
+    servingSize: '1 cup',
+    emoji: '🫐',
+  ),
+  FoodItem(
+    id: 'boysenberries',
+    name: 'Boysenberries',
+    category: categoryFruits,
+    proteinGrams: 2,
+    waterMlPerServing: 130,
+    servingSize: '1 cup',
+    emoji: '🫐',
+  ),
+  FoodItem(
+    id: 'mixed_berries',
+    name: 'Mixed Berries',
+    category: categoryFruits,
+    proteinGrams: 1,
+    waterMlPerServing: 130,
+    servingSize: '1 cup',
+    emoji: '🫐',
+  ),
   FoodItem(
     id: 'fruits',
     name: 'Fruits',
-    category: categoryOther,
+    category: categoryFruits,
     proteinGrams: 1,
     waterMlPerServing: 85,
     servingSize: '1 medium',
     emoji: '🍎',
   ),
+
+  // Other
   FoodItem(
     id: 'nuts_seeds',
     name: 'Nuts & Seeds',
