@@ -115,6 +115,9 @@ class _CustomFoodScreenState extends State<CustomFoodScreen> {
                 ),
                 FilledButton.tonalIcon(
                   onPressed: () => _addIngredient(appState),
+                  style: FilledButton.styleFrom(
+                    minimumSize: const Size(0, 48),
+                  ),
                   icon: const Icon(Icons.add),
                   label: Text(l10n.addIngredient),
                 ),
