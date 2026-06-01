@@ -84,6 +84,32 @@ class StorageService {
   Future<void> setDailyWaterGoalMl(int value) =>
       _prefs.setInt('daily_water_goal_ml', value);
 
+  Map<String, double> get proteinOverrides {
+    final json = _prefs.getString('protein_overrides');
+    if (json == null) return {};
+    final decoded = jsonDecode(json);
+    if (decoded is! Map) return {};
+    final map = <String, double>{};
+    decoded.forEach((key, value) {
+      if (key is String && value is num) {
+        map[key] = value.toDouble();
+      }
+    });
+    return map;
+  }
+
+  Future<void> setProteinOverride(String foodId, double gramsPerServing) {
+    final current = proteinOverrides;
+    current[foodId] = gramsPerServing;
+    return _prefs.setString('protein_overrides', jsonEncode(current));
+  }
+
+  Future<void> clearProteinOverride(String foodId) {
+    final current = proteinOverrides;
+    current.remove(foodId);
+    return _prefs.setString('protein_overrides', jsonEncode(current));
+  }
+
   String _dateKey(DateTime date) =>
       'log_${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
 

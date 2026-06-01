@@ -36,10 +36,7 @@ class _IngredientPickerSheetState extends State<_IngredientPickerSheet> {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
     final appState = widget.appState;
-    final foods = baseFoodsForIngredients(
-      diet: appState.dietType,
-      waterTrackerEnabled: appState.waterTrackerEnabled,
-    );
+    final foods = appState.baseFoods;
 
     final categories = [
       'All',
@@ -248,10 +245,13 @@ class CustomIngredientList {
   CustomFoodTotals totals({
     required DietType diet,
     required bool waterTrackerEnabled,
-  }) =>
-      computeCustomFoodTotals(
-        toComponents(),
-        diet: diet,
-        waterTrackerEnabled: waterTrackerEnabled,
-      );
+  }) {
+    var protein = 0.0;
+    var water = 0.0;
+    for (final entry in entries) {
+      protein += entry.food.proteinGrams * entry.fraction;
+      water += entry.food.waterMlPerServing * entry.fraction;
+    }
+    return CustomFoodTotals(proteinGrams: protein, waterMl: water);
+  }
 }

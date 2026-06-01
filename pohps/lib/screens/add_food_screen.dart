@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../app_state.dart';
 import '../models.dart';
@@ -362,6 +363,59 @@ class _FoodCardState extends State<_FoodCard> {
     });
   }
 
+  Future<void> _maybeEditProtein(AppState appState) async {
+    if (!appState.isProteinEditableFood(widget.food.id)) return;
+    final l10n = AppLocalizations.of(context);
+    final displayName = l10n.foodDisplayName(widget.food.id, widget.food.name);
+
+    final current = appState.proteinForFood(widget.food);
+    final controller =
+        TextEditingController(text: current.toStringAsFixed(0));
+
+    await showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.editProteinTitle(displayName)),
+        content: TextField(
+          controller: controller,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          inputFormatters: [
+            FilteringTextInputFormatter.allow(RegExp(r'[\d.]')),
+          ],
+          decoration: InputDecoration(
+            hintText: l10n.egProtein,
+            suffixText: l10n.grams,
+          ),
+          autofocus: true,
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(l10n.cancel),
+          ),
+          TextButton(
+            onPressed: () {
+              appState.clearProteinOverride(widget.food.id);
+              Navigator.pop(ctx);
+            },
+            child: Text(l10n.reset),
+          ),
+          FilledButton(
+            onPressed: () {
+              final value = double.tryParse(controller.text);
+              if (value != null && value >= 0) {
+                appState.setProteinOverride(widget.food.id, value);
+                Navigator.pop(ctx);
+              }
+            },
+            child: Text(l10n.save),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -383,6 +437,10 @@ class _FoodCardState extends State<_FoodCard> {
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: _handleTap,
+          onLongPress:
+              appState.isProteinEditableFood(widget.food.id)
+                  ? () => _maybeEditProtein(appState)
+                  : null,
           borderRadius: BorderRadius.circular(14),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -406,7 +464,7 @@ class _FoodCardState extends State<_FoodCard> {
                       children: [
                         TextSpan(
                           text: l10n
-                              .gProtein('${widget.food.proteinGrams.round()}'),
+                              .gProtein('${appState.proteinForFood(widget.food).round()}'),
                           style: theme.textTheme.bodySmall?.copyWith(
                             color: theme.colorScheme.primary,
                             fontWeight: FontWeight.w600,
@@ -428,7 +486,7 @@ class _FoodCardState extends State<_FoodCard> {
                   )
                 else
                   Text(
-                    l10n.gProtein('${widget.food.proteinGrams.round()}'),
+                    l10n.gProtein('${appState.proteinForFood(widget.food).round()}'),
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: theme.colorScheme.primary,
                       fontWeight: FontWeight.w600,

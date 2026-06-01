@@ -17,6 +17,7 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
   DietType _dietType = DietType.lactoOvo;
   bool _waterTrackerEnabled = false;
   int _dailyWaterGoalMl = 2000;
+  Map<String, double> _proteinOverrides = {};
   DateTime _viewDate = effectiveDate();
   List<LogEntry> _viewLog = [];
   List<FoodItem> _customFoods = [];
@@ -48,6 +49,8 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
   DietType get dietType => _dietType;
   bool get waterTrackerEnabled => _waterTrackerEnabled;
   int get dailyWaterGoalMl => _dailyWaterGoalMl;
+  Map<String, double> get proteinOverrides =>
+      Map.unmodifiable(_proteinOverrides);
   DateTime get viewDate => _viewDate;
   bool get isViewingToday => isSameDay(_viewDate, _currentEffectiveDate);
   bool get canViewNextDay => !isViewingToday;
@@ -55,10 +58,48 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
   List<FoodItem> get customFoods => List.unmodifiable(_customFoods);
   Set<String> get unlockedAchievements =>
       Set.unmodifiable(_unlockedAchievements);
+
+  static const Set<String> _proteinEditableFoodIds = {'milk', 'soy_milk'};
+
+  bool isProteinEditableFood(String foodId) =>
+      _proteinEditableFoodIds.contains(foodId);
+
+  double proteinForFood(FoodItem food) =>
+      _proteinOverrides[food.id] ?? food.proteinGrams;
+
+  List<FoodItem> get baseFoods =>
+      _applyProteinOverrides(foodsForDiet(_dietType, includeBeverages: _waterTrackerEnabled));
+
   List<FoodItem> get allFoods => [
-        ...foodsForDiet(_dietType, includeBeverages: _waterTrackerEnabled),
+        ...baseFoods,
         ..._customFoods,
       ];
+
+  FoodItem? baseFoodById(String id) {
+    for (final f in baseFoods) {
+      if (f.id == id) return f;
+    }
+    return null;
+  }
+
+  List<FoodItem> _applyProteinOverrides(List<FoodItem> foods) {
+    if (_proteinOverrides.isEmpty) return foods;
+    return foods.map((food) {
+      final override = _proteinOverrides[food.id];
+      if (override == null) return food;
+      return FoodItem(
+        id: food.id,
+        name: food.name,
+        category: food.category,
+        proteinGrams: override,
+        waterMlPerServing: food.waterMlPerServing,
+        servingSize: food.servingSize,
+        emoji: food.emoji,
+        isCustom: food.isCustom,
+        components: food.components,
+      );
+    }).toList();
+  }
 
   double get viewProtein =>
       _viewLog.fold(0.0, (sum, e) => sum + e.totalProtein);
@@ -86,6 +127,7 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
     _dietType = _storage.dietType;
     _waterTrackerEnabled = _storage.waterTrackerEnabled;
     _dailyWaterGoalMl = _storage.dailyWaterGoalMl;
+    _proteinOverrides = _storage.proteinOverrides;
     _customFoods = _storage.customFoods;
     _unlockedAchievements = _storage.unlockedAchievements;
     _currentEffectiveDate = effectiveDate();
@@ -209,6 +251,20 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
   Future<void> setWaterTrackerEnabled(bool enabled) async {
     _waterTrackerEnabled = enabled;
     await _storage.setWaterTrackerEnabled(enabled);
+    notifyListeners();
+  }
+
+  Future<void> setProteinOverride(String foodId, double gramsPerServing) async {
+    _proteinOverrides = {..._proteinOverrides, foodId: gramsPerServing};
+    await _storage.setProteinOverride(foodId, gramsPerServing);
+    notifyListeners();
+  }
+
+  Future<void> clearProteinOverride(String foodId) async {
+    final next = {..._proteinOverrides};
+    next.remove(foodId);
+    _proteinOverrides = next;
+    await _storage.clearProteinOverride(foodId);
     notifyListeners();
   }
 

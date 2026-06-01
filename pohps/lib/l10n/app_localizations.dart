@@ -44,6 +44,7 @@ class AppLocalizations {
   String get save => _t('Save', '儲存', '保存');
   String get delete => _t('Delete', '刪除', '删除');
   String get goBack => _t('Go Back', '返回', '返回');
+  String get reset => _t('Reset', '重設', '重置');
   String get grams => _t('grams', '公克', '克');
 
   String get _dateLocaleTag => switch (_langKey) {
@@ -443,6 +444,12 @@ class AppLocalizations {
 
   String ingredientAmountLabel(double fraction) =>
       _t('${(fraction * 100).round()}% serving', '一份的 ${(fraction * 100).round()}%', '一份的 ${(fraction * 100).round()}%');
+
+  String editProteinTitle(String foodName) => _t(
+        'Edit protein for $foodName',
+        '編輯$foodName的蛋白質',
+        '编辑$foodName的蛋白质',
+      );
 
   // ── Achievement Dialog ─────────────────────────────────────────────────
 
