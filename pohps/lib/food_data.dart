@@ -123,6 +123,24 @@ const List<FoodItem> defaultFoods = [
     servingSize: '1 glass (250ml)',
     emoji: '🥛',
   ),
+  FoodItem(
+    id: 'paneer',
+    name: 'Paneer',
+    category: categoryDairyEggs,
+    proteinGrams: 18,
+    waterMlPerServing: 50,
+    servingSize: '100g',
+    emoji: '🧀',
+  ),
+  FoodItem(
+    id: 'cottage_cheese',
+    name: 'Cottage Cheese',
+    category: categoryDairyEggs,
+    proteinGrams: 14,
+    waterMlPerServing: 90,
+    servingSize: '1/2 cup',
+    emoji: '🥣',
+  ),
 
   // Protein Boosters
   FoodItem(
@@ -180,6 +198,24 @@ const List<FoodItem> defaultFoods = [
     waterMlPerServing: 130,
     servingSize: '1 cup cooked',
     emoji: '🫛',
+  ),
+  FoodItem(
+    id: 'black_beans',
+    name: 'Black Beans',
+    category: categoryLegumes,
+    proteinGrams: 15,
+    waterMlPerServing: 130,
+    servingSize: '1 cup cooked',
+    emoji: '🫘',
+  ),
+  FoodItem(
+    id: 'kidney_beans',
+    name: 'Kidney Beans',
+    category: categoryLegumes,
+    proteinGrams: 15,
+    waterMlPerServing: 130,
+    servingSize: '1 cup cooked',
+    emoji: '🫘',
   ),
 
   // Grains
@@ -311,6 +347,15 @@ const List<FoodItem> defaultFoods = [
     servingSize: '1 medium',
     emoji: '🫑',
   ),
+  FoodItem(
+    id: 'kale',
+    name: 'Kale',
+    category: categoryVegetables,
+    proteinGrams: 3,
+    waterMlPerServing: 75,
+    servingSize: '1 cup',
+    emoji: '🥬',
+  ),
 
   // Other
   FoodItem(
@@ -347,6 +392,8 @@ const Set<String> lactoOvoOnlyFoodIds = {
   'egg',
   'greek_yoghurt',
   'milk',
+  'paneer',
+  'cottage_cheese',
   'whey_smoothie',
 };
 
