@@ -407,6 +407,43 @@ class AppLocalizations {
   String foodCreated(String name) =>
       _t('$name has been created!', '$name 已建立！', '$name 已创建！');
 
+  String get buildFromIngredients =>
+      _t('Build from Ingredients', '以食材組成', '以食材组成');
+
+  String get addIngredient =>
+      _t('Add Ingredient', '新增食材', '添加食材');
+
+  String get ingredientsLabel => _t('Ingredients', '食材', '食材');
+
+  String get noIngredientsYet => _t(
+        'Add foods from the database to combine protein and water.',
+        '從資料庫加入食物，以加總蛋白質與水分。',
+        '从数据库加入食物，以加总蛋白质与水分。',
+      );
+
+  String get combinedTotals => _t('Combined Totals', '加總', '加总');
+
+  String get orEnterProteinManually => _t(
+        'Or enter protein manually',
+        '或手動輸入蛋白質',
+        '或手动输入蛋白质',
+      );
+
+  String get addAtLeastOneIngredient => _t(
+        'Add at least one ingredient, or enter protein manually.',
+        '請至少新增一項食材，或手動輸入蛋白質。',
+        '请至少添加一项食材，或手动输入蛋白质。',
+      );
+
+  String get pickIngredient =>
+      _t('Pick an Ingredient', '選擇食材', '选择食材');
+
+  String get removeIngredient =>
+      _t('Remove ingredient', '移除食材', '移除食材');
+
+  String ingredientAmountLabel(double fraction) =>
+      _t('${(fraction * 100).round()}% serving', '一份的 ${(fraction * 100).round()}%', '一份的 ${(fraction * 100).round()}%');
+
   // ── Achievement Dialog ─────────────────────────────────────────────────
 
   String get achievementUnlocked =>

@@ -8,6 +8,32 @@ enum DietType {
   vegan,
 }
 
+class CustomFoodComponent {
+  final String sourceFoodId;
+  final double fraction;
+
+  const CustomFoodComponent({
+    required this.sourceFoodId,
+    required this.fraction,
+  });
+
+  Map<String, dynamic> toJson() => {
+        'sourceFoodId': sourceFoodId,
+        'fraction': fraction,
+      };
+
+  factory CustomFoodComponent.fromJson(Map<String, dynamic> json) =>
+      CustomFoodComponent(
+        sourceFoodId: json['sourceFoodId'] as String,
+        fraction: (json['fraction'] as num).toDouble(),
+      );
+
+  CustomFoodComponent copyWith({double? fraction}) => CustomFoodComponent(
+        sourceFoodId: sourceFoodId,
+        fraction: fraction ?? this.fraction,
+      );
+}
+
 class FoodItem {
   final String id;
   final String name;
@@ -17,6 +43,7 @@ class FoodItem {
   final String servingSize;
   final String emoji;
   final bool isCustom;
+  final List<CustomFoodComponent>? components;
 
   const FoodItem({
     required this.id,
@@ -27,7 +54,10 @@ class FoodItem {
     required this.servingSize,
     required this.emoji,
     this.isCustom = false,
+    this.components,
   });
+
+  bool get hasComponents => components != null && components!.isNotEmpty;
 
   Map<String, dynamic> toJson() => {
         'id': id,
@@ -38,6 +68,8 @@ class FoodItem {
         'servingSize': servingSize,
         'emoji': emoji,
         'isCustom': isCustom,
+        if (components != null)
+          'components': components!.map((c) => c.toJson()).toList(),
       };
 
   factory FoodItem.fromJson(Map<String, dynamic> json) => FoodItem(
@@ -50,6 +82,9 @@ class FoodItem {
         servingSize: json['servingSize'] as String,
         emoji: json['emoji'] as String,
         isCustom: (json['isCustom'] as bool?) ?? false,
+        components: (json['components'] as List<dynamic>?)
+            ?.map((e) => CustomFoodComponent.fromJson(e as Map<String, dynamic>))
+            .toList(),
       );
 }
 

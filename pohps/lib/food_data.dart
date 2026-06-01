@@ -90,7 +90,7 @@ const List<FoodItem> vegetableBeverageFoods = [
     proteinGrams: 2,
     waterMlPerServing: 350,
     servingSize: '1 glass (350ml)',
-    emoji: '🍹',
+    emoji: '🍓',
   ),
 ];
 
@@ -466,4 +466,55 @@ List<FoodItem> foodsForDiet(DietType diet, {bool includeBeverages = false}) {
     dairyBeverageFoods,
   );
   return _insertAfterId(withDairyDrinks, 'mushroom', vegetableBeverageFoods);
+}
+
+/// Base database foods available when building a custom recipe.
+List<FoodItem> baseFoodsForIngredients({
+  required DietType diet,
+  required bool waterTrackerEnabled,
+}) =>
+    foodsForDiet(diet, includeBeverages: waterTrackerEnabled);
+
+FoodItem? findBaseFood(
+  String id, {
+  required DietType diet,
+  required bool waterTrackerEnabled,
+}) {
+  for (final food in baseFoodsForIngredients(
+    diet: diet,
+    waterTrackerEnabled: waterTrackerEnabled,
+  )) {
+    if (food.id == id) return food;
+  }
+  return null;
+}
+
+class CustomFoodTotals {
+  final double proteinGrams;
+  final double waterMl;
+
+  const CustomFoodTotals({
+    required this.proteinGrams,
+    required this.waterMl,
+  });
+}
+
+CustomFoodTotals computeCustomFoodTotals(
+  List<CustomFoodComponent> components, {
+  required DietType diet,
+  required bool waterTrackerEnabled,
+}) {
+  var protein = 0.0;
+  var water = 0.0;
+  for (final component in components) {
+    final food = findBaseFood(
+      component.sourceFoodId,
+      diet: diet,
+      waterTrackerEnabled: waterTrackerEnabled,
+    );
+    if (food == null) continue;
+    protein += food.proteinGrams * component.fraction;
+    water += food.waterMlPerServing * component.fraction;
+  }
+  return CustomFoodTotals(proteinGrams: protein, waterMl: water);
 }
