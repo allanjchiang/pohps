@@ -1,6 +1,6 @@
 # POHPS — Protein Tracker
 
-An elderly-friendly lacto-ovo vegetarian protein tracking app built with Flutter.
+A lacto-ovo vegetarian protein tracking app built with Flutter.
 
 ## Features
 
@@ -11,7 +11,7 @@ An elderly-friendly lacto-ovo vegetarian protein tracking app built with Flutter
 - **Custom foods & recipes** — Create your own foods with custom protein values
 - **Achievements** — Earn badges for milestones like meeting your goal or building streaks
 - **Dark & light mode** — Defaults to your device setting, switchable in settings
-- **Elderly-friendly UI** — Large text, big tap targets, high contrast, simple navigation
+- **Accessible UI** — Large text, big tap targets, high contrast, simple navigation
 - **Privacy-first** — All data stored locally on device, no data collection whatsoever
 
 ## Getting Started

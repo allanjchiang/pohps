@@ -331,9 +331,9 @@ class AppLocalizations {
   String get aboutPohps => _t('About POHPS', '關於 POHPS', '关于 POHPS');
 
   String get aboutDescription => _t(
-        'A free, open-source protein tracking app designed for elderly lacto-ovo vegetarians.',
-        '一款免費的開源蛋白質追蹤應用程式，專為蛋奶素食長者設計。',
-        '一款免费的开源蛋白质追踪应用，专为蛋奶素食老年人设计。',
+        'A free, open-source protein tracking app designed for lacto-ovo vegetarians.',
+        '一款免費的開源蛋白質追蹤應用程式，專為蛋奶素食者設計。',
+        '一款免费的开源蛋白质追踪应用，专为蛋奶素食者设计。',
       );
 
   String get aboutBullets => _t(
