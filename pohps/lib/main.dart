@@ -3,6 +3,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'app_state.dart';
 import 'l10n/app_localizations.dart';
+import 'platform/mac_desktop_ui.dart';
 import 'theme.dart';
 import 'screens/disclaimer_screen.dart';
 import 'screens/goal_setup_screen.dart';
@@ -29,6 +30,10 @@ class PohpsApp extends StatelessWidget {
     return MaterialApp(
       title: 'POHPS',
       debugShowCheckedModeBanner: false,
+      scrollBehavior:
+          isMacOSDesktop ? const MacDesktopScrollBehavior() : null,
+      builder: (context, child) =>
+          wrapMacDesktopShell(child ?? const SizedBox.shrink()),
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
       themeMode: appState.themeMode,
