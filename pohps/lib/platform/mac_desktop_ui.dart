@@ -19,36 +19,5 @@ class MacDesktopScrollBehavior extends MaterialScrollBehavior {
       };
 }
 
-/// Wraps the app so the whole UI can be click-dragged in any direction on macOS.
-class MacDesktopPanShell extends StatelessWidget {
-  final Widget child;
-
-  const MacDesktopPanShell({super.key, required this.child});
-
-  static const _panMargin = 160.0;
-
-  @override
-  Widget build(BuildContext context) {
-    final size = MediaQuery.sizeOf(context);
-
-    return InteractiveViewer(
-      scaleEnabled: false,
-      panEnabled: true,
-      constrained: false,
-      boundaryMargin: const EdgeInsets.all(_panMargin),
-      minScale: 1.0,
-      maxScale: 1.0,
-      child: SizedBox(
-        width: size.width,
-        height: size.height,
-        child: child,
-      ),
-    );
-  }
-}
-
-/// Applies macOS desktop pan + mouse-drag scroll when [child] is the app root.
-Widget wrapMacDesktopShell(Widget child) {
-  if (!isMacOSDesktop) return child;
-  return MacDesktopPanShell(child: child);
-}
+/// macOS desktop wrapper — pass-through; pan shell removed (broke viewport layout).
+Widget wrapMacDesktopShell(Widget child) => child;

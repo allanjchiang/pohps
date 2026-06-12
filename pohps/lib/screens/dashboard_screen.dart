@@ -253,31 +253,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
             color: theme.colorScheme.onSurfaceVariant,
           ),
         ),
-        trailing: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Text(
-              '+${entry.totalProtein.round()}g',
-              style: theme.textTheme.titleLarge?.copyWith(
-                color: theme.colorScheme.primary,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            if (appState.waterTrackerEnabled && entry.totalWaterMl > 0) ...[
-              const SizedBox(height: 2),
-              Text(
-                l10n.waterAmountLabel(
-                  entry.totalWaterMl,
-                  appState.measurementSystem,
-                ),
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: const Color(0xFF1565C0),
-                  fontWeight: FontWeight.w600,
+        trailing: Text.rich(
+          TextSpan(
+            children: [
+              TextSpan(
+                text: '+${entry.totalProtein.round()}g',
+                style: theme.textTheme.titleLarge?.copyWith(
+                  color: theme.colorScheme.primary,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
+              if (appState.waterTrackerEnabled && entry.totalWaterMl > 0)
+                TextSpan(
+                  text:
+                      '\n${l10n.waterAmountLabel(entry.totalWaterMl, appState.measurementSystem)}',
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: const Color(0xFF1565C0),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
             ],
-          ],
+          ),
+          textAlign: TextAlign.end,
         ),
       ),
     );
