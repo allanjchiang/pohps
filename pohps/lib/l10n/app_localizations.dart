@@ -328,6 +328,57 @@ class AppLocalizations {
   String get myCustomFoods =>
       _t('My Custom Foods', '我的自訂食物', '我的自定义食物');
 
+  String get yourData => _t('Your Data', '您的資料', '您的数据');
+
+  String get backupPrivacyHint => _t(
+        'Your logs and settings stay on this device. Export creates a file you can save or share anywhere you choose — POHPS never uploads your data.',
+        '您的記錄和設定僅保存在此裝置上。匯出會建立一個檔案，由您自行選擇儲存或分享的位置——POHPS 不會上傳您的資料。',
+        '您的记录和设置仅保存在此设备上。导出会创建一个文件，由您自行选择保存或分享的位置——POHPS 不会上传您的数据。',
+      );
+
+  String get backupIncludesHint => _t(
+        'Includes protein and water history, custom foods, favorites, achievements, and app settings.',
+        '包含蛋白質與水分記錄、自訂食物、最愛、成就及應用程式設定。',
+        '包含蛋白质与水分记录、自定义食物、收藏、成就及应用设置。',
+      );
+
+  String get exportData => _t('Export data', '匯出資料', '导出数据');
+
+  String get importData => _t('Import data', '匯入資料', '导入数据');
+
+  String get exportDataHint =>
+      _t('Save or share a backup file', '儲存或分享備份檔案', '保存或分享备份文件');
+
+  String get importDataHint => _t(
+        'Replace all data from a backup file',
+        '從備份檔案取代所有資料',
+        '从备份文件替换所有数据',
+      );
+
+  String get importBackupTitle =>
+      _t('Import backup?', '匯入備份？', '导入备份？');
+
+  String get importBackupMessage => _t(
+        'This will replace all protein and water logs, custom foods, favorites, achievements, and settings on this device with the backup file. This cannot be undone.',
+        '這將以備份檔案取代此裝置上的所有蛋白質與水分記錄、自訂食物、最愛、成就及設定。此操作無法復原。',
+        '这将用备份文件替换此设备上的所有蛋白质与水分记录、自定义食物、收藏、成就及设置。此操作无法撤销。',
+      );
+
+  String get importBackupConfirm =>
+      _t('Import backup', '匯入備份', '导入备份');
+
+  String get backupExported =>
+      _t('Backup ready to save or share', '備份已準備好供您儲存或分享', '备份已准备好供您保存或分享');
+
+  String get backupImported =>
+      _t('Backup imported successfully', '備份已成功匯入', '备份已成功导入');
+
+  String get backupExportFailed =>
+      _t('Could not export backup', '無法匯出備份', '无法导出备份');
+
+  String get backupImportFailed =>
+      _t('Could not import backup', '無法匯入備份', '无法导入备份');
+
   String get aboutPohps => _t('About POHPS', '關於 POHPS', '关于 POHPS');
 
   String get aboutDescription => _t(

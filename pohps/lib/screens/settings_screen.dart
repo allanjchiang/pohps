@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../app_state.dart';
 import '../l10n/app_localizations.dart';
 import '../models.dart';
+import '../services/backup_service.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -305,6 +306,64 @@ class SettingsScreen extends StatelessWidget {
             const SizedBox(height: 12),
           ],
 
+          // Backup
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(l10n.yourData, style: theme.textTheme.titleLarge),
+                  const SizedBox(height: 8),
+                  Text(
+                    l10n.backupPrivacyHint,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    l10n.backupIncludesHint,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: Icon(
+                      Icons.upload_outlined,
+                      color: theme.colorScheme.primary,
+                      size: 28,
+                    ),
+                    title: Text(
+                      l10n.exportData,
+                      style: theme.textTheme.titleMedium,
+                    ),
+                    subtitle: Text(l10n.exportDataHint),
+                    onTap: () => _exportData(context, appState),
+                  ),
+                  const Divider(height: 1),
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: Icon(
+                      Icons.download_outlined,
+                      color: theme.colorScheme.primary,
+                      size: 28,
+                    ),
+                    title: Text(
+                      l10n.importData,
+                      style: theme.textTheme.titleMedium,
+                    ),
+                    subtitle: Text(l10n.importDataHint),
+                    onTap: () => _importData(context, appState),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+
           // About
           Card(
             child: Padding(
@@ -433,6 +492,76 @@ class SettingsScreen extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Future<void> _exportData(BuildContext context, AppState appState) async {
+    final l10n = AppLocalizations.of(context);
+    try {
+      final json = appState.exportBackupJson();
+      await BackupService.shareBackup(json);
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l10n.backupExported,
+              style: const TextStyle(fontSize: 16)),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } catch (e) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l10n.backupExportFailed,
+              style: const TextStyle(fontSize: 16)),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
+
+  Future<void> _importData(BuildContext context, AppState appState) async {
+    final l10n = AppLocalizations.of(context);
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.importBackupTitle),
+        content: Text(l10n.importBackupMessage),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(l10n.importBackupConfirm),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !context.mounted) return;
+
+    try {
+      final json = await BackupService.pickAndReadBackup();
+      if (json == null) return;
+      await appState.importBackupJson(json);
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l10n.backupImported,
+              style: const TextStyle(fontSize: 16)),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } catch (e) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l10n.backupImportFailed,
+              style: const TextStyle(fontSize: 16)),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
   }
 
   void _confirmDelete(

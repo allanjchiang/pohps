@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'models.dart';
 import 'food_data.dart';
+import 'services/backup_service.dart';
 import 'storage.dart';
 
 class AppState extends ChangeNotifier with WidgetsBindingObserver {
@@ -131,6 +132,13 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
 
   Future<void> init() async {
     await _storage.init();
+    _loadFromStorage();
+    WidgetsBinding.instance.addObserver(this);
+    _scheduleNextReset();
+    notifyListeners();
+  }
+
+  void _loadFromStorage() {
     _disclaimerAccepted = _storage.disclaimerAccepted;
     _dailyGoal = _storage.dailyGoal;
     _themeMode = _storage.themeMode;
@@ -146,8 +154,16 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
     _currentEffectiveDate = effectiveDate();
     _viewDate = _currentEffectiveDate;
     _loadViewLog();
-    WidgetsBinding.instance.addObserver(this);
-    _scheduleNextReset();
+  }
+
+  String exportBackupJson() =>
+      BackupService.encode(_storage.exportSnapshot());
+
+  Future<void> importBackupJson(String json) async {
+    final snapshot = BackupService.decode(json);
+    await _storage.importSnapshot(snapshot);
+    _pendingAchievements.clear();
+    _loadFromStorage();
     notifyListeners();
   }
 

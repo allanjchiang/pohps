@@ -163,4 +163,153 @@ class StorageService {
   Future<void> saveFavoriteFoodIds(List<String> ids) {
     return _prefs.setString('favorite_food_ids', jsonEncode(ids));
   }
+
+  static const _managedKeys = {
+    'disclaimer_accepted',
+    'daily_goal',
+    'locale',
+    'theme_mode',
+    'measurement_system',
+    'diet_type',
+    'water_tracker_enabled',
+    'daily_water_goal_ml',
+    'protein_overrides',
+    'custom_foods',
+    'unlocked_achievements',
+    'favorite_food_ids',
+  };
+
+  Map<String, dynamic> exportSnapshot() {
+    final dailyLogs = <String, dynamic>{};
+    for (final key in _prefs.getKeys()) {
+      if (!key.startsWith('log_')) continue;
+      final raw = _prefs.getString(key);
+      if (raw == null) continue;
+      final date = key.substring(4);
+      dailyLogs[date] = jsonDecode(raw);
+    }
+
+    return {
+      'disclaimerAccepted': disclaimerAccepted,
+      'dailyGoal': dailyGoal,
+      'locale': localeCode,
+      'themeMode': _prefs.getString('theme_mode') ?? 'system',
+      'measurementSystem': _prefs.getString('measurement_system') ?? 'metric',
+      'dietType': _prefs.getString('diet_type') ?? 'lacto_ovo',
+      'waterTrackerEnabled': waterTrackerEnabled,
+      'dailyWaterGoalMl': dailyWaterGoalMl,
+      'proteinOverrides': proteinOverrides,
+      'customFoods': customFoods.map((f) => f.toJson()).toList(),
+      'favoriteFoodIds': favoriteFoodIds,
+      'unlockedAchievements': unlockedAchievements.toList(),
+      'dailyLogs': dailyLogs,
+    };
+  }
+
+  Future<void> importSnapshot(Map<String, dynamic> data) async {
+    for (final key in List<String>.from(_prefs.getKeys())) {
+      if (key.startsWith('log_') || _managedKeys.contains(key)) {
+        await _prefs.remove(key);
+      }
+    }
+
+    await setDisclaimerAccepted(data['disclaimerAccepted'] as bool? ?? false);
+    await setDailyGoal((data['dailyGoal'] as num?)?.toInt() ?? 0);
+
+    final locale = data['locale'];
+    if (locale is String) {
+      await setLocaleCode(locale);
+    } else {
+      await setLocaleCode(null);
+    }
+
+    final themeMode = data['themeMode'] as String? ?? 'system';
+    await setThemeMode(switch (themeMode) {
+      'light' => ThemeMode.light,
+      'dark' => ThemeMode.dark,
+      _ => ThemeMode.system,
+    });
+
+    final measurement = data['measurementSystem'] as String? ?? 'metric';
+    await setMeasurementSystem(
+      measurement == 'imperial'
+          ? MeasurementSystem.imperial
+          : MeasurementSystem.metric,
+    );
+
+    final diet = data['dietType'] as String? ?? 'lacto_ovo';
+    await setDietType(
+      diet == 'vegan' ? DietType.vegan : DietType.lactoOvo,
+    );
+
+    await setWaterTrackerEnabled(data['waterTrackerEnabled'] as bool? ?? false);
+    await setDailyWaterGoalMl(
+      (data['dailyWaterGoalMl'] as num?)?.toInt() ?? 2000,
+    );
+
+    final overrides = data['proteinOverrides'];
+    if (overrides is Map) {
+      final map = <String, double>{};
+      overrides.forEach((key, value) {
+        if (key is String && value is num) {
+          map[key] = value.toDouble();
+        }
+      });
+      await _prefs.setString('protein_overrides', jsonEncode(map));
+    } else {
+      await _prefs.remove('protein_overrides');
+    }
+
+    final customFoods = data['customFoods'];
+    if (customFoods is List) {
+      final foods = customFoods
+          .whereType<Map<String, dynamic>>()
+          .map(FoodItem.fromJson)
+          .toList();
+      await saveCustomFoods(foods);
+    } else {
+      await _prefs.remove('custom_foods');
+    }
+
+    final favorites = data['favoriteFoodIds'];
+    if (favorites is List) {
+      await saveFavoriteFoodIds(favorites.cast<String>());
+    } else {
+      await _prefs.remove('favorite_food_ids');
+    }
+
+    final achievements = data['unlockedAchievements'];
+    if (achievements is List) {
+      await saveUnlockedAchievements(achievements.cast<String>().toSet());
+    } else {
+      await _prefs.remove('unlocked_achievements');
+    }
+
+    final dailyLogs = data['dailyLogs'];
+    if (dailyLogs is Map) {
+      for (final entry in dailyLogs.entries) {
+        final dateKey = entry.key;
+        if (dateKey is! String || !RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(dateKey)) {
+          continue;
+        }
+        final log = entry.value;
+        if (log is! List) continue;
+        final entries = log
+            .whereType<Map<String, dynamic>>()
+            .map(LogEntry.fromJson)
+            .toList();
+        await saveDailyLog(_parseDateKey(dateKey), entries);
+      }
+    }
+  }
+
+  DateTime _parseDateKey(String key) {
+    final parts = key.split('-');
+    return DateTime(
+      int.parse(parts[0]),
+      int.parse(parts[1]),
+      int.parse(parts[2]),
+    );
+  }
 }
+
