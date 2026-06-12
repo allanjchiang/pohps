@@ -15,35 +15,31 @@ class BackupService {
   static Future<void> shareBackup(String json) async {
     final name = _backupFileName();
     if (kIsWeb) {
-      await SharePlus.instance.share(
-        ShareParams(
-          files: [
-            XFile.fromData(
-              utf8.encode(json),
-              mimeType: 'application/json',
-              name: name,
-            ),
-          ],
-          subject: 'POHPS data backup',
-          text: 'POHPS backup — keep this file private.',
-        ),
-      );
-      return;
-    }
-
-    final file = await _writeTempBackup(json, name);
-    await SharePlus.instance.share(
-      ShareParams(
-        files: [
-          XFile(
-            file.path,
+      await Share.shareXFiles(
+        [
+          XFile.fromData(
+            utf8.encode(json),
             mimeType: 'application/json',
             name: name,
           ),
         ],
         subject: 'POHPS data backup',
         text: 'POHPS backup — keep this file private.',
-      ),
+      );
+      return;
+    }
+
+    final file = await _writeTempBackup(json, name);
+    await Share.shareXFiles(
+      [
+        XFile(
+          file.path,
+          mimeType: 'application/json',
+          name: name,
+        ),
+      ],
+      subject: 'POHPS data backup',
+      text: 'POHPS backup — keep this file private.',
     );
   }
 
