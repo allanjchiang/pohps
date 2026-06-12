@@ -152,4 +152,15 @@ class StorageService {
     final json = jsonEncode(achievements.toList());
     return _prefs.setString('unlocked_achievements', json);
   }
+
+  List<String> get favoriteFoodIds {
+    final json = _prefs.getString('favorite_food_ids');
+    if (json == null) return [];
+    final list = jsonDecode(json) as List;
+    return list.cast<String>();
+  }
+
+  Future<void> saveFavoriteFoodIds(List<String> ids) {
+    return _prefs.setString('favorite_food_ids', jsonEncode(ids));
+  }
 }

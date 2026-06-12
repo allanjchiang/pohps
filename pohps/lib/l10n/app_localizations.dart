@@ -365,10 +365,19 @@ class AppLocalizations {
   // ── Add Food Screen ────────────────────────────────────────────────────
 
   String get custom => _t('Custom', '自訂', '自定义');
+  String get favoritesCategory => _t('Favorites', '我的最愛', '收藏');
   String get allCategory => _t('All', '全部', '全部');
   String get myFoods => _t('My Foods', '我的食物', '我的食物');
   String get noFoodsInCategory =>
       _t('No foods in this category', '此分類沒有食物', '此分类没有食物');
+  String get noFavoritesYet => _t(
+        'No favorites yet. Tap the star on any food to add it here.',
+        '尚無最愛。點擊任何食物上的星號即可加入。',
+        '暂无收藏。点击任意食物上的星标即可添加。',
+      );
+  String get addToFavorites => _t('Add to favorites', '加入最愛', '加入收藏');
+  String get removeFromFavorites =>
+      _t('Remove from favorites', '從最愛移除', '从收藏移除');
   String get added => _t('✓ Added!', '✓ 已新增！', '✓ 已添加！');
 
   // ── Custom Food Screen ─────────────────────────────────────────────────

@@ -200,7 +200,7 @@ class _AddFoodPanel extends StatefulWidget {
 }
 
 class _AddFoodPanelState extends State<_AddFoodPanel> {
-  String _selectedCategory = 'All';
+  String _selectedCategory = 'Favorites';
 
   Future<void> _editCustomFood(FoodItem food) async {
     await Navigator.of(context).push<bool>(
@@ -217,13 +217,16 @@ class _AddFoodPanelState extends State<_AddFoodPanel> {
     final l10n = AppLocalizations.of(context);
 
     final allCategories = [
+      'Favorites',
       'All',
       ...categoriesForPicker(waterTrackerEnabled: appState.waterTrackerEnabled),
       if (appState.customFoods.isNotEmpty) 'My Foods',
     ];
 
     List<FoodItem> filteredFoods;
-    if (_selectedCategory == 'All') {
+    if (_selectedCategory == 'Favorites') {
+      filteredFoods = appState.favoriteFoods;
+    } else if (_selectedCategory == 'All') {
       filteredFoods = appState.allFoods;
     } else if (_selectedCategory == 'My Foods') {
       filteredFoods = appState.customFoods;
@@ -283,6 +286,7 @@ class _AddFoodPanelState extends State<_AddFoodPanel> {
                       final cat = allCategories[index];
                       final selected = cat == _selectedCategory;
                       final label = switch (cat) {
+                        'Favorites' => l10n.favoritesCategory,
                         'All' => l10n.allCategory,
                         'My Foods' => l10n.myFoods,
                         _ => l10n.categoryName(cat),
@@ -314,10 +318,13 @@ class _AddFoodPanelState extends State<_AddFoodPanel> {
                       const Text('🍽️', style: TextStyle(fontSize: 40)),
                       const SizedBox(height: 8),
                       Text(
-                        l10n.noFoodsInCategory,
+                        _selectedCategory == 'Favorites'
+                            ? l10n.noFavoritesYet
+                            : l10n.noFoodsInCategory,
                         style: theme.textTheme.bodyLarge?.copyWith(
                           color: theme.colorScheme.onSurfaceVariant,
                         ),
+                        textAlign: TextAlign.center,
                       ),
                     ],
                   ),
@@ -439,6 +446,7 @@ class _FoodCardState extends State<_FoodCard> {
     final l10n = AppLocalizations.of(context);
     final appState = context.watch<AppState>();
     final proteinEditable = appState.isProteinEditableFood(widget.food.id);
+    final isFavorite = appState.isFavorite(widget.food.id);
     return AnimatedContainer(
       duration: const Duration(milliseconds: 250),
       decoration: BoxDecoration(
@@ -543,6 +551,28 @@ class _FoodCardState extends State<_FoodCard> {
                         ),
                       ],
                     ),
+                  ),
+                ),
+              ),
+              Positioned(
+                top: 0,
+                left: 0,
+                child: SizedBox(
+                  width: 44,
+                  height: 44,
+                  child: IconButton(
+                    tooltip: isFavorite
+                        ? l10n.removeFromFavorites
+                        : l10n.addToFavorites,
+                    icon: Icon(
+                      isFavorite ? Icons.star : Icons.star_border,
+                      size: 20,
+                      color: isFavorite
+                          ? const Color(0xFFF9A825)
+                          : theme.colorScheme.onSurfaceVariant
+                              .withValues(alpha: 0.8),
+                    ),
+                    onPressed: () => appState.toggleFavorite(widget.food.id),
                   ),
                 ),
               ),

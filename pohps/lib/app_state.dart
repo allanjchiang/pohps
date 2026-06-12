@@ -21,6 +21,7 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
   DateTime _viewDate = effectiveDate();
   List<LogEntry> _viewLog = [];
   List<FoodItem> _customFoods = [];
+  List<String> _favoriteFoodIds = [];
   Set<String> _unlockedAchievements = {};
   final List<Achievement> _pendingAchievements = [];
 
@@ -56,8 +57,19 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
   bool get canViewNextDay => !isViewingToday;
   List<LogEntry> get viewLog => List.unmodifiable(_viewLog);
   List<FoodItem> get customFoods => List.unmodifiable(_customFoods);
+  List<String> get favoriteFoodIds => List.unmodifiable(_favoriteFoodIds);
   Set<String> get unlockedAchievements =>
       Set.unmodifiable(_unlockedAchievements);
+
+  bool isFavorite(String foodId) => _favoriteFoodIds.contains(foodId);
+
+  List<FoodItem> get favoriteFoods {
+    final byId = {for (final f in allFoods) f.id: f};
+    return _favoriteFoodIds
+        .where(byId.containsKey)
+        .map((id) => byId[id]!)
+        .toList();
+  }
 
   static const Set<String> _proteinEditableFoodIds = {'milk', 'soy_milk'};
 
@@ -129,6 +141,7 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
     _dailyWaterGoalMl = _storage.dailyWaterGoalMl;
     _proteinOverrides = _storage.proteinOverrides;
     _customFoods = _storage.customFoods;
+    _favoriteFoodIds = _storage.favoriteFoodIds;
     _unlockedAchievements = _storage.unlockedAchievements;
     _currentEffectiveDate = effectiveDate();
     _viewDate = _currentEffectiveDate;
@@ -335,6 +348,19 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
   Future<void> removeCustomFood(String foodId) async {
     _customFoods.removeWhere((f) => f.id == foodId);
     await _storage.saveCustomFoods(_customFoods);
+    if (_favoriteFoodIds.remove(foodId)) {
+      await _storage.saveFavoriteFoodIds(_favoriteFoodIds);
+    }
+    notifyListeners();
+  }
+
+  Future<void> toggleFavorite(String foodId) async {
+    if (_favoriteFoodIds.contains(foodId)) {
+      _favoriteFoodIds.remove(foodId);
+    } else {
+      _favoriteFoodIds.add(foodId);
+    }
+    await _storage.saveFavoriteFoodIds(_favoriteFoodIds);
     notifyListeners();
   }
 
