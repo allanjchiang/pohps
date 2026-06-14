@@ -27,9 +27,10 @@ class _CustomFoodScreenState extends State<CustomFoodScreen> {
   bool get _isEditing => widget.existingFood != null;
 
   static const _emojiOptions = [
-    '🍓', '🍹', '🥤', '🧋', '🍽️', '🥘', '🍲', '🥗', '🍛', '🥧',
+    '🍓', '🍹', '🥘', '🍲', '🥗', '🍛', '🥧',
     '🧆', '🥙', '🌮', '🌯', '🥪', '🫕', '🍝', '🍜', '🍱', '🥡',
-    '🧁', '🥮', '🍰', '🫓', '🥞', '🧇', '🥣', '🍵',
+    '🥮', '🫓',
+    '🍫', '🍕', '🥟', '🍗', '🐟', '🥩', '☕',
   ];
 
   @override
