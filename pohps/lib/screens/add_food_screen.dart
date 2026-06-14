@@ -338,8 +338,10 @@ class _AddFoodPanelState extends State<_AddFoodPanel> {
                   ),
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
-                    childAspectRatio:
-                        appState.waterTrackerEnabled ? 1.12 : 1.25,
+                    childAspectRatio: _addFoodGridAspectRatio(
+                      context,
+                      waterTrackerEnabled: appState.waterTrackerEnabled,
+                    ),
                     mainAxisSpacing: 10,
                     crossAxisSpacing: 10,
                   ),
@@ -359,6 +361,20 @@ class _AddFoodPanelState extends State<_AddFoodPanel> {
       ],
     );
   }
+}
+
+/// Taller grid cells on narrow screens and with larger text (e.g. zh-TW).
+double _addFoodGridAspectRatio(
+  BuildContext context, {
+  required bool waterTrackerEnabled,
+}) {
+  final screenWidth = MediaQuery.sizeOf(context).width;
+  final textScale = MediaQuery.textScalerOf(context).scale(1.0);
+  const horizontalInsets = 16.0 * 2 + 10.0;
+  final cellWidth = (screenWidth - horizontalInsets) / 2;
+  final baseHeight =
+      (waterTrackerEnabled ? 158.0 : 132.0) * textScale.clamp(1.0, 1.35);
+  return cellWidth / baseHeight;
 }
 
 class _FoodCard extends StatefulWidget {
@@ -474,83 +490,104 @@ class _FoodCardState extends State<_FoodCard> {
           child: Stack(
             children: [
               Positioned.fill(
-                child: Center(
-                  child: Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(widget.food.emoji,
-                            style: const TextStyle(fontSize: 28)),
-                        Text(
-                          l10n.foodDisplayName(widget.food.id, widget.food.name),
-                          style: theme.textTheme.titleSmall,
-                          textAlign: TextAlign.center,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        if (appState.waterTrackerEnabled &&
-                            widget.food.waterMlPerServing > 0)
-                          Text.rich(
-                            TextSpan(
-                              children: [
-                                TextSpan(
-                                  text: l10n.gProtein(
-                                      '${appState.proteinForFood(widget.food).round()}'),
-                                  style: theme.textTheme.bodySmall?.copyWith(
-                                    color: theme.colorScheme.primary,
-                                    fontWeight: FontWeight.w600,
-                                  ),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(4, 36, 4, 6),
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      final proteinText = l10n.gProtein(
+                        '${appState.proteinForFood(widget.food).round()}',
+                      );
+                      final servingText = _justAdded
+                          ? l10n.added
+                          : l10n.servingDisplay(
+                              widget.food.servingSize,
+                              foodId: widget.food.isCustom
+                                  ? null
+                                  : widget.food.id,
+                              system: appState.measurementSystem,
+                            );
+                      final showWater = appState.waterTrackerEnabled &&
+                          widget.food.waterMlPerServing > 0;
+
+                      return FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.center,
+                        child: SizedBox(
+                          width: constraints.maxWidth,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                widget.food.emoji,
+                                style: const TextStyle(fontSize: 24),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                l10n.foodDisplayName(
+                                  widget.food.id,
+                                  widget.food.name,
                                 ),
-                                TextSpan(
-                                  text:
-                                      ' · ${l10n.waterAmountLabel(widget.food.waterMlPerServing, appState.measurementSystem)}',
+                                style: theme.textTheme.titleSmall?.copyWith(
+                                  fontSize: 13,
+                                  height: 1.15,
+                                ),
+                                textAlign: TextAlign.center,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                proteinText,
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: theme.colorScheme.primary,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 12,
+                                  height: 1.15,
+                                ),
+                                textAlign: TextAlign.center,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              if (showWater) ...[
+                                const SizedBox(height: 1),
+                                Text(
+                                  l10n.waterAmountLabel(
+                                    widget.food.waterMlPerServing,
+                                    appState.measurementSystem,
+                                  ),
                                   style: theme.textTheme.bodySmall?.copyWith(
                                     color: const Color(0xFF1565C0),
                                     fontWeight: FontWeight.w600,
+                                    fontSize: 11,
+                                    height: 1.15,
                                   ),
+                                  textAlign: TextAlign.center,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ],
-                            ),
-                            textAlign: TextAlign.center,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          )
-                        else
-                          Text(
-                            l10n.gProtein(
-                                '${appState.proteinForFood(widget.food).round()}'),
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: theme.colorScheme.primary,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        Text(
-                          _justAdded
-                              ? l10n.added
-                              : l10n.servingDisplay(
-                                  widget.food.servingSize,
-                                  foodId: widget.food.isCustom
-                                      ? null
-                                      : widget.food.id,
-                                  system: appState.measurementSystem,
+                              const SizedBox(height: 2),
+                              Text(
+                                servingText,
+                                style: theme.textTheme.labelSmall?.copyWith(
+                                  color: _justAdded
+                                      ? theme.colorScheme.primary
+                                      : theme.colorScheme.onSurfaceVariant,
+                                  fontWeight: _justAdded
+                                      ? FontWeight.w600
+                                      : FontWeight.normal,
+                                  fontSize: 11,
+                                  height: 1.2,
                                 ),
-                          style: theme.textTheme.labelSmall?.copyWith(
-                            color: _justAdded
-                                ? theme.colorScheme.primary
-                                : theme.colorScheme.onSurfaceVariant,
-                            fontWeight: _justAdded
-                                ? FontWeight.w600
-                                : FontWeight.normal,
+                                textAlign: TextAlign.center,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
                           ),
-                          textAlign: TextAlign.center,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
                         ),
-                      ],
-                    ),
+                      );
+                    },
                   ),
                 ),
               ),
