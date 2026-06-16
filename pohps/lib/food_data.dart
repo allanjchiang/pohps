@@ -233,6 +233,15 @@ const List<FoodItem> defaultFoods = [
     emoji: '🧈',
   ),
   FoodItem(
+    id: 'beancurd_skin',
+    name: 'Beancurd Skin',
+    category: categoryProteinBoosters,
+    proteinGrams: 25,
+    waterMlPerServing: 20,
+    servingSize: '50g',
+    emoji: '🥡',
+  ),
+  FoodItem(
     id: 'soy_meat',
     name: 'Soy Meat',
     category: categoryProteinBoosters,
@@ -353,6 +362,24 @@ const List<FoodItem> defaultFoods = [
     servingSize: '1 slice',
     emoji: '🍞',
   ),
+  FoodItem(
+    id: 'flour',
+    name: 'Flour',
+    category: categoryGrains,
+    proteinGrams: 10,
+    waterMlPerServing: 12,
+    servingSize: '100g',
+    emoji: '🌾',
+  ),
+  FoodItem(
+    id: 'glass_noodles',
+    name: 'Glass Noodles',
+    category: categoryGrains,
+    proteinGrams: 0,
+    waterMlPerServing: 10,
+    servingSize: '100g',
+    emoji: '🍜',
+  ),
 
   // Vegetables
   FoodItem(
@@ -399,6 +426,15 @@ const List<FoodItem> defaultFoods = [
     waterMlPerServing: 70,
     servingSize: '1 cup',
     emoji: '🥬',
+  ),
+  FoodItem(
+    id: 'carrots',
+    name: 'Carrots',
+    category: categoryVegetables,
+    proteinGrams: 1,
+    waterMlPerServing: 88,
+    servingSize: '100g',
+    emoji: '🥕',
   ),
   FoodItem(
     id: 'bok_choy',
@@ -743,6 +779,28 @@ const List<FoodItem> veganOnlyFoods = [
     waterMlPerServing: 200,
     servingSize: '1 scoop + soy milk',
     emoji: '🥤',
+  ),
+];
+
+/// Preset custom foods merged into My Foods on first launch.
+const List<FoodItem> defaultPresetCustomFoods = [
+  FoodItem(
+    id: 'chonghua_dumplings',
+    name: 'Chonghua Dumplings',
+    category: categoryOther,
+    proteinGrams: 5.2,
+    waterMlPerServing: 51,
+    servingSize: '5 dumplings (100g)',
+    emoji: '🥟',
+    isCustom: true,
+    components: [
+      CustomFoodComponent(sourceFoodId: 'flour', fraction: 0.35),
+      CustomFoodComponent(sourceFoodId: 'cabbage', fraction: 0.36),
+      CustomFoodComponent(sourceFoodId: 'carrots', fraction: 0.15),
+      CustomFoodComponent(sourceFoodId: 'glass_noodles', fraction: 0.10),
+      CustomFoodComponent(sourceFoodId: 'beancurd_skin', fraction: 0.16),
+      CustomFoodComponent(sourceFoodId: 'soy_meat', fraction: 0.08),
+    ],
   ),
 ];
 

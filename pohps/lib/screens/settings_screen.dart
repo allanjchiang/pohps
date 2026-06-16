@@ -286,10 +286,12 @@ class SettingsScreen extends StatelessWidget {
                           contentPadding: EdgeInsets.zero,
                           leading: Text(food.emoji,
                               style: const TextStyle(fontSize: 28)),
-                          title: Text(food.name,
-                              style: theme.textTheme.titleMedium),
+                          title: Text(
+                            l10n.foodDisplayName(food.id, food.name),
+                            style: theme.textTheme.titleMedium,
+                          ),
                           subtitle: Text(
-                            '${food.proteinGrams.round()}g · ${l10n.servingDisplay(food.servingSize, foodId: food.isCustom ? null : food.id, system: appState.measurementSystem)}',
+                            '${food.proteinGrams.toStringAsFixed(food.proteinGrams == food.proteinGrams.roundToDouble() ? 0 : 1)}g · ${l10n.servingDisplay(food.servingSize, foodId: food.id, system: appState.measurementSystem)}',
                           ),
                           trailing: IconButton(
                             icon: Icon(Icons.delete_outline,

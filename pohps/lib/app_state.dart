@@ -133,9 +133,20 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
   Future<void> init() async {
     await _storage.init();
     _loadFromStorage();
+    await _seedPresetCustomFoods();
     WidgetsBinding.instance.addObserver(this);
     _scheduleNextReset();
     notifyListeners();
+  }
+
+  Future<void> _seedPresetCustomFoods() async {
+    final existingIds = _customFoods.map((food) => food.id).toSet();
+    final missing = defaultPresetCustomFoods
+        .where((food) => !existingIds.contains(food.id))
+        .toList();
+    if (missing.isEmpty) return;
+    _customFoods = [..._customFoods, ...missing];
+    await _storage.saveCustomFoods(_customFoods);
   }
 
   void _loadFromStorage() {
