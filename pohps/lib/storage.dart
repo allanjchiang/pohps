@@ -63,6 +63,8 @@ class StorageService {
     final value = _prefs.getString('diet_type');
     return switch (value) {
       'vegan' => DietType.vegan,
+      'allium_vegetarian' => DietType.alliumVegetarian,
+      'allium_vegan' => DietType.alliumVegan,
       _ => DietType.lactoOvo,
     };
   }
@@ -70,6 +72,8 @@ class StorageService {
   Future<void> setDietType(DietType diet) {
     final value = switch (diet) {
       DietType.vegan => 'vegan',
+      DietType.alliumVegetarian => 'allium_vegetarian',
+      DietType.alliumVegan => 'allium_vegan',
       DietType.lactoOvo => 'lacto_ovo',
     };
     return _prefs.setString('diet_type', value);
@@ -238,9 +242,12 @@ class StorageService {
     );
 
     final diet = data['dietType'] as String? ?? 'lacto_ovo';
-    await setDietType(
-      diet == 'vegan' ? DietType.vegan : DietType.lactoOvo,
-    );
+    await setDietType(switch (diet) {
+      'vegan' => DietType.vegan,
+      'allium_vegetarian' => DietType.alliumVegetarian,
+      'allium_vegan' => DietType.alliumVegan,
+      _ => DietType.lactoOvo,
+    });
 
     await setWaterTrackerEnabled(data['waterTrackerEnabled'] as bool? ?? false);
     await setDailyWaterGoalMl(

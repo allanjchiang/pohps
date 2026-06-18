@@ -6,6 +6,8 @@ enum MeasurementSystem {
 enum DietType {
   lactoOvo,
   vegan,
+  alliumVegetarian,
+  alliumVegan,
 }
 
 class CustomFoodComponent {

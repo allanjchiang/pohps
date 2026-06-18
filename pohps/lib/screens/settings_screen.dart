@@ -124,21 +124,35 @@ class SettingsScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  SegmentedButton<DietType>(
-                    segments: [
-                      ButtonSegment(
-                        value: DietType.lactoOvo,
-                        label: Text(l10n.dietLactoOvo),
-                      ),
-                      ButtonSegment(
-                        value: DietType.vegan,
-                        label: Text(l10n.dietVegan),
-                      ),
-                    ],
-                    selected: {appState.dietType},
-                    onSelectionChanged: (diets) {
-                      appState.setDietType(diets.first);
+                  RadioGroup<DietType>(
+                    groupValue: appState.dietType,
+                    onChanged: (diet) {
+                      if (diet != null) appState.setDietType(diet);
                     },
+                    child: Column(
+                      children: [
+                        RadioListTile<DietType>(
+                          title: Text(l10n.dietLactoOvo),
+                          value: DietType.lactoOvo,
+                          contentPadding: EdgeInsets.zero,
+                        ),
+                        RadioListTile<DietType>(
+                          title: Text(l10n.dietVegan),
+                          value: DietType.vegan,
+                          contentPadding: EdgeInsets.zero,
+                        ),
+                        RadioListTile<DietType>(
+                          title: Text(l10n.dietAlliumVegetarian),
+                          value: DietType.alliumVegetarian,
+                          contentPadding: EdgeInsets.zero,
+                        ),
+                        RadioListTile<DietType>(
+                          title: Text(l10n.dietAlliumVegan),
+                          value: DietType.alliumVegan,
+                          contentPadding: EdgeInsets.zero,
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),

@@ -759,7 +759,7 @@ const List<FoodItem> defaultFoods = [
   ),
 ];
 
-/// Foods excluded when the user selects a vegan diet.
+/// Foods excluded when the user selects a vegan or allium vegan diet.
 const Set<String> lactoOvoOnlyFoodIds = {
   'egg',
   'greek_yoghurt',
@@ -781,6 +781,70 @@ const List<FoodItem> veganOnlyFoods = [
     emoji: '🥤',
   ),
 ];
+
+/// Alliums shown only for allium vegetarian and allium vegan diets.
+const List<FoodItem> alliumOnlyFoods = [
+  FoodItem(
+    id: 'onions',
+    name: 'Onions',
+    category: categoryVegetables,
+    proteinGrams: 1,
+    waterMlPerServing: 130,
+    servingSize: '1 medium',
+    emoji: '🧅',
+  ),
+  FoodItem(
+    id: 'garlic',
+    name: 'Garlic',
+    category: categoryVegetables,
+    proteinGrams: 1,
+    waterMlPerServing: 5,
+    servingSize: '3 cloves',
+    emoji: '🧄',
+  ),
+  FoodItem(
+    id: 'leeks',
+    name: 'Leeks',
+    category: categoryVegetables,
+    proteinGrams: 1,
+    waterMlPerServing: 75,
+    servingSize: '1 cup',
+    emoji: '🧅',
+  ),
+  FoodItem(
+    id: 'shallots',
+    name: 'Shallots',
+    category: categoryVegetables,
+    proteinGrams: 1,
+    waterMlPerServing: 20,
+    servingSize: '2 shallots',
+    emoji: '🧅',
+  ),
+  FoodItem(
+    id: 'chives',
+    name: 'Chives',
+    category: categoryVegetables,
+    proteinGrams: 0,
+    waterMlPerServing: 5,
+    servingSize: '1 tbsp',
+    emoji: '🌿',
+  ),
+  FoodItem(
+    id: 'spring_onions',
+    name: 'Spring Onions',
+    category: categoryVegetables,
+    proteinGrams: 1,
+    waterMlPerServing: 25,
+    servingSize: '2 stalks',
+    emoji: '🧅',
+  ),
+];
+
+bool includesDairyAndEggs(DietType diet) =>
+    diet == DietType.lactoOvo || diet == DietType.alliumVegetarian;
+
+bool includesAlliums(DietType diet) =>
+    diet == DietType.alliumVegetarian || diet == DietType.alliumVegan;
 
 /// Preset custom foods merged into My Foods on first launch.
 const List<FoodItem> defaultPresetCustomFoods = [
@@ -845,18 +909,23 @@ List<FoodItem> _insertAfterFirstFound(
 
 List<FoodItem> foodsForDiet(DietType diet, {bool includeBeverages = false}) {
   final List<FoodItem> base;
-  if (diet == DietType.lactoOvo) {
-    base = defaultFoods;
+  if (includesDairyAndEggs(diet)) {
+    base = List<FoodItem>.from(defaultFoods);
   } else {
     base = [
       ...defaultFoods.where((f) => !lactoOvoOnlyFoodIds.contains(f.id)),
       ...veganOnlyFoods,
     ];
   }
-  if (!includeBeverages) return base;
+
+  final withAlliums = includesAlliums(diet)
+      ? _insertAfterId(base, 'pickles', alliumOnlyFoods)
+      : base;
+
+  if (!includeBeverages) return withAlliums;
 
   final withDairyDrinks = _insertAfterFirstFound(
-    base,
+    withAlliums,
     ['milk', 'greek_yoghurt', 'egg'],
     dairyBeverageFoods,
   );

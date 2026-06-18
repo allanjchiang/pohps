@@ -316,10 +316,13 @@ class AppLocalizations {
   String get dietLactoOvo =>
       _t('Lacto-Ovo', '蛋奶素', '蛋奶素');
   String get dietVegan => _t('Vegan', '全素', '全素');
+  String get dietAlliumVegetarian =>
+      _t('Allium Vegetarian', '五辛素', '五辛素');
+  String get dietAlliumVegan => _t('Allium Vegan', '五辛全素', '五辛全素');
   String get dietHint => _t(
-        'Vegan hides eggs and dairy from the food list and adds pea protein smoothie.',
-        '全素模式會隱藏蛋類和乳製品，並新增豌豆蛋白奶昔。',
-        '全素模式会隐藏蛋类和乳制品，并新增豌豆蛋白奶昔。',
+        'Vegan and Allium Vegan hide eggs and dairy. Lacto-Ovo and Allium Vegetarian include them. Allium diets add onions, garlic, leeks, shallots, chives, and spring onions.',
+        '全素與五辛全素會隱藏蛋類和乳製品；蛋奶素與五辛素則包含。五辛飲食會新增洋蔥、大蒜、韭蔥、紅蔥頭、細香蔥與青蔥。',
+        '全素与五辛全素会隐藏蛋类和乳制品；蛋奶素与五辛素则包含。五辛饮食会新增洋葱、大蒜、韭葱、红葱头、细香葱与青葱。',
       );
 
   String get language => _t('Language', '語言', '语言');
@@ -674,6 +677,12 @@ class AppLocalizations {
       'cherry_tomatoes' => _t('Cherry Tomatoes', '小番茄', '小番茄'),
       'lettuce' => _t('Lettuce', '生菜', '生菜'),
       'pickles' => _t('Pickles', '醃黃瓜', '腌黄瓜'),
+      'onions' => _t('Onions', '洋蔥', '洋葱'),
+      'garlic' => _t('Garlic', '大蒜', '大蒜'),
+      'leeks' => _t('Leeks', '韭蔥', '韭葱'),
+      'shallots' => _t('Shallots', '紅蔥頭', '红葱头'),
+      'chives' => _t('Chives', '細香蔥', '细香葱'),
+      'spring_onions' => _t('Spring Onions', '青蔥', '青葱'),
       'apple' => _t('Apple', '蘋果', '苹果'),
       'banana' => _t('Banana', '香蕉', '香蕉'),
       'strawberries' => _t('Strawberries', '草莓', '草莓'),
@@ -755,6 +764,9 @@ class AppLocalizations {
       '1 slice (28g)' => _t('1 slice (28g)', '1 片（28g）', '1 片（28g）'),
       '10 olives' => _t('10 olives', '10 顆橄欖', '10 颗橄榄'),
       '4 spears' => _t('4 spears', '4 根', '4 根'),
+      '3 cloves' => _t('3 cloves', '3 瓣', '3 瓣'),
+      '2 shallots' => _t('2 shallots', '2 顆紅蔥頭', '2 颗红葱头'),
+      '2 stalks' => _t('2 stalks', '2 根', '2 根'),
       '30g (1 oz)' => _t('30g (1 oz)', '30g（1 盎司）', '30g（1 盎司）'),
       '1 tbsp' => _t('1 tbsp', '1 湯匙', '1 汤匙'),
       _ => original,
@@ -820,6 +832,12 @@ class AppLocalizations {
         'cherry_tomatoes' => '5 oz',
         'lettuce' => '2 oz',
         'pickles' => '4 spears',
+        'onions' => '1 medium (5 oz)',
+        'garlic' => '3 cloves',
+        'leeks' => '3 oz',
+        'shallots' => '2 shallots',
+        'chives' => '1 tbsp',
+        'spring_onions' => '2 stalks',
         'capsicum' => '1 medium (5 oz)',
         'apple' => '1 medium (5 oz)',
         'banana' => '1 medium (5 oz)',
