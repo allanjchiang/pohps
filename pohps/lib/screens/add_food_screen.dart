@@ -417,7 +417,8 @@ class _AddFoodPanelState extends State<_AddFoodPanel> {
                     return _FoodCard(
                       food: food,
                       onTap: () => appState.addFood(food),
-                      onEdit: food.isCustom
+                      onEdit: food.isCustom &&
+                              appState.isProteinEditableFood(food)
                           ? () => _editCustomFood(food)
                           : null,
                     );
@@ -470,7 +471,7 @@ class _FoodCardState extends State<_FoodCard> {
   }
 
   Future<void> _maybeEditProtein(AppState appState) async {
-    if (!appState.isProteinEditableFood(widget.food.id)) return;
+    if (!appState.isProteinEditableFood(widget.food)) return;
     final l10n = AppLocalizations.of(context);
     final displayName = l10n.foodDisplayName(widget.food.id, widget.food.name);
 
@@ -527,7 +528,7 @@ class _FoodCardState extends State<_FoodCard> {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
     final appState = context.watch<AppState>();
-    final proteinEditable = appState.isProteinEditableFood(widget.food.id);
+    final proteinEditable = appState.isProteinEditableFood(widget.food);
     final isFavorite = appState.isFavorite(widget.food.id);
     return AnimatedContainer(
       duration: const Duration(milliseconds: 250),

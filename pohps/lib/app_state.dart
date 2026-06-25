@@ -72,10 +72,8 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
         .toList();
   }
 
-  static const Set<String> _proteinEditableFoodIds = {'milk', 'soy_milk'};
-
-  bool isProteinEditableFood(String foodId) =>
-      _proteinEditableFoodIds.contains(foodId);
+  bool isProteinEditableFood(FoodItem food) =>
+      food.category != categoryFruits && food.category != categoryVegetables;
 
   double proteinForFood(FoodItem food) =>
       _proteinOverrides[food.id] ?? food.proteinGrams;
