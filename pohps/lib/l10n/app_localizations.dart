@@ -432,6 +432,16 @@ class AppLocalizations {
   String get addToFavorites => _t('Add to favorites', '加入最愛', '加入收藏');
   String get removeFromFavorites =>
       _t('Remove from favorites', '從最愛移除', '从收藏移除');
+  String get reorderFoods => _t('Reorder', '調整順序', '调整顺序');
+  String get doneReordering => _t('Done', '完成', '完成');
+  String get reorderHint => _t(
+        'Use the up and down arrows to move foods. You can also press and drag the handle on the left.',
+        '使用上下箭頭移動食物，也可以按住左側把手拖曳。',
+        '使用上下箭头移动食物，也可以按住左侧把手拖曳。',
+      );
+  String get moveUp => _t('Move up', '上移', '上移');
+  String get moveDown => _t('Move down', '下移', '下移');
+  String get dragToReorder => _t('Drag to reorder', '拖曳以調整順序', '拖曳以调整顺序');
   String get added => _t('✓ Added!', '✓ 已新增！', '✓ 已添加！');
 
   // ── Custom Food Screen ─────────────────────────────────────────────────

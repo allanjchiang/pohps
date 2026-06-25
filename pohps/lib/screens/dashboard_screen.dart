@@ -5,6 +5,7 @@ import '../l10n/app_localizations.dart';
 import '../models.dart';
 import '../widgets/progress_tracker_carousel.dart';
 import '../widgets/swipeable_date_title.dart';
+import '../widgets/food_reorder_list.dart';
 import '../widgets/achievement_dialog.dart';
 import 'add_food_screen.dart';
 import 'custom_food_screen.dart';
@@ -23,6 +24,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   final _scrollController = ScrollController();
   final _progressCollapse = ValueNotifier<double>(0);
+  bool _isReorderMode = false;
 
   @override
   void initState() {
@@ -80,11 +82,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   void _goToPreviousDay(AppState appState) {
     appState.goToPreviousDay();
+    setState(() => _isReorderMode = false);
     _resetScrollForDateChange();
   }
 
   void _goToNextDay(AppState appState) {
     appState.goToNextDay();
+    setState(() => _isReorderMode = false);
     _resetScrollForDateChange();
   }
 
@@ -158,10 +162,76 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             ),
           ),
+          if (appState.isViewingToday && appState.viewLog.length > 1)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: FilledButton.tonalIcon(
+                    onPressed: () =>
+                        setState(() => _isReorderMode = !_isReorderMode),
+                    icon: Icon(
+                      _isReorderMode ? Icons.check : Icons.swap_vert,
+                      size: 24,
+                    ),
+                    label: Text(
+                      _isReorderMode
+                          ? l10n.doneReordering
+                          : l10n.reorderFoods,
+                      style: const TextStyle(fontSize: 16),
+                    ),
+                    style: FilledButton.styleFrom(
+                      minimumSize: const Size(0, 48),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 12,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
           if (appState.viewLog.isEmpty)
             SliverFillRemaining(
               hasScrollBody: false,
               child: _buildEmptyState(theme, l10n, appState.isViewingToday),
+            )
+          else if (_isReorderMode && appState.isViewingToday)
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(0, 0, 0, 100),
+              sliver: SliverToBoxAdapter(
+                child: FoodReorderList(
+                  entries: appState.viewLog
+                      .map(
+                        (entry) => FoodReorderEntry(
+                          id: entry.id,
+                          emoji: entry.food.emoji,
+                          title: l10n.foodDisplayName(
+                            entry.food.id,
+                            entry.food.name,
+                          ),
+                          subtitle: entry.fraction == 1.0
+                              ? l10n.servingDisplay(
+                                  entry.food.servingSize,
+                                  foodId: entry.food.isCustom
+                                      ? null
+                                      : entry.food.id,
+                                  system: appState.measurementSystem,
+                                )
+                              : '${entry.fraction}× ${l10n.servingDisplay(
+                                  entry.food.servingSize,
+                                  foodId: entry.food.isCustom
+                                      ? null
+                                      : entry.food.id,
+                                  system: appState.measurementSystem,
+                                )}',
+                        ),
+                      )
+                      .toList(),
+                  onReorder: appState.reorderTodayLog,
+                ),
+              ),
             )
           else
             SliverPadding(
@@ -180,7 +250,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
         ],
       ),
-      floatingActionButton: appState.isViewingToday
+      floatingActionButton: appState.isViewingToday && !_isReorderMode
           ? FloatingActionButton.extended(
               onPressed: () => _openAddFood(context),
               icon: const Icon(Icons.add, size: 28),

@@ -391,6 +391,42 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
     notifyListeners();
   }
 
+  Future<void> reorderFavorites(int from, int to) async {
+    if (from == to || _favoriteFoodIds.isEmpty) return;
+    final ids = List<String>.from(_favoriteFoodIds);
+    if (from < 0 || from >= ids.length) return;
+    to = to.clamp(0, ids.length - 1);
+    final id = ids.removeAt(from);
+    ids.insert(to, id);
+    _favoriteFoodIds = ids;
+    await _storage.saveFavoriteFoodIds(_favoriteFoodIds);
+    notifyListeners();
+  }
+
+  Future<void> reorderCustomFoods(int from, int to) async {
+    if (from == to || _customFoods.isEmpty) return;
+    final foods = List<FoodItem>.from(_customFoods);
+    if (from < 0 || from >= foods.length) return;
+    to = to.clamp(0, foods.length - 1);
+    final food = foods.removeAt(from);
+    foods.insert(to, food);
+    _customFoods = foods;
+    await _storage.saveCustomFoods(_customFoods);
+    notifyListeners();
+  }
+
+  Future<void> reorderTodayLog(int from, int to) async {
+    if (!isViewingToday || from == to) return;
+    _refreshLogIfDateChanged();
+    final log = _todayLogFromStorage();
+    if (from < 0 || from >= log.length) return;
+    to = to.clamp(0, log.length - 1);
+    final entry = log.removeAt(from);
+    log.insert(to, entry);
+    await _saveTodayLog(log);
+    notifyListeners();
+  }
+
   void dismissAchievement() {
     if (_pendingAchievements.isNotEmpty) {
       _pendingAchievements.removeAt(0);

@@ -5,6 +5,7 @@ import '../app_state.dart';
 import '../models.dart';
 import '../food_data.dart';
 import '../l10n/app_localizations.dart';
+import '../widgets/food_reorder_list.dart';
 import 'custom_food_screen.dart';
 
 /// Full-height modal with interactive drag (panel follows the finger).
@@ -201,6 +202,10 @@ class _AddFoodPanel extends StatefulWidget {
 
 class _AddFoodPanelState extends State<_AddFoodPanel> {
   String _selectedCategory = 'Favorites';
+  bool _isReorderMode = false;
+
+  bool get _canReorder =>
+      _selectedCategory == 'Favorites' || _selectedCategory == 'My Foods';
 
   Future<void> _editCustomFood(FoodItem food) async {
     await Navigator.of(context).push<bool>(
@@ -297,13 +302,44 @@ class _AddFoodPanelState extends State<_AddFoodPanel> {
                           label: Text(label,
                               style: const TextStyle(fontSize: 14)),
                           selected: selected,
-                          onSelected: (_) =>
-                              setState(() => _selectedCategory = cat),
+                          onSelected: (_) => setState(() {
+                            _selectedCategory = cat;
+                            _isReorderMode = false;
+                          }),
                         ),
                       );
                     },
                   ),
                 ),
+                if (_canReorder && filteredFoods.isNotEmpty) ...[
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: FilledButton.tonalIcon(
+                        onPressed: () =>
+                            setState(() => _isReorderMode = !_isReorderMode),
+                        icon: Icon(
+                          _isReorderMode ? Icons.check : Icons.swap_vert,
+                          size: 24,
+                        ),
+                        label: Text(
+                          _isReorderMode
+                              ? l10n.doneReordering
+                              : l10n.reorderFoods,
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                        style: FilledButton.styleFrom(
+                          minimumSize: const Size(0, 48),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 12,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
                 const SizedBox(height: 8),
               ],
             ),
@@ -329,7 +365,37 @@ class _AddFoodPanelState extends State<_AddFoodPanel> {
                     ],
                   ),
                 )
-              : GridView.builder(
+              : _isReorderMode && _canReorder
+                  ? SingleChildScrollView(
+                      padding: EdgeInsets.only(
+                        bottom: 24 + MediaQuery.viewPaddingOf(context).bottom,
+                      ),
+                      child: FoodReorderList(
+                        entries: filteredFoods
+                            .map(
+                              (food) => FoodReorderEntry(
+                                id: food.id,
+                                emoji: food.emoji,
+                                title: l10n.foodDisplayName(
+                                  food.id,
+                                  food.name,
+                                ),
+                                subtitle: l10n.gProtein(
+                                  '${appState.proteinForFood(food).round()}',
+                                ),
+                              ),
+                            )
+                            .toList(),
+                        onReorder: (from, to) {
+                          if (_selectedCategory == 'Favorites') {
+                            appState.reorderFavorites(from, to);
+                          } else {
+                            appState.reorderCustomFoods(from, to);
+                          }
+                        },
+                      ),
+                    )
+                  : GridView.builder(
                   padding: EdgeInsets.fromLTRB(
                     16,
                     0,
