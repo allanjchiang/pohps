@@ -162,7 +162,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             ),
           ),
-          if (appState.isViewingToday && appState.viewLog.length > 1)
+          if (appState.viewLog.length > 1)
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
@@ -197,7 +197,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               hasScrollBody: false,
               child: _buildEmptyState(theme, l10n, appState.isViewingToday),
             )
-          else if (_isReorderMode && appState.isViewingToday)
+          else if (_isReorderMode)
             SliverPadding(
               padding: const EdgeInsets.fromLTRB(0, 0, 0, 100),
               sliver: SliverToBoxAdapter(
@@ -229,7 +229,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         ),
                       )
                       .toList(),
-                  onReorder: appState.reorderTodayLog,
+                  onReorder: appState.reorderViewLog,
                 ),
               ),
             )
@@ -250,7 +250,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
         ],
       ),
-      floatingActionButton: appState.isViewingToday && !_isReorderMode
+      floatingActionButton: !_isReorderMode
           ? FloatingActionButton.extended(
               onPressed: () => _openAddFood(context),
               icon: const Icon(Icons.add, size: 28),
@@ -280,9 +280,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
           const SizedBox(height: 4),
           Text(
-            isViewingToday
-                ? l10n.tapAddFoodToStart
-                : l10n.swipeDateToBrowseHistory,
+            l10n.tapAddFoodToStart,
             style: theme.textTheme.bodyMedium?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
             ),
@@ -310,9 +308,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       child: ListTile(
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        onTap: appState.isViewingToday
-            ? () => _showFractionPicker(context, appState, entry)
-            : null,
+        onTap: () => _showFractionPicker(context, appState, entry),
         leading: Text(entry.food.emoji, style: const TextStyle(fontSize: 32)),
         title: Text(displayName, style: theme.textTheme.titleMedium),
         subtitle: Text(
@@ -348,8 +344,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
       ),
     );
-
-    if (!appState.isViewingToday) return tile;
 
     return Dismissible(
           key: Key(entry.id),

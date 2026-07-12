@@ -5,6 +5,7 @@
 | [support.html](./support.html) | Support, privacy policy, and disclaimer for store listings |
 | [google-play-data-safety.md](./google-play-data-safety.md) | Line-by-line Google Play Data safety form answers |
 | [pohps-feature-graphic.jpg](./pohps-feature-graphic.jpg) | Google Play feature graphic (1024×500 JPEG) |
+| [pohps-feature-graphic-zh-TW.png](./pohps-feature-graphic-zh-TW.png) | Google Play feature graphic, Traditional Chinese (1024×500 PNG) |
 
 ## Publishing URLs
 

@@ -259,6 +259,15 @@ const List<FoodItem> defaultFoods = [
     servingSize: '1 serving (85g)',
     emoji: '🥩',
   ),
+  FoodItem(
+    id: 'quorn_chicken_pieces',
+    name: 'Quorn Chicken Pieces',
+    category: categoryProteinBoosters,
+    proteinGrams: 10,
+    waterMlPerServing: 65,
+    servingSize: '100g',
+    emoji: '🍗',
+  ),
 
   // Legumes
   FoodItem(
@@ -338,6 +347,15 @@ const List<FoodItem> defaultFoods = [
   FoodItem(
     id: 'buckwheat',
     name: 'Buckwheat',
+    category: categoryGrains,
+    proteinGrams: 6,
+    waterMlPerServing: 130,
+    servingSize: '1 cup cooked',
+    emoji: '🌾',
+  ),
+  FoodItem(
+    id: 'couscous',
+    name: 'Couscous',
     category: categoryGrains,
     proteinGrams: 6,
     waterMlPerServing: 130,
@@ -646,6 +664,15 @@ const List<FoodItem> defaultFoods = [
     emoji: '🍈',
   ),
   FoodItem(
+    id: 'pineapple',
+    name: 'Pineapple',
+    category: categoryFruits,
+    proteinGrams: 1,
+    waterMlPerServing: 140,
+    servingSize: '1 cup',
+    emoji: '🍍',
+  ),
+  FoodItem(
     id: 'fruits',
     name: 'Fruits',
     category: categoryFruits,
@@ -804,6 +831,7 @@ const Set<String> lactoOvoOnlyFoodIds = {
   'cottage_cheese',
   'cheese',
   'whey_smoothie',
+  'quorn_chicken_pieces',
 };
 
 const List<FoodItem> veganOnlyFoods = [

@@ -222,14 +222,12 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
     notifyListeners();
   }
 
-  List<LogEntry> _todayLogFromStorage() =>
-      List<LogEntry>.from(_storage.getDailyLog(_currentEffectiveDate));
+  List<LogEntry> _viewLogFromStorage() =>
+      List<LogEntry>.from(_storage.getDailyLog(_viewDate));
 
-  Future<void> _saveTodayLog(List<LogEntry> log) async {
-    await _storage.saveDailyLog(_currentEffectiveDate, log);
-    if (isViewingToday) {
-      _viewLog = log;
-    }
+  Future<void> _saveViewLog(List<LogEntry> log) async {
+    await _storage.saveDailyLog(_viewDate, log);
+    _viewLog = log;
   }
 
   void _scheduleNextReset() {
@@ -327,29 +325,27 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
       timestamp: DateTime.now(),
       fraction: fraction,
     );
-    final log = _todayLogFromStorage()..add(entry);
-    await _saveTodayLog(log);
-    _checkAchievements();
+    final log = _viewLogFromStorage()..add(entry);
+    await _saveViewLog(log);
+    if (isViewingToday) _checkAchievements();
     notifyListeners();
   }
 
   Future<void> updateEntryFraction(String entryId, double fraction) async {
-    if (!isViewingToday) return;
     _refreshLogIfDateChanged();
-    final log = _todayLogFromStorage();
+    final log = _viewLogFromStorage();
     final index = log.indexWhere((e) => e.id == entryId);
     if (index == -1) return;
     log[index] = log[index].copyWith(fraction: fraction);
-    await _saveTodayLog(log);
-    _checkAchievements();
+    await _saveViewLog(log);
+    if (isViewingToday) _checkAchievements();
     notifyListeners();
   }
 
   Future<void> removeEntry(String entryId) async {
-    if (!isViewingToday) return;
     _refreshLogIfDateChanged();
-    final log = _todayLogFromStorage()..removeWhere((e) => e.id == entryId);
-    await _saveTodayLog(log);
+    final log = _viewLogFromStorage()..removeWhere((e) => e.id == entryId);
+    await _saveViewLog(log);
     notifyListeners();
   }
 
@@ -413,15 +409,15 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
     notifyListeners();
   }
 
-  Future<void> reorderTodayLog(int from, int to) async {
-    if (!isViewingToday || from == to) return;
+  Future<void> reorderViewLog(int from, int to) async {
+    if (from == to) return;
     _refreshLogIfDateChanged();
-    final log = _todayLogFromStorage();
+    final log = _viewLogFromStorage();
     if (from < 0 || from >= log.length) return;
     to = to.clamp(0, log.length - 1);
     final entry = log.removeAt(from);
     log.insert(to, entry);
-    await _saveTodayLog(log);
+    await _saveViewLog(log);
     notifyListeners();
   }
 
@@ -433,7 +429,7 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   void _checkAchievements() {
-    final todayLog = _todayLogFromStorage();
+    final todayLog = _storage.getDailyLog(_currentEffectiveDate);
     final todayProtein =
         todayLog.fold(0.0, (sum, e) => sum + e.totalProtein);
     if (!_unlockedAchievements.contains('firstBite') && todayLog.isNotEmpty) {

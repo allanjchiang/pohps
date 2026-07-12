@@ -204,20 +204,14 @@ class AppLocalizations {
         '点击 + 添加食物 开始记录',
       );
 
-  String get swipeDateToBrowseHistory => _t(
-        'Swipe the date above to browse your history',
-        '滑動上方日期以瀏覽紀錄',
-        '滑动上方日期以浏览记录',
-      );
-
   String get addFood => _t('Add Food', '新增食物', '添加食物');
 
   String get removeFoodTitle => _t('Remove Food?', '移除食物？', '移除食物？');
 
   String removeFoodConfirm(String name) => _t(
-        'Remove $name from today\'s log?',
-        '確定從今日記錄中移除$name？',
-        '确定从今日记录中移除$name？',
+        'Remove $name from this log?',
+        '確定從記錄中移除$name？',
+        '确定从记录中移除$name？',
       );
 
   String get remove => _t('Remove', '移除', '移除');
@@ -637,6 +631,11 @@ class AppLocalizations {
         '植物肉（豌豆蛋白）',
         '植物肉（豌豆蛋白）',
       ),
+      'quorn_chicken_pieces' => _t(
+        'Quorn Chicken Pieces',
+        'Quorn 素雞肉塊',
+        'Quorn 素鸡肉块',
+      ),
       'pea_protein_smoothie' =>
         _t('Pea Protein Smoothie', '豌豆蛋白奶昔', '豌豆蛋白奶昔'),
       'water' => _t('Water', '水', '水'),
@@ -664,6 +663,7 @@ class AppLocalizations {
       'quinoa' => _t('Quinoa', '藜麥', '藜麦'),
       'millet' => _t('Millet', '小米', '小米'),
       'buckwheat' => _t('Buckwheat', '蕎麥', '荞麦'),
+      'couscous' => _t('Couscous', '北非小米', '北非小米'),
       'noodles' => _t('Noodles', '麵條', '面条'),
       'bread' => _t('Bread', '麵包', '面包'),
       'oats' => _t('Oats', '燕麥', '燕麦'),
@@ -703,6 +703,7 @@ class AppLocalizations {
       'mixed_berries' => _t('Mixed Berries', '綜合莓果', '综合莓果'),
       'kiwifruit' => _t('Kiwifruit', '奇異果', '猕猴桃'),
       'dragonfruit' => _t('Dragonfruit', '火龍果', '火龙果'),
+      'pineapple' => _t('Pineapple', '鳳梨', '菠萝'),
       'fruits' => _t('Fruits', '水果', '水果'),
       'nuts_seeds' => _t('Nuts & Seeds', '堅果與種子', '坚果与种子'),
       'almonds' => _t('Almonds', '杏仁', '杏仁'),
@@ -800,6 +801,7 @@ class AppLocalizations {
         'whey_smoothie' => '1 scoop',
         'pea_protein_powder' => '1 scoop',
         'plant_based_meat' => '3 oz',
+        'quorn_chicken_pieces' => '3.5 oz',
         'pea_protein_smoothie' => '1 scoop + ½ pint soy milk',
         'water' => '½ pint (8 fl oz)',
         'coffee' => '1 cup (8 fl oz)',
@@ -826,6 +828,7 @@ class AppLocalizations {
         'quinoa' => '6 oz cooked',
         'millet' => '6 oz cooked',
         'buckwheat' => '6 oz cooked',
+        'couscous' => '6 oz cooked',
         'noodles' => '5 oz cooked',
         'bread' => '1 slice',
         'oats' => '6 oz cooked',
@@ -864,6 +867,7 @@ class AppLocalizations {
         'mixed_berries' => '5 oz',
         'kiwifruit' => '1 medium (3 oz)',
         'dragonfruit' => '1 medium (10 oz)',
+        'pineapple' => '5 oz',
         'fruits' => '1 medium',
         'nuts_seeds' => '1 oz',
         'almonds' => '1 oz',
