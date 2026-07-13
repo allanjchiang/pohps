@@ -203,9 +203,37 @@ class _AddFoodPanel extends StatefulWidget {
 class _AddFoodPanelState extends State<_AddFoodPanel> {
   String _selectedCategory = 'Favorites';
   bool _isReorderMode = false;
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
 
   bool get _canReorder =>
       _selectedCategory == 'Favorites' || _selectedCategory == 'My Foods';
+
+  bool get _isSearching => _searchQuery.trim().isNotEmpty;
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _clearSearch() {
+    _searchController.clear();
+    setState(() => _searchQuery = '');
+  }
+
+  /// Matches on the beginning of the food name, or the beginning of any
+  /// word within it (e.g. "yog" finds "Greek Yoghurt"), so results appear
+  /// as soon as the user types the first few letters.
+  List<FoodItem> _searchResults(List<FoodItem> foods, AppLocalizations l10n) {
+    final query = _searchQuery.trim().toLowerCase();
+    if (query.isEmpty) return const [];
+    return foods.where((food) {
+      final name = l10n.foodDisplayName(food.id, food.name).toLowerCase();
+      if (name.startsWith(query)) return true;
+      return name.split(' ').any((word) => word.startsWith(query));
+    }).toList();
+  }
 
   Future<void> _editCustomFood(FoodItem food) async {
     await Navigator.of(context).push<bool>(
@@ -220,6 +248,8 @@ class _AddFoodPanelState extends State<_AddFoodPanel> {
     final theme = Theme.of(context);
     final appState = context.watch<AppState>();
     final l10n = AppLocalizations.of(context);
+    final searchResults =
+        _isSearching ? _searchResults(appState.allFoods, l10n) : const <FoodItem>[];
 
     final allCategories = [
       'Favorites',
@@ -280,38 +310,64 @@ class _AddFoodPanelState extends State<_AddFoodPanel> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 8),
-                SizedBox(
-                  height: 48,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    itemCount: allCategories.length,
-                    itemBuilder: (context, index) {
-                      final cat = allCategories[index];
-                      final selected = cat == _selectedCategory;
-                      final label = switch (cat) {
-                        'Favorites' => l10n.favoritesCategory,
-                        'All' => l10n.allCategory,
-                        'My Foods' => l10n.myFoods,
-                        _ => l10n.categoryName(cat),
-                      };
-                      return Padding(
-                        padding: const EdgeInsets.only(right: 8),
-                        child: FilterChip(
-                          label: Text(label,
-                              style: const TextStyle(fontSize: 14)),
-                          selected: selected,
-                          onSelected: (_) => setState(() {
-                            _selectedCategory = cat;
-                            _isReorderMode = false;
-                          }),
-                        ),
-                      );
-                    },
+                const SizedBox(height: 12),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: TextField(
+                    controller: _searchController,
+                    onChanged: (value) => setState(() => _searchQuery = value),
+                    textInputAction: TextInputAction.search,
+                    style: theme.textTheme.titleMedium,
+                    decoration: InputDecoration(
+                      hintText: l10n.searchFoodHint,
+                      prefixIcon: const Icon(Icons.search, size: 28),
+                      suffixIcon: _isSearching
+                          ? IconButton(
+                              tooltip: l10n.clearSearch,
+                              icon: const Icon(Icons.clear, size: 26),
+                              onPressed: _clearSearch,
+                            )
+                          : null,
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 14,
+                      ),
+                    ),
                   ),
                 ),
-                if (_canReorder && filteredFoods.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                if (!_isSearching)
+                  SizedBox(
+                    height: 48,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      itemCount: allCategories.length,
+                      itemBuilder: (context, index) {
+                        final cat = allCategories[index];
+                        final selected = cat == _selectedCategory;
+                        final label = switch (cat) {
+                          'Favorites' => l10n.favoritesCategory,
+                          'All' => l10n.allCategory,
+                          'My Foods' => l10n.myFoods,
+                          _ => l10n.categoryName(cat),
+                        };
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: FilterChip(
+                            label: Text(label,
+                                style: const TextStyle(fontSize: 14)),
+                            selected: selected,
+                            onSelected: (_) => setState(() {
+                              _selectedCategory = cat;
+                              _isReorderMode = false;
+                            }),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                if (!_isSearching && _canReorder && filteredFoods.isNotEmpty) ...[
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
                     child: Align(
@@ -346,7 +402,45 @@ class _AddFoodPanelState extends State<_AddFoodPanel> {
           ),
         ),
         Expanded(
-          child: filteredFoods.isEmpty
+          child: _isSearching
+              ? (searchResults.isEmpty
+                  ? Center(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 32),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Text('🔍', style: TextStyle(fontSize: 40)),
+                            const SizedBox(height: 8),
+                            Text(
+                              l10n.noSearchResults,
+                              style: theme.textTheme.bodyLarge?.copyWith(
+                                color: theme.colorScheme.onSurfaceVariant,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                  : ListView.builder(
+                      padding: EdgeInsets.fromLTRB(
+                        16,
+                        0,
+                        16,
+                        24 + MediaQuery.viewPaddingOf(context).bottom,
+                      ),
+                      itemCount: searchResults.length,
+                      itemBuilder: (context, index) {
+                        final food = searchResults[index];
+                        return _SearchResultTile(
+                          key: ValueKey(food.id),
+                          food: food,
+                          onTap: () => appState.addFood(food),
+                        );
+                      },
+                    ))
+              : filteredFoods.isEmpty
               ? Center(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -721,6 +815,108 @@ class _FoodCardState extends State<_FoodCard> {
                   ),
                 ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Large, single-column search result row: easy to read and tap for
+/// users who may have reduced vision or dexterity.
+class _SearchResultTile extends StatefulWidget {
+  final FoodItem food;
+  final VoidCallback onTap;
+
+  const _SearchResultTile({
+    super.key,
+    required this.food,
+    required this.onTap,
+  });
+
+  @override
+  State<_SearchResultTile> createState() => _SearchResultTileState();
+}
+
+class _SearchResultTileState extends State<_SearchResultTile> {
+  bool _justAdded = false;
+
+  void _handleTap() {
+    widget.onTap();
+    setState(() => _justAdded = true);
+    Future.delayed(const Duration(milliseconds: 800), () {
+      if (mounted) setState(() => _justAdded = false);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
+    final appState = context.watch<AppState>();
+    final proteinText = l10n.gProtein(
+      '${appState.proteinForFood(widget.food).round()}',
+    );
+
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 250),
+      margin: const EdgeInsets.only(bottom: 10),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: _justAdded ? theme.colorScheme.primary : Colors.transparent,
+          width: 2.5,
+        ),
+      ),
+      child: Material(
+        color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(14),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: _handleTap,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            child: Row(
+              children: [
+                Text(widget.food.emoji, style: const TextStyle(fontSize: 30)),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Text(
+                    l10n.foodDisplayName(widget.food.id, widget.food.name),
+                    style: theme.textTheme.titleMedium,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                _justAdded
+                    ? Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.check_circle,
+                            color: theme.colorScheme.primary,
+                            size: 22,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            l10n.added,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: theme.colorScheme.primary,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      )
+                    : Text(
+                        proteinText,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: theme.colorScheme.primary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+              ],
+            ),
           ),
         ),
       ),

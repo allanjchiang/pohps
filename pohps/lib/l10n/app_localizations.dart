@@ -437,6 +437,14 @@ class AppLocalizations {
   String get moveDown => _t('Move down', '下移', '下移');
   String get dragToReorder => _t('Drag to reorder', '拖曳以調整順序', '拖曳以调整顺序');
   String get added => _t('✓ Added!', '✓ 已新增！', '✓ 已添加！');
+  String get searchFoodHint =>
+      _t('Search for a food...', '搜尋食物...', '搜索食物...');
+  String get clearSearch => _t('Clear search', '清除搜尋', '清除搜索');
+  String get noSearchResults => _t(
+        'No foods found. Try a different search.',
+        '找不到食物，請嘗試其他搜尋字詞。',
+        '未找到食物，请尝试其他搜索词。',
+      );
 
   // ── Custom Food Screen ─────────────────────────────────────────────────
 
