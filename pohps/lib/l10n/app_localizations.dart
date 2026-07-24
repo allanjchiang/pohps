@@ -391,20 +391,23 @@ class AppLocalizations {
   String get aboutPohps => _t('About POHPS', '關於 POHPS', '关于 POHPS');
 
   String get aboutDescription => _t(
-        'A free, open-source protein tracking app designed for lacto-ovo vegetarians.',
-        '一款免費的開源蛋白質追蹤應用程式，專為蛋奶素食者設計。',
-        '一款免费的开源蛋白质追踪应用，专为蛋奶素食者设计。',
+        'A free protein tracking app designed for lacto-ovo vegetarians.',
+        '一款免費的蛋白質追蹤應用程式，專為蛋奶素食者設計。',
+        '一款免费的蛋白质追踪应用，专为蛋奶素食者设计。',
       );
 
   String get aboutBullets => _t(
-        '• No ads, no paywalls, no data collection\n'
+        '• No ads, no data collection\n'
             '• All data stored locally on your device\n'
+            '• Advanced statistics available with a POHPS Pro subscription\n'
             '• Protein values are estimates — always consult your dietitian',
-        '• 無廣告、無付費牆、不收集資料\n'
+        '• 無廣告、不收集資料\n'
             '• 所有資料僅儲存在您的裝置上\n'
+            '• 進階統計功能需訂閱 POHPS Pro\n'
             '• 蛋白質數值為估計值——請務必諮詢您的營養師',
-        '• 无广告、无付费墙、不收集数据\n'
+        '• 无广告、不收集数据\n'
             '• 所有数据仅存储在您的设备上\n'
+            '• 高级统计功能需订阅 POHPS Pro\n'
             '• 蛋白质数值为估计值——请务必咨询您的营养师',
       );
 
