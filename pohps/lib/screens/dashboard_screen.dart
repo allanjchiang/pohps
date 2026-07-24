@@ -10,6 +10,7 @@ import '../widgets/achievement_dialog.dart';
 import 'add_food_screen.dart';
 import 'custom_food_screen.dart';
 import 'settings_screen.dart';
+import 'statistics_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -107,6 +108,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
           onNextDay: () => _goToNextDay(appState),
         ),
         actions: [
+          IconButton(
+            icon: Badge(
+              isLabelVisible: !appState.hasStatisticsAccess,
+              label: const Text('PRO', style: TextStyle(fontSize: 9)),
+              alignment: Alignment.bottomRight,
+              offset: const Offset(2, 2),
+              child: const Icon(Icons.insights_outlined),
+            ),
+            tooltip: l10n.statisticsTitle,
+            iconSize: 26,
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const StatisticsScreen()),
+            ),
+          ),
           IconButton(
             icon: const Icon(Icons.emoji_events_outlined),
             tooltip: l10n.achievementsTitle,

@@ -1,14 +1,29 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:in_app_purchase/in_app_purchase.dart';
 import 'models.dart';
 import 'food_data.dart';
 import 'services/backup_service.dart';
+import 'services/statistics_service.dart';
+import 'services/subscription_service.dart';
 import 'storage.dart';
 
 class AppState extends ChangeNotifier with WidgetsBindingObserver {
   final StorageService _storage = StorageService();
+  final SubscriptionService _subscriptionService = SubscriptionService();
+  late final StatisticsService statistics = StatisticsService(_storage);
   Timer? _resetTimer;
   late DateTime _currentEffectiveDate;
+
+  static const int trialDurationDays = 30;
+
+  DateTime? _trialStartDate;
+  SubscriptionPlan? _activePlan;
+  bool _entitlementRestoring = true;
+  bool _purchasePending = false;
+  String? _lastPurchaseError;
+  List<ProductDetails> _products = [];
 
   bool _disclaimerAccepted = false;
   int _dailyGoal = 0;
@@ -128,13 +143,157 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
   Achievement? get pendingAchievement =>
       _pendingAchievements.isNotEmpty ? _pendingAchievements.first : null;
 
+  // ── POHPS Pro trial / entitlement ─────────────────────────────────────
+
+  DateTime? get trialStartDate => _trialStartDate;
+  bool get hasEverStartedTrial => _trialStartDate != null;
+  DateTime? get trialEndDate =>
+      _trialStartDate?.add(const Duration(days: trialDurationDays));
+
+  bool get isTrialActive {
+    final end = trialEndDate;
+    return end != null && DateTime.now().isBefore(end);
+  }
+
+  int get trialDaysRemaining {
+    final end = trialEndDate;
+    if (end == null) return 0;
+    final remainingHours = end.difference(DateTime.now()).inHours;
+    if (remainingHours <= 0) return 0;
+    return (remainingHours / 24).ceil().clamp(0, trialDurationDays);
+  }
+
+  SubscriptionPlan? get activePlan => _activePlan;
+  bool get isSubscribed => _activePlan != null;
+
+  /// Debug builds always have access so Statistics can be developed and
+  /// tested without burning through the local trial or a real purchase.
+  bool get hasStatisticsAccess =>
+      kDebugMode || isTrialActive || isSubscribed;
+
+  /// True until the first store query/restore on launch resolves. Lets the
+  /// UI avoid flashing a paywall before we know the real entitlement.
+  bool get entitlementRestoring => _entitlementRestoring;
+  bool get purchasePending => _purchasePending;
+  String? get lastPurchaseError => _lastPurchaseError;
+  List<ProductDetails> get availableProducts => List.unmodifiable(_products);
+
+  ProductDetails? productFor(SubscriptionPlan plan) {
+    final id = switch (plan) {
+      SubscriptionPlan.monthly => SubscriptionService.monthlyProductId,
+      SubscriptionPlan.annual => SubscriptionService.annualProductId,
+    };
+    for (final product in _products) {
+      if (product.id == id) return product;
+    }
+    return null;
+  }
+
+  static SubscriptionPlan? _planForProductId(String? id) => switch (id) {
+        SubscriptionService.monthlyProductId => SubscriptionPlan.monthly,
+        SubscriptionService.annualProductId => SubscriptionPlan.annual,
+        _ => null,
+      };
+
   Future<void> init() async {
     await _storage.init();
     _loadFromStorage();
     await _seedPresetCustomFoods();
     WidgetsBinding.instance.addObserver(this);
     _scheduleNextReset();
+    _initSubscriptions();
     notifyListeners();
+  }
+
+  void _initSubscriptions() {
+    _subscriptionService.listen(
+      onUpdate: _onPurchaseUpdate,
+      onError: _onPurchaseError,
+    );
+    unawaited(_refreshEntitlement());
+  }
+
+  Future<void> _refreshEntitlement() async {
+    try {
+      if (await _subscriptionService.isAvailable()) {
+        _products = await _subscriptionService.queryProducts();
+        await _subscriptionService.restorePurchases();
+      }
+    } catch (_) {
+      // Offline or store unreachable — keep the cached optimistic
+      // entitlement rather than revoking it. Only a successful, contradicting
+      // restore result (handled in _onPurchaseUpdate) changes _activePlan.
+    } finally {
+      _entitlementRestoring = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> _onPurchaseUpdate(List<PurchaseDetails> purchases) async {
+    for (final purchase in purchases) {
+      switch (purchase.status) {
+        case PurchaseStatus.pending:
+          _purchasePending = true;
+          break;
+        case PurchaseStatus.purchased:
+        case PurchaseStatus.restored:
+          final plan = _planForProductId(purchase.productID);
+          if (plan != null) {
+            _activePlan = plan;
+            await _storage.setCachedActiveProductId(purchase.productID);
+          }
+          _purchasePending = false;
+          _lastPurchaseError = null;
+          await _subscriptionService.completePurchase(purchase);
+          break;
+        case PurchaseStatus.error:
+          _purchasePending = false;
+          _lastPurchaseError = purchase.error?.message;
+          break;
+        case PurchaseStatus.canceled:
+          _purchasePending = false;
+          break;
+      }
+    }
+    notifyListeners();
+  }
+
+  void _onPurchaseError(Object error) {
+    _purchasePending = false;
+    _entitlementRestoring = false;
+    notifyListeners();
+  }
+
+  /// Starts the local 30-day trial. No credit card, no store interaction —
+  /// idempotent so it can't be repeatedly reset by re-tapping the CTA.
+  Future<void> startFreeTrial() async {
+    if (_trialStartDate != null) return;
+    final now = DateTime.now();
+    _trialStartDate = now;
+    await _storage.setTrialStartDate(now);
+    notifyListeners();
+  }
+
+  Future<void> purchase(ProductDetails product) async {
+    _lastPurchaseError = null;
+    _purchasePending = true;
+    notifyListeners();
+    final started = await _subscriptionService.buy(product);
+    if (!started) {
+      _purchasePending = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> restorePurchasesManually() async {
+    _purchasePending = true;
+    notifyListeners();
+    try {
+      await _subscriptionService.restorePurchases();
+    } finally {
+      _purchasePending = false;
+      notifyListeners();
+    }
   }
 
   Future<void> _seedPresetCustomFoods() async {
@@ -160,6 +319,8 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
     _customFoods = _storage.customFoods;
     _favoriteFoodIds = _storage.favoriteFoodIds;
     _unlockedAchievements = _storage.unlockedAchievements;
+    _trialStartDate = _storage.trialStartDate;
+    _activePlan = _planForProductId(_storage.cachedActiveProductId);
     _currentEffectiveDate = effectiveDate();
     _viewDate = _currentEffectiveDate;
     _loadViewLog();
@@ -180,6 +341,7 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
   void dispose() {
     _resetTimer?.cancel();
     WidgetsBinding.instance.removeObserver(this);
+    _subscriptionService.dispose();
     super.dispose();
   }
 
@@ -188,6 +350,9 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
     if (state == AppLifecycleState.resumed) {
       _refreshLogIfDateChanged();
       _scheduleNextReset();
+      // No backend/push notifications, so re-check entitlement on every
+      // resume in case a subscription lapsed or renewed while backgrounded.
+      unawaited(_subscriptionService.restorePurchases());
     }
   }
 

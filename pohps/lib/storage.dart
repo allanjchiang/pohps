@@ -131,6 +131,20 @@ class StorageService {
     return _prefs.setString(_dateKey(date), json);
   }
 
+  /// All dates that have at least one logged entry, oldest first. Used to
+  /// bound a full-history statistics export.
+  List<DateTime> get loggedDates {
+    final dates = <DateTime>[];
+    for (final key in _prefs.getKeys()) {
+      if (!key.startsWith('log_')) continue;
+      final raw = _prefs.getString(key);
+      if (raw == null || raw == '[]') continue;
+      dates.add(_parseDateKey(key.substring(4)));
+    }
+    dates.sort();
+    return dates;
+  }
+
   List<FoodItem> get customFoods {
     final json = _prefs.getString('custom_foods');
     if (json == null) return [];
@@ -155,6 +169,32 @@ class StorageService {
   Future<void> saveUnlockedAchievements(Set<String> achievements) {
     final json = jsonEncode(achievements.toList());
     return _prefs.setString('unlocked_achievements', json);
+  }
+
+  // ── POHPS Pro trial / entitlement ─────────────────────────────────────
+  // Deliberately NOT included in exportSnapshot/importSnapshot or
+  // _managedKeys: trial/purchase state is tied to this device's install and
+  // store account, so a data backup restored on another device or account
+  // must not carry someone else's trial or entitlement with it. Real
+  // subscriptions are re-verified live against the store instead.
+
+  DateTime? get trialStartDate {
+    final iso = _prefs.getString('trial_start_date');
+    return iso == null ? null : DateTime.tryParse(iso);
+  }
+
+  Future<void> setTrialStartDate(DateTime date) =>
+      _prefs.setString('trial_start_date', date.toIso8601String());
+
+  /// Last product ID known to be active, cached only so the UI can show an
+  /// optimistic "you're subscribed" state before the store has responded on
+  /// a fresh launch. Always superseded once a live restore/purchase result
+  /// comes back — never treated as authoritative on its own.
+  String? get cachedActiveProductId => _prefs.getString('cached_active_product_id');
+
+  Future<void> setCachedActiveProductId(String? productId) {
+    if (productId == null) return _prefs.remove('cached_active_product_id');
+    return _prefs.setString('cached_active_product_id', productId);
   }
 
   List<String> get favoriteFoodIds {

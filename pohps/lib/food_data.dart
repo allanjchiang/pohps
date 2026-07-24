@@ -580,6 +580,15 @@ const List<FoodItem> defaultFoods = [
     servingSize: '4 spears',
     emoji: '🥒',
   ),
+  FoodItem(
+    id: 'spinach',
+    name: 'Spinach',
+    category: categoryVegetables,
+    proteinGrams: 1,
+    waterMlPerServing: 27,
+    servingSize: '1 cup',
+    emoji: '🥬',
+  ),
 
   // Fruits
   FoodItem(
@@ -680,6 +689,15 @@ const List<FoodItem> defaultFoods = [
     waterMlPerServing: 85,
     servingSize: '1 medium',
     emoji: '🍎',
+  ),
+  FoodItem(
+    id: 'avocado',
+    name: 'Avocado',
+    category: categoryFruits,
+    proteinGrams: 4,
+    waterMlPerServing: 146,
+    servingSize: '1 medium',
+    emoji: '🥑',
   ),
 
   // Nuts & Seeds
