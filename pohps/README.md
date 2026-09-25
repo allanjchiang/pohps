@@ -30,9 +30,10 @@ flutter run
 | Dairy & Eggs | Egg (6g), Greek Yoghurt (14g), Milk (8g) |
 | Protein Boosters | Whey Smoothie (22g), Soy Milk (8g), Tofu (10g), Soy Meat (11g) |
 | Legumes | Lentils (18g), Chickpeas (15g) |
-| Grains | White Rice (4g), Brown Rice (5g), Quinoa (8g), Millet (6g), Buckwheat (6g), Noodles (8g) |
-| Vegetables | Potato (3g), Mushroom (3g), Cauliflower (2g), Cabbage (1g), Bok Choy (2g), Wombok (1g), Capsicum (1g) |
-| Other | Fruits (1g), Nuts & Seeds (6g), Oils (0g) |
+| Grains | White Rice (4g), Brown Rice (5g), Quinoa (8g), Millet (6g), Buckwheat (6g), Noodles (8g), Pasta (8g) |
+| Vegetables | Potato (3g), Cauliflower (2g), Cabbage (1g), Bok Choy (2g), Wombok (1g), Capsicum (1g), Radish (1g) |
+| Fungi | Mushroom (3g), Lion's Mane Mushroom (2.5g) |
+| Other | Fruits (1g), Nuts & Seeds (6g), Walnuts (4.5g), Oils (0g) |
 
 *Values are approximate per standard serving. Always consult your dietitian.*
 

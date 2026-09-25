@@ -6,6 +6,7 @@ const String categoryProteinBoosters = 'Protein Boosters';
 const String categoryLegumes = 'Legumes';
 const String categoryGrains = 'Grains';
 const String categoryVegetables = 'Vegetables';
+const String categoryFungi = 'Fungi';
 const String categoryFruits = 'Fruits';
 const String categoryNutsSeeds = 'Nuts & Seeds';
 const String categoryOther = 'Other';
@@ -16,6 +17,7 @@ const List<String> categories = [
   categoryLegumes,
   categoryGrains,
   categoryVegetables,
+  categoryFungi,
   categoryFruits,
   categoryNutsSeeds,
   categoryOther,
@@ -372,6 +374,15 @@ const List<FoodItem> defaultFoods = [
     emoji: '🍜',
   ),
   FoodItem(
+    id: 'pasta',
+    name: 'Pasta',
+    category: categoryGrains,
+    proteinGrams: 8,
+    waterMlPerServing: 90,
+    servingSize: '1 cup cooked',
+    emoji: '🍝',
+  ),
+  FoodItem(
     id: 'bread',
     name: 'Bread',
     category: categoryGrains,
@@ -419,15 +430,6 @@ const List<FoodItem> defaultFoods = [
     emoji: '🥔',
   ),
   FoodItem(
-    id: 'mushroom',
-    name: 'Mushroom',
-    category: categoryVegetables,
-    proteinGrams: 3,
-    waterMlPerServing: 85,
-    servingSize: '1 cup',
-    emoji: '🍄',
-  ),
-  FoodItem(
     id: 'cauliflower',
     name: 'Cauliflower',
     category: categoryVegetables,
@@ -462,6 +464,15 @@ const List<FoodItem> defaultFoods = [
     waterMlPerServing: 88,
     servingSize: '100g',
     emoji: '🥕',
+  ),
+  FoodItem(
+    id: 'radish',
+    name: 'Radish',
+    category: categoryVegetables,
+    proteinGrams: 1,
+    waterMlPerServing: 110,
+    servingSize: '1 cup sliced',
+    emoji: '🌱',
   ),
   FoodItem(
     id: 'bok_choy',
@@ -588,6 +599,26 @@ const List<FoodItem> defaultFoods = [
     waterMlPerServing: 27,
     servingSize: '1 cup',
     emoji: '🥬',
+  ),
+
+  // Fungi
+  FoodItem(
+    id: 'mushroom',
+    name: 'Mushroom',
+    category: categoryFungi,
+    proteinGrams: 3,
+    waterMlPerServing: 85,
+    servingSize: '1 cup',
+    emoji: '🍄',
+  ),
+  FoodItem(
+    id: 'lions_mane_mushroom',
+    name: "Lion's Mane Mushroom",
+    category: categoryFungi,
+    proteinGrams: 2.5,
+    waterMlPerServing: 90,
+    servingSize: '100g',
+    emoji: '🍄',
   ),
 
   // Fruits
@@ -779,6 +810,15 @@ const List<FoodItem> defaultFoods = [
     category: categoryNutsSeeds,
     proteinGrams: 3,
     waterMlPerServing: 2,
+    servingSize: '30g (1 oz)',
+    emoji: '🌰',
+  ),
+  FoodItem(
+    id: 'walnuts',
+    name: 'Walnuts',
+    category: categoryNutsSeeds,
+    proteinGrams: 4.5,
+    waterMlPerServing: 1,
     servingSize: '30g (1 oz)',
     emoji: '🌰',
   ),
