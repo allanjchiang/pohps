@@ -10,7 +10,8 @@ Use this guide when completing **App content → Data safety** in [Google Play C
 > **Update (POHPS Pro removed, optional donations added):** the former
 > "POHPS Pro" subscription is gone; every feature, including Statistics, is
 > free for everyone, with no ads, paywalls or subscriptions. The app now shows
-> a "What's New" popup after updates, and after important updates it offers
+> a "What's New" popup after updates, and after important updates and at the
+> bottom of Settings it offers
 > optional one-time donations (consumable in-app products
 > `dev_donation_small`, `dev_donation_medium`, `dev_donation_large`, sold via
 > Google Play Billing). Donations unlock nothing. Purchases are handled

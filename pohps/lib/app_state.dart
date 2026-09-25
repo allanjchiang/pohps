@@ -196,6 +196,13 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
     notifyListeners();
   }
 
+  /// Clears a previous thank-you/failure so donation UI opened later starts
+  /// fresh. Doesn't notify: call it from initState, before the first build.
+  void resetDonationStatus() {
+    _donationThanked = false;
+    _donationFailed = false;
+  }
+
   Future<void> loadDonationProducts() async {
     if (_donationProducts.isNotEmpty) return;
     _donationProducts = await _donationService.queryProducts();

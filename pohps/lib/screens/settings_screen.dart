@@ -5,6 +5,7 @@ import '../app_state.dart';
 import '../l10n/app_localizations.dart';
 import '../models.dart';
 import '../services/backup_service.dart';
+import '../widgets/donation_tiers.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -411,6 +412,9 @@ class SettingsScreen extends StatelessWidget {
               ),
             ),
           ),
+
+          // Optional donations (hidden when the store has no products)
+          const DonationCard(),
           const SizedBox(height: 24),
         ],
       ),

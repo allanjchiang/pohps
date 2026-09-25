@@ -38,4 +38,4 @@ flutter run
 
 ## License
 
-Free and open-source software. No ads, no paywalls, no subscriptions. Optional donations to support the developer are offered after some important updates; they never unlock anything.
+Free and open-source software. No ads, no paywalls, no subscriptions. Optional donations to support the developer are offered after some important updates and at the bottom of Settings; they never unlock anything.

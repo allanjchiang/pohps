@@ -116,9 +116,9 @@ class AppLocalizations {
           '我们不会收集任何个人数据。所有信息仅存储在您的设备上。',
         ),
         _t(
-          'This is free, open-source software. There are no ads, no paywalls, and no subscriptions. Every feature, including Statistics, is free for everyone. After some important updates you may see an optional donation button to support the developer; donating is entirely voluntary and never unlocks anything.',
-          '這是免費的開源軟體。沒有廣告、沒有付費牆，也沒有訂閱。所有功能（包括統計）均免費提供給所有人使用。在某些重要更新後，您可能會看到支持開發者的自願捐款按鈕；捐款完全出於自願，且不會解鎖任何內容。',
-          '这是免费的开源软件。没有广告、没有付费墙，也没有订阅。所有功能（包括统计）均免费提供给所有人使用。在某些重要更新后，您可能会看到支持开发者的自愿捐款按钮；捐款完全出于自愿，且不会解锁任何内容。',
+          'This is free, open-source software. There are no ads, no paywalls, and no subscriptions. Every feature, including Statistics, is free for everyone. You may see an optional donation button to support the developer after some important updates and at the bottom of Settings; donating is entirely voluntary and never unlocks anything.',
+          '這是免費的開源軟體。沒有廣告、沒有付費牆，也沒有訂閱。所有功能（包括統計）均免費提供給所有人使用。在某些重要更新後及「設定」頁面底部，您可能會看到支持開發者的自願捐款按鈕；捐款完全出於自願，且不會解鎖任何內容。',
+          '这是免费的开源软件。没有广告、没有付费墙，也没有订阅。所有功能（包括统计）均免费提供给所有人使用。在某些重要更新后及“设置”页面底部，您可能会看到支持开发者的自愿捐款按钮；捐款完全出于自愿，且不会解锁任何内容。',
         ),
       ];
 
@@ -983,6 +983,7 @@ class AppLocalizations {
   String get gotIt => _t('Got it', '知道了', '知道了');
   String get closeLabel => _t('Close', '關閉', '关闭');
 
+  String get supportPohps => _t('Support POHPS', '支持 POHPS', '支持 POHPS');
   String get donateButton => _t('Donate', '捐款', '捐款');
   String get donationIntro => _t(
         'POHPS is made by one developer and will always be free. If it helps you, you can optionally buy me a treat — it never unlocks anything.',

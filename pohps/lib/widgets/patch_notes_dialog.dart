@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:provider/provider.dart';
 import '../app_state.dart';
 import '../data/patch_notes.dart';
 import '../l10n/app_localizations.dart';
+import 'donation_tiers.dart';
 
 /// "What's New" popup shown once after an app update. Important updates also
 /// offer an optional donation button at the bottom left.
@@ -24,7 +24,9 @@ class _PatchNotesDialogState extends State<PatchNotesDialog> {
   void initState() {
     super.initState();
     if (widget.note.important) {
-      context.read<AppState>().loadDonationProducts();
+      final appState = context.read<AppState>();
+      appState.resetDonationStatus();
+      appState.loadDonationProducts();
     }
   }
 
@@ -84,7 +86,7 @@ class _PatchNotesDialogState extends State<PatchNotesDialog> {
                         curve: Curves.easeOut,
                         alignment: Alignment.topCenter,
                         child: _showTiers
-                            ? _buildDonationPanel(theme, l10n, appState)
+                            ? _buildDonationPanel(theme)
                             : const SizedBox(width: double.infinity),
                       ),
                   ],
@@ -187,95 +189,15 @@ class _PatchNotesDialogState extends State<PatchNotesDialog> {
     );
   }
 
-  Widget _buildDonationPanel(
-      ThemeData theme, AppLocalizations l10n, AppState appState) {
-    final scheme = theme.colorScheme;
+  Widget _buildDonationPanel(ThemeData theme) {
     return Container(
       margin: const EdgeInsets.only(top: 4, bottom: 8),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: scheme.surfaceContainerHighest,
+        color: theme.colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(20),
       ),
-      child: appState.donationThanked
-          ? Center(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: Text(
-                  l10n.donationThanks,
-                  style: theme.textTheme.titleMedium,
-                  textAlign: TextAlign.center,
-                ),
-              ),
-            )
-          : Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  l10n.donationIntro,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: scheme.onSurfaceVariant,
-                    height: 1.35,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                for (final product in appState.donationProducts)
-                  _buildTier(theme, l10n, appState, product),
-                if (appState.donationFailed)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 4),
-                    child: Text(
-                      l10n.donationFailed,
-                      style: theme.textTheme.bodyMedium
-                          ?.copyWith(color: scheme.error),
-                    ),
-                  ),
-              ],
-            ),
-    );
-  }
-
-  Widget _buildTier(ThemeData theme, AppLocalizations l10n, AppState appState,
-      ProductDetails product) {
-    final scheme = theme.colorScheme;
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Material(
-        color: scheme.surface,
-        borderRadius: BorderRadius.circular(16),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(16),
-          onTap: appState.donationPending ? null : () => appState.donate(product),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            child: Row(
-              children: [
-                Text(l10n.donationTierEmoji(product.id),
-                    style: const TextStyle(fontSize: 24)),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    l10n.donationTierName(product.id),
-                    style: theme.textTheme.titleSmall,
-                  ),
-                ),
-                if (appState.donationPending)
-                  const SizedBox(
-                    width: 18,
-                    height: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                else
-                  Text(
-                    product.price,
-                    style: theme.textTheme.titleSmall
-                        ?.copyWith(color: scheme.primary),
-                  ),
-              ],
-            ),
-          ),
-        ),
-      ),
+      child: const DonationTiers(),
     );
   }
 
