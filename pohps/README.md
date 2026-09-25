@@ -10,6 +10,7 @@ A lacto-ovo vegetarian protein tracking app built with Flutter.
 - **Progress ring** — Visual progress indicator showing how close you are to your daily goal
 - **Custom foods & recipes** — Create your own foods with custom protein values
 - **Statistics** — Protein trend graphs, a goal-met calendar, and Excel export, free for everyone
+- **What's New popup** — Shown once after an app update (never on a fresh install)
 - **Achievements** — Earn badges for milestones like meeting your goal or building streaks
 - **Dark & light mode** — Defaults to your device setting, switchable in settings
 - **Accessible UI** — Large text, big tap targets, high contrast, simple navigation
@@ -37,4 +38,4 @@ flutter run
 
 ## License
 
-Free and open-source software. No ads, no paywalls, no in-app purchases.
+Free and open-source software. No ads, no paywalls, no subscriptions. Optional donations to support the developer are offered after some important updates; they never unlock anything.

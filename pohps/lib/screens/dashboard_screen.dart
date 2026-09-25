@@ -7,6 +7,7 @@ import '../widgets/progress_tracker_carousel.dart';
 import '../widgets/swipeable_date_title.dart';
 import '../widgets/food_reorder_list.dart';
 import '../widgets/achievement_dialog.dart';
+import '../widgets/patch_notes_dialog.dart';
 import 'add_food_screen.dart';
 import 'custom_food_screen.dart';
 import 'settings_screen.dart';
@@ -32,7 +33,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     super.initState();
     _scrollController.addListener(_onFoodListScroll);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _showPendingAchievements();
+      _showPatchNotes();
     });
   }
 
@@ -52,6 +53,25 @@ class _DashboardScreenState extends State<DashboardScreen> {
     if (collapse != _progressCollapse.value) {
       _progressCollapse.value = collapse;
     }
+  }
+
+  /// Shown once after an app update, before any achievement popups.
+  void _showPatchNotes() {
+    if (!mounted) return;
+    final appState = context.read<AppState>();
+    final note = appState.pendingPatchNote;
+    if (note == null) {
+      _showPendingAchievements();
+      return;
+    }
+
+    showDialog(
+      context: context,
+      builder: (_) => PatchNotesDialog(note: note),
+    ).then((_) {
+      appState.dismissPatchNotes();
+      _showPendingAchievements();
+    });
   }
 
   void _showPendingAchievements() {

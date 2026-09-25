@@ -1,16 +1,28 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'data/patch_notes.dart';
 import 'models.dart';
 import 'food_data.dart';
 import 'services/backup_service.dart';
+import 'services/donation_service.dart';
 import 'services/statistics_service.dart';
 import 'storage.dart';
 
 class AppState extends ChangeNotifier with WidgetsBindingObserver {
   final StorageService _storage = StorageService();
+  final DonationService _donationService = DonationService();
   late final StatisticsService statistics = StatisticsService(_storage);
   Timer? _resetTimer;
   late DateTime _currentEffectiveDate;
+
+  PatchNote? _pendingPatchNote;
+  String? _currentVersion;
+  List<ProductDetails> _donationProducts = [];
+  bool _donationPending = false;
+  bool _donationThanked = false;
+  bool _donationFailed = false;
 
   bool _disclaimerAccepted = false;
   int _dailyGoal = 0;
@@ -137,6 +149,101 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
     _scheduleNextReset();
     unawaited(_storage.clearLegacyProState());
+    await _checkForPatchNotes();
+    _donationService.listen(
+      onUpdate: _onDonationUpdate,
+      onError: (_) => _setDonationFailed(),
+    );
+    notifyListeners();
+  }
+
+  // ── Patch notes & optional donations ──────────────────────────────────
+
+  /// Notes to show for this launch, or null. Only set after an app update —
+  /// never on a fresh install.
+  PatchNote? get pendingPatchNote => _pendingPatchNote;
+
+  List<ProductDetails> get donationProducts =>
+      List.unmodifiable(_donationProducts);
+  bool get donationPending => _donationPending;
+  bool get donationThanked => _donationThanked;
+  bool get donationFailed => _donationFailed;
+
+  Future<void> _checkForPatchNotes() async {
+    try {
+      _currentVersion = (await PackageInfo.fromPlatform()).version;
+    } catch (_) {
+      return;
+    }
+    final current = _currentVersion!;
+    final note = patchNoteToShow(
+      lastSeenVersion: _storage.lastSeenVersion,
+      currentVersion: current,
+      hasCompletedOnboarding: _disclaimerAccepted,
+    );
+    if (note != null) {
+      _pendingPatchNote = note;
+    } else {
+      // Fresh install, or an update with nothing to announce.
+      await _storage.setLastSeenVersion(current);
+    }
+  }
+
+  Future<void> dismissPatchNotes() async {
+    _pendingPatchNote = null;
+    final version = _currentVersion;
+    if (version != null) await _storage.setLastSeenVersion(version);
+    notifyListeners();
+  }
+
+  Future<void> loadDonationProducts() async {
+    if (_donationProducts.isNotEmpty) return;
+    _donationProducts = await _donationService.queryProducts();
+    notifyListeners();
+  }
+
+  Future<void> donate(ProductDetails product) async {
+    _donationThanked = false;
+    _donationFailed = false;
+    _donationPending = true;
+    notifyListeners();
+    final started = await _donationService.donate(product);
+    if (!started) {
+      _donationPending = false;
+      _donationFailed = true;
+      notifyListeners();
+    }
+  }
+
+  void _setDonationFailed() {
+    _donationPending = false;
+    _donationFailed = true;
+    notifyListeners();
+  }
+
+  Future<void> _onDonationUpdate(List<PurchaseDetails> purchases) async {
+    for (final purchase in purchases) {
+      switch (purchase.status) {
+        case PurchaseStatus.pending:
+          _donationPending = true;
+          break;
+        case PurchaseStatus.purchased:
+        case PurchaseStatus.restored:
+          _donationPending = false;
+          _donationFailed = false;
+          _donationThanked = true;
+          await _donationService.completePurchase(purchase);
+          break;
+        case PurchaseStatus.error:
+          _donationPending = false;
+          _donationFailed = true;
+          await _donationService.completePurchase(purchase);
+          break;
+        case PurchaseStatus.canceled:
+          _donationPending = false;
+          break;
+      }
+    }
     notifyListeners();
   }
 
@@ -183,6 +290,7 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
   void dispose() {
     _resetTimer?.cancel();
     WidgetsBinding.instance.removeObserver(this);
+    _donationService.dispose();
     super.dispose();
   }
 

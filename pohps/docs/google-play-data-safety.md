@@ -7,12 +7,19 @@ Use this guide when completing **App content → Data safety** in [Google Play C
 
 > Google’s UI labels change over time. Match the **intent** of each answer below to the closest option shown in Console. If wording differs, choose the option that reflects: **no off-device collection, no sharing, local-only storage**.
 
-> **Update (POHPS Pro removed):** the former optional "POHPS Pro" subscription
-> has been removed. Every feature, including Statistics, is now free for
-> everyone. The app contains no ads, no paywalls, no subscriptions and no
-> in-app purchases, and no longer uses Google Play Billing. In Play Console,
-> deactivate/archive the old `pohps_pro_monthly` and `pohps_pro_annual`
-> subscription products and answer **In-app purchases: No**.
+> **Update (POHPS Pro removed, optional donations added):** the former
+> "POHPS Pro" subscription is gone; every feature, including Statistics, is
+> free for everyone, with no ads, paywalls or subscriptions. The app now shows
+> a "What's New" popup after updates, and after important updates it offers
+> optional one-time donations (consumable in-app products
+> `dev_donation_small`, `dev_donation_medium`, `dev_donation_large`, sold via
+> Google Play Billing). Donations unlock nothing. Purchases are handled
+> entirely by Google Play — POHPS never receives payment details and has no
+> payment server. In Play Console, deactivate/archive the old
+> `pohps_pro_monthly` / `pohps_pro_annual` subscription products, and create
+> the three donation products as managed (one-time) in-app products. Whether
+> Console expects a **Financial info → Purchase history** declaration for apps
+> using Billing depends on current policy — verify against the live Console UI.
 
 ---
 
@@ -97,7 +104,7 @@ Expected public summary:
 | **Support email** | `allan@logicphile.com` |
 | **App category** | Health & fitness (or Food & drink — choose what best matches your listing) |
 | **Ads** | No, contains no ads |
-| **In-app purchases** | No — the app is entirely free (no subscriptions, no in-app products) |
+| **In-app purchases** | Yes — optional one-time donations only (`dev_donation_small/medium/large`); no subscriptions, nothing is unlocked |
 | **Target audience** | Not designed primarily for children under 13 |
 | **COVID-19 / medical device** | App is a diet tracker with disclaimers; **not** a medical device |
 
@@ -116,6 +123,7 @@ Not declared as “collected” in Play Console while it stays on-device only:
 | `log_YYYY-MM-DD` | Daily food log entries |
 | `custom_foods` | User-created foods |
 | `unlocked_achievements` | Achievement IDs |
+| `last_seen_version` | App version whose "What's New" notes were last shown (device-local; not synced or backed up) |
 
 Source: `lib/storage.dart`
 
@@ -129,7 +137,7 @@ Update Data safety and `docs/support.html` if you add any of:
 - Crash reporting (Sentry, Crashlytics)
 - Cloud backup / sync
 - Accounts or login
-- Ads or in-app purchases / subscriptions
+- Ads, subscriptions, or anything that changes what donations unlock
 - `INTERNET` permission for non-debug features that send user data
 
 ---

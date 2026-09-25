@@ -38,6 +38,9 @@ class AppLocalizations {
     };
   }
 
+  /// For content defined outside this file (e.g. patch notes data).
+  String localized(String en, String zhTW, String zhCN) => _t(en, zhTW, zhCN);
+
   // ── Common ──────────────────────────────────────────────────────────────
 
   String get cancel => _t('Cancel', '取消', '取消');
@@ -113,9 +116,9 @@ class AppLocalizations {
           '我们不会收集任何个人数据。所有信息仅存储在您的设备上。',
         ),
         _t(
-          'This is free, open-source software. There are no ads, no paywalls, no subscriptions, and no in-app purchases. Every feature, including Statistics, is free for everyone.',
-          '這是免費的開源軟體。沒有廣告、沒有付費牆、沒有訂閱，也沒有應用程式內購買。所有功能（包括統計）均免費提供給所有人使用。',
-          '这是免费的开源软件。没有广告、没有付费墙、没有订阅，也没有应用内购买。所有功能（包括统计）均免费提供给所有人使用。',
+          'This is free, open-source software. There are no ads, no paywalls, and no subscriptions. Every feature, including Statistics, is free for everyone. After some important updates you may see an optional donation button to support the developer; donating is entirely voluntary and never unlocks anything.',
+          '這是免費的開源軟體。沒有廣告、沒有付費牆，也沒有訂閱。所有功能（包括統計）均免費提供給所有人使用。在某些重要更新後，您可能會看到支持開發者的自願捐款按鈕；捐款完全出於自願，且不會解鎖任何內容。',
+          '这是免费的开源软件。没有广告、没有付费墙，也没有订阅。所有功能（包括统计）均免费提供给所有人使用。在某些重要更新后，您可能会看到支持开发者的自愿捐款按钮；捐款完全出于自愿，且不会解锁任何内容。',
         ),
       ];
 
@@ -971,6 +974,45 @@ class AppLocalizations {
       _t('Statistics exported.', '統計資料已匯出。', '统计数据已导出。');
   String get exportFailedMessage =>
       _t('Export failed. Please try again.', '匯出失敗，請再試一次。', '导出失败，请重试。');
+
+  // ── Patch notes & optional donations ──────────────────────────────────
+
+  String get patchNotesTitle => _t("What's New", '更新內容', '更新内容');
+  String patchNotesVersion(String version) =>
+      _t('Version $version', '版本 $version', '版本 $version');
+  String get gotIt => _t('Got it', '知道了', '知道了');
+  String get closeLabel => _t('Close', '關閉', '关闭');
+
+  String get donateButton => _t('Donate', '捐款', '捐款');
+  String get donationIntro => _t(
+        'POHPS is made by one developer and will always be free. If it helps you, you can optionally buy me a treat — it never unlocks anything.',
+        'POHPS 由單一開發者製作，並將永遠免費。若它對您有幫助，歡迎自願請我吃點小東西——捐款不會解鎖任何內容。',
+        'POHPS 由单一开发者制作，并将永远免费。若它对您有帮助，欢迎自愿请我吃点小东西——捐款不会解锁任何内容。',
+      );
+  String get donationThanks => _t(
+        'Thank you so much for your support! 💚',
+        '非常感謝您的支持！💚',
+        '非常感谢您的支持！💚',
+      );
+  String get donationFailed => _t(
+        "The donation didn't go through. You haven't been charged.",
+        '捐款未能完成，您並未被收費。',
+        '捐款未能完成，您并未被收费。',
+      );
+
+  String donationTierName(String productId) => switch (productId) {
+        'dev_donation_small' => _t('A coffee', '一杯咖啡', '一杯咖啡'),
+        'dev_donation_medium' => _t('A nice lunch', '一頓午餐', '一顿午餐'),
+        'dev_donation_large' => _t('A big thank-you', '一份大大的感謝', '一份大大的感谢'),
+        _ => productId,
+      };
+
+  String donationTierEmoji(String productId) => switch (productId) {
+        'dev_donation_small' => '☕',
+        'dev_donation_medium' => '🍱',
+        'dev_donation_large' => '🎉',
+        _ => '💚',
+      };
 }
 
 class _AppLocalizationsDelegate

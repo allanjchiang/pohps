@@ -178,6 +178,16 @@ class StorageService {
     await _prefs.remove('cached_active_product_id');
   }
 
+  // ── Patch notes ───────────────────────────────────────────────────────
+  // Deliberately NOT in exportSnapshot/_managedKeys: this records which app
+  // version this install last showed notes for, so a restored backup must not
+  // change it.
+
+  String? get lastSeenVersion => _prefs.getString('last_seen_version');
+
+  Future<void> setLastSeenVersion(String version) =>
+      _prefs.setString('last_seen_version', version);
+
   List<String> get favoriteFoodIds {
     final json = _prefs.getString('favorite_food_ids');
     if (json == null) return [];
