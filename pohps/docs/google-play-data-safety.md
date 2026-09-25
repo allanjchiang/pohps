@@ -7,15 +7,12 @@ Use this guide when completing **App content → Data safety** in [Google Play C
 
 > Google’s UI labels change over time. Match the **intent** of each answer below to the closest option shown in Console. If wording differs, choose the option that reflects: **no off-device collection, no sharing, local-only storage**.
 
-> **Update (POHPS Pro subscriptions added):** the app now offers an optional
-> in-app subscription (Google Play Billing) that unlocks a Statistics area.
-> Purchase/renewal transactions are handled entirely by Google Play Billing —
-> POHPS never receives or stores payment card details, and does not run its
-> own payment or subscription server. Whether Play Console now expects a
-> **Financial info → Purchase history** declaration for apps using Billing
-> depends on the current Console policy at submission time — verify this
-> against the live Console UI rather than trusting this doc alone (see the
-> caution above). The **In-app purchases** field below has changed to **Yes**.
+> **Update (POHPS Pro removed):** the former optional "POHPS Pro" subscription
+> has been removed. Every feature, including Statistics, is now free for
+> everyone. The app contains no ads, no paywalls, no subscriptions and no
+> in-app purchases, and no longer uses Google Play Billing. In Play Console,
+> deactivate/archive the old `pohps_pro_monthly` and `pohps_pro_annual`
+> subscription products and answer **In-app purchases: No**.
 
 ---
 
@@ -100,7 +97,7 @@ Expected public summary:
 | **Support email** | `allan@logicphile.com` |
 | **App category** | Health & fitness (or Food & drink — choose what best matches your listing) |
 | **Ads** | No, contains no ads |
-| **In-app purchases** | Yes — optional "POHPS Pro" subscription (monthly/annual), sold via Google Play Billing |
+| **In-app purchases** | No — the app is entirely free (no subscriptions, no in-app products) |
 | **Target audience** | Not designed primarily for children under 13 |
 | **COVID-19 / medical device** | App is a diet tracker with disclaimers; **not** a medical device |
 
@@ -119,8 +116,6 @@ Not declared as “collected” in Play Console while it stays on-device only:
 | `log_YYYY-MM-DD` | Daily food log entries |
 | `custom_foods` | User-created foods |
 | `unlocked_achievements` | Achievement IDs |
-| `trial_start_date` | POHPS Pro free-trial start timestamp (device-local; not synced or backed up) |
-| `cached_active_product_id` | Optimistic local cache of the last-known active subscription product ID, always re-verified against Play Billing on launch |
 
 Source: `lib/storage.dart`
 
@@ -134,7 +129,7 @@ Update Data safety and `docs/support.html` if you add any of:
 - Crash reporting (Sentry, Crashlytics)
 - Cloud backup / sync
 - Accounts or login
-- Ads (in-app purchases already added as of POHPS Pro — see note above)
+- Ads or in-app purchases / subscriptions
 - `INTERNET` permission for non-debug features that send user data
 
 ---

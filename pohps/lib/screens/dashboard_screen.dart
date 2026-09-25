@@ -109,13 +109,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
         actions: [
           IconButton(
-            icon: Badge(
-              isLabelVisible: !appState.hasStatisticsAccess,
-              label: const Text('PRO', style: TextStyle(fontSize: 9)),
-              alignment: Alignment.bottomRight,
-              offset: const Offset(2, 2),
-              child: const Icon(Icons.insights_outlined),
-            ),
+            icon: const Icon(Icons.insights_outlined),
             tooltip: l10n.statisticsTitle,
             iconSize: 26,
             onPressed: () => Navigator.push(

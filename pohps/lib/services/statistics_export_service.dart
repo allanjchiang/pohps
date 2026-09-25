@@ -8,7 +8,7 @@ import 'package:share_plus/share_plus.dart';
 
 import 'statistics_service.dart';
 
-/// Builds and shares a POHPS Pro statistics export as a readable .xlsx —
+/// Builds and shares a POHPS statistics export as a readable .xlsx —
 /// mirrors the temp-file + share_plus flow BackupService already uses for
 /// JSON backups.
 class StatisticsExportService {

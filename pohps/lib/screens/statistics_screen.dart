@@ -5,12 +5,8 @@ import '../l10n/app_localizations.dart';
 import '../services/statistics_export_service.dart';
 import '../widgets/protein_calendar_heatmap.dart';
 import '../widgets/protein_trend_chart.dart';
-import 'paywall_screen.dart';
 
-/// Entry point for POHPS Pro Statistics. Shows the trend chart, calendar,
-/// and Excel export when the user has access (trial or subscribed);
-/// otherwise embeds the paywall offer directly, so there's no extra
-/// navigation hop between "locked" and "here's how to unlock it."
+/// Statistics: trend chart, goal calendar, and Excel export. Free for everyone.
 class StatisticsScreen extends StatelessWidget {
   const StatisticsScreen({super.key});
 
@@ -21,9 +17,7 @@ class StatisticsScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.statisticsTitle)),
-      body: appState.hasStatisticsAccess
-          ? _StatisticsBody(appState: appState)
-          : PaywallScreen(appState: appState, embedded: true),
+      body: _StatisticsBody(appState: appState),
     );
   }
 }
@@ -41,7 +35,6 @@ class _StatisticsBodyState extends State<_StatisticsBody> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
     final appState = widget.appState;
 
@@ -51,10 +44,6 @@ class _StatisticsBodyState extends State<_StatisticsBody> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (appState.isTrialActive) ...[
-            _buildTrialBanner(context, theme, l10n, appState),
-            const SizedBox(height: 16),
-          ],
           Card(
             child: Padding(
               padding: const EdgeInsets.all(20),
@@ -80,42 +69,6 @@ class _StatisticsBodyState extends State<_StatisticsBody> {
                   )
                 : const Icon(Icons.ios_share),
             label: Text(l10n.exportStatisticsButton),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTrialBanner(BuildContext context, ThemeData theme,
-      AppLocalizations l10n, AppState appState) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.primaryContainer,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.hourglass_top,
-              color: theme.colorScheme.onPrimaryContainer),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              l10n.trialDaysRemainingMessage(appState.trialDaysRemaining),
-              style: TextStyle(
-                color: theme.colorScheme.onPrimaryContainer,
-                fontSize: 16,
-              ),
-            ),
-          ),
-          TextButton(
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => PaywallScreen(appState: appState),
-              ),
-            ),
-            child: Text(l10n.upgradeNow),
           ),
         ],
       ),

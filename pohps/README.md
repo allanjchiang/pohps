@@ -9,6 +9,7 @@ A lacto-ovo vegetarian protein tracking app built with Flutter.
 - **One-tap logging** — Add foods to your daily log with a single tap
 - **Progress ring** — Visual progress indicator showing how close you are to your daily goal
 - **Custom foods & recipes** — Create your own foods with custom protein values
+- **Statistics** — Protein trend graphs, a goal-met calendar, and Excel export, free for everyone
 - **Achievements** — Earn badges for milestones like meeting your goal or building streaks
 - **Dark & light mode** — Defaults to your device setting, switchable in settings
 - **Accessible UI** — Large text, big tap targets, high contrast, simple navigation

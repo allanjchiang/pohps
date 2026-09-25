@@ -17,11 +17,6 @@ enum TrendPeriod {
   yearToDate,
 }
 
-enum SubscriptionPlan {
-  monthly,
-  annual,
-}
-
 class CustomFoodComponent {
   final String sourceFoodId;
   final double fraction;

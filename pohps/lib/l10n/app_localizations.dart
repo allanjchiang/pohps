@@ -113,9 +113,9 @@ class AppLocalizations {
           '我们不会收集任何个人数据。所有信息仅存储在您的设备上。',
         ),
         _t(
-          'This is free, open-source software. There are no ads, no paywalls, and no in-app purchases.',
-          '這是免費的開源軟體。沒有廣告、沒有付費牆、也沒有應用程式內購買。',
-          '这是免费的开源软件。没有广告、没有付费墙、也没有应用内购买。',
+          'This is free, open-source software. There are no ads, no paywalls, no subscriptions, and no in-app purchases. Every feature, including Statistics, is free for everyone.',
+          '這是免費的開源軟體。沒有廣告、沒有付費牆、沒有訂閱，也沒有應用程式內購買。所有功能（包括統計）均免費提供給所有人使用。',
+          '这是免费的开源软件。没有广告、没有付费墙、没有订阅，也没有应用内购买。所有功能（包括统计）均免费提供给所有人使用。',
         ),
       ];
 
@@ -399,15 +399,15 @@ class AppLocalizations {
   String get aboutBullets => _t(
         '• No ads, no data collection\n'
             '• All data stored locally on your device\n'
-            '• Advanced statistics available with a POHPS Pro subscription\n'
+            '• Statistics (trends, calendar, Excel export) are free for everyone\n'
             '• Protein values are estimates — always consult your dietitian',
         '• 無廣告、不收集資料\n'
             '• 所有資料僅儲存在您的裝置上\n'
-            '• 進階統計功能需訂閱 POHPS Pro\n'
+            '• 統計功能（趨勢圖、日曆、Excel 匯出）人人免費使用\n'
             '• 蛋白質數值為估計值——請務必諮詢您的營養師',
         '• 无广告、不收集数据\n'
             '• 所有数据仅存储在您的设备上\n'
-            '• 高级统计功能需订阅 POHPS Pro\n'
+            '• 统计功能（趋势图、日历、Excel 导出）人人免费使用\n'
             '• 蛋白质数值为估计值——请务必咨询您的营养师',
       );
 
@@ -930,7 +930,7 @@ class AppLocalizations {
     };
   }
 
-  // ── Statistics & Subscription (POHPS Pro) ─────────────────────────────
+  // ── Statistics ─────────────────────────────
 
   String get statisticsTitle => _t('Statistics', '統計', '统计');
 
@@ -960,7 +960,6 @@ class AppLocalizations {
 
   String get exportStatisticsButton =>
       _t('Export to Excel', '匯出至 Excel', '导出至 Excel');
-  String get upgradeNow => _t('Upgrade', '立即升級', '立即升级');
   String get exportDateHeader => _t('Date', '日期', '日期');
   String get exportProteinHeader =>
       _t('Protein (g)', '蛋白質（公克）', '蛋白质（克）');
@@ -972,158 +971,6 @@ class AppLocalizations {
       _t('Statistics exported.', '統計資料已匯出。', '统计数据已导出。');
   String get exportFailedMessage =>
       _t('Export failed. Please try again.', '匯出失敗，請再試一次。', '导出失败，请重试。');
-
-  String get pohpsProTitle => 'POHPS Pro';
-
-  String get proTagline => _t(
-        'See your protein trends, track your goal-met days, and export your log.',
-        '查看您的蛋白質趨勢、追蹤達標日，並匯出您的記錄。',
-        '查看您的蛋白质趋势、追踪达标日，并导出您的记录。',
-      );
-
-  String get proBenefitsTitle => _t("What's included", '包含內容', '包含内容');
-
-  List<String> get proBenefits => [
-        _t(
-          'Protein trend graphs — Week, Month, Year, and Year to Date',
-          '蛋白質趨勢圖 — 週、月、年、本年至今',
-          '蛋白质趋势图 — 周、月、年、本年至今',
-        ),
-        _t(
-          'A calendar that highlights every day you met your goal',
-          '以顏色標示每個達標日的日曆',
-          '以颜色标示每个达标日的日历',
-        ),
-        _t(
-          'Export your full statistics log to an Excel spreadsheet, any time',
-          '隨時將完整統計記錄匯出為 Excel 試算表',
-          '随时将完整统计记录导出为 Excel 表格',
-        ),
-      ];
-
-  String get monthlyPlanTitle => _t('Monthly', '月繳', '月付');
-  String get annualPlanTitle => _t('Annual', '年繳', '年付');
-
-  String get alreadySubscribedTitle =>
-      _t("You're a POHPS Pro subscriber", '您已是 POHPS Pro 訂閱者', '您已是 POHPS Pro 订阅者');
-
-  String alreadySubscribedMessage(String planName) => _t(
-        'Thank you! Your $planName plan is active.',
-        '感謝您！您的$planName方案目前有效。',
-        '感谢您！您的$planName方案目前有效。',
-      );
-
-  String get manageSubscriptionHint => _t(
-        'Manage or cancel anytime from your Apple ID or Google Play account settings.',
-        '您可隨時在 Apple ID 或 Google Play 帳戶設定中管理或取消訂閱。',
-        '您可随时在 Apple ID 或 Google Play 账户设置中管理或取消订阅。',
-      );
-
-  String get freeTrialTitle =>
-      _t('Try POHPS Pro Free', '免費試用 POHPS Pro', '免费试用 POHPS Pro');
-
-  String freeTrialSubtitle(int days) => _t(
-        'Get $days days of full access to Statistics — trends, calendar, and Excel export.',
-        '享有 $days 天完整統計功能存取權 — 趨勢圖、日曆與 Excel 匯出。',
-        '享有 $days 天完整统计功能访问权 — 趋势图、日历与 Excel 导出。',
-      );
-
-  String get freeTrialNoCard =>
-      _t('No credit card required to start.', '開始試用無需信用卡。', '开始试用无需信用卡。');
-
-  String get startFreeTrialButton =>
-      _t('Start Free Trial', '開始免費試用', '开始免费试用');
-
-  String trialDaysRemainingMessage(int days) => _t(
-        '$days day${days == 1 ? '' : 's'} left in your free trial',
-        '試用期還剩 $days 天',
-        '试用期还剩 $days 天',
-      );
-
-  String get trialEndedMessage => _t(
-        'Your free trial has ended. Subscribe to keep using Statistics.',
-        '您的免費試用已結束。請訂閱以繼續使用統計功能。',
-        '您的免费试用已结束。请订阅以继续使用统计功能。',
-      );
-
-  String get subscriptionsUnavailableMessage => _t(
-        "Subscriptions aren't available right now. Please check your connection and try again later.",
-        '目前無法取得訂閱資訊，請檢查網路連線後再試一次。',
-        '目前无法获取订阅信息，请检查网络连接后重试。',
-      );
-
-  String priceBilledMonthly(String price) =>
-      _t('$price / month', '$price／月', '$price／月');
-  String priceBilledAnnually(String price) =>
-      _t('$price / year', '$price／年', '$price／年');
-
-  String get renewalDisclosure => _t(
-        'Your subscription automatically renews unless canceled at least 24 hours before the end of the current period. You will be charged for renewal within 24 hours before that period ends.',
-        '除非您在目前訂閱週期結束前至少24小時取消，否則訂閱將自動續訂。系統將在該週期結束前24小時內向您收取續訂費用。',
-        '除非您在当前订阅周期结束前至少24小时取消，否则订阅将自动续订。系统将在该周期结束前24小时内向您收取续订费用。',
-      );
-
-  String get noRefundDisclosure => _t(
-        'All charges are final and non-refundable, except where required by law in your country. You can cancel anytime — cancellation takes effect at the end of the current billing period.',
-        '所有款項均為最終款項，恕不退款，惟您所在國家╱地區法律另有規定者除外。您可隨時取消訂閱，取消將於目前計費週期結束時生效。',
-        '所有款项均为最终款项，不予退款，惟您所在国家/地区法律另有规定者除外。您可随时取消订阅，取消将于当前计费周期结束时生效。',
-      );
-
-  String get agreeToTermsPrefix => _t('I have read and agree to the', '我已閱讀並同意', '我已阅读并同意');
-  String get subscriptionTermsLinkText =>
-      _t('Subscription Terms', '訂閱條款', '订阅条款');
-  String get subscribeButton => _t('Subscribe', '訂閱', '订阅');
-  String get restorePurchases =>
-      _t('Restore Purchases', '恢復購買項目', '恢复购买项目');
-  String get restoreCompleteMessage =>
-      _t('Restore complete.', '恢復完成。', '恢复完成。');
-  String get viewSubscriptionTerms =>
-      _t('View Subscription Terms', '查看訂閱條款', '查看订阅条款');
-  String get subscriptionTermsSheetTitle =>
-      _t('Subscription Terms', '訂閱條款', '订阅条款');
-  String get purchaseErrorGeneric => _t(
-        'Something went wrong with your purchase. Please try again.',
-        '購買時發生問題，請再試一次。',
-        '购买时发生问题，请重试。',
-      );
-
-  List<String> get subscriptionTermsBullets => [
-        _t(
-          'POHPS Pro unlocks Statistics: protein trend graphs, a goal-met calendar, and Excel export of your log.',
-          'POHPS Pro 解鎖統計功能：蛋白質趨勢圖、達標日曆，以及將記錄匯出為 Excel。',
-          'POHPS Pro 解锁统计功能：蛋白质趋势图、达标日历，以及将记录导出为 Excel。',
-        ),
-        _t(
-          'New subscribers get a 30-day free trial handled entirely on this device — no payment method required to start.',
-          '新訂閱者可享有30天免費試用，完全在此裝置上處理 — 開始試用無需提供付款方式。',
-          '新订阅者可享有30天免费试用，完全在此设备上处理 — 开始试用无需提供付款方式。',
-        ),
-        _t(
-          'After your trial, Pro is billed monthly or annually at the price shown before you buy, charged to your Apple ID or Google Play account.',
-          '試用期結束後，Pro 將按您購買前所顯示的價格以月繳或年繳方式計費，並向您的 Apple ID 或 Google Play 帳戶收費。',
-          '试用期结束后，Pro 将按您购买前所显示的价格以月付或年付方式计费，并向您的 Apple ID 或 Google Play 账户收费。',
-        ),
-        _t(
-          'Your subscription renews automatically unless you cancel at least 24 hours before the end of the current period. You will be charged for renewal within 24 hours before that period ends.',
-          '除非您在目前訂閱週期結束前至少24小時取消，否則訂閱將自動續訂。系統將在該週期結束前24小時內向您收取續訂費用。',
-          '除非您在当前订阅周期结束前至少24小时取消，否则订阅将自动续订。系统将在该周期结束前24小时内向您收取续订费用。',
-        ),
-        _t(
-          'Manage or cancel anytime in iOS Settings > [your name] > Subscriptions, or in the Google Play app under Payments & subscriptions. Canceling stops future renewals; it does not refund the current period.',
-          '您可隨時在「設定」>「您的姓名」>「訂閱項目」（iOS），或在 Google Play 應用程式的「付款方式與訂閱項目」中管理或取消訂閱。取消訂閱僅會停止未來續訂，不會退還目前週期的費用。',
-          '您可随时在"设置">"您的姓名">"订阅"（iOS），或在 Google Play 应用中的"付款方式与订阅"中管理或取消订阅。取消订阅仅会停止未来续订，不会退还当前周期的费用。',
-        ),
-        _t(
-          'All charges are final and non-refundable, except where required by law in your country (for example, statutory consumer withdrawal rights in the EU, UK, and elsewhere). Refund requests are handled by Apple or Google, not by POHPS directly.',
-          '所有款項均為最終款項，恕不退款，惟您所在國家╱地區法律另有規定者除外（例如歐盟、英國等地的法定消費者撤銷權）。退款申請由 Apple 或 Google 處理，POHPS 不直接受理。',
-          '所有款项均为最终款项，不予退款，惟您所在国家/地区法律另有规定者除外（例如欧盟、英国等地的法定消费者撤销权）。退款申请由 Apple 或 Google 处理，POHPS 不直接受理。',
-        ),
-        _t(
-          'Questions about your subscription? Contact allan@logicphile.com.',
-          '對訂閱有任何疑問嗎？請聯絡 allan@logicphile.com。',
-          '对订阅有任何疑问吗？请联系 allan@logicphile.com。',
-        ),
-      ];
 }
 
 class _AppLocalizationsDelegate
