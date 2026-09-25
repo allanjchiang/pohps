@@ -48,6 +48,12 @@ android {
     }
 
     buildTypes {
+        debug {
+            // `flutter run` builds debug. Installing it under its own package
+            // name (com.logicphile.pohps.dev) keeps it from replacing, or
+            // clashing with the signature of, the Play Store version.
+            applicationIdSuffix = ".dev"
+        }
         release {
             signingConfig = if (keystorePropertiesFile.exists()) {
                 signingConfigs.getByName("release")
