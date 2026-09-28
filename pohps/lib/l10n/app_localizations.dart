@@ -272,6 +272,20 @@ class AppLocalizations {
   String get dailyProteinGoal =>
       _t('Daily Protein Goal', '每日蛋白質目標', '每日蛋白质目标');
 
+  String get moodTracker => _t('Food Mood', '食物心情', '食物心情');
+
+  String get moodTrackerHint => _t(
+        'Show sad, neutral and happy faces on each logged food so you can rate how you liked it. Rating is always optional.',
+        '在每筆食物記錄上顯示難過、普通和開心的表情，讓你為食物評分。評分完全可選。',
+        '在每条食物记录上显示难过、一般和开心的表情，让你为食物评分。评分完全可选。',
+      );
+
+  String moodLabel(FoodMood mood) => switch (mood) {
+        FoodMood.sad => _t("Didn't like it", '不喜歡', '不喜欢'),
+        FoodMood.neutral => _t('It was okay', '還可以', '还可以'),
+        FoodMood.happy => _t('Loved it', '很喜歡', '很喜欢'),
+      };
+
   String get dailyWaterGoal =>
       _t('Daily Water Goal', '每日水分目標', '每日水分目标');
 

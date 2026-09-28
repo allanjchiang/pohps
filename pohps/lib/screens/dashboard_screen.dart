@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../app_state.dart';
 import '../l10n/app_localizations.dart';
@@ -359,6 +360,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
               time: entry.timestamp,
               onTap: () => _showTimePicker(context, appState, entry),
             ),
+            if (appState.moodTrackerEnabled) ...[
+              const SizedBox(height: 4),
+              _MoodPicker(
+                selected: entry.mood,
+                // Tapping the selected face again clears the rating.
+                onSelected: (mood) => appState.updateEntryMood(
+                  entry.id,
+                  mood == entry.mood ? null : mood,
+                ),
+              ),
+            ],
           ],
         ),
         trailing: Text.rich(
@@ -753,6 +765,63 @@ class _LogTimeChip extends StatelessWidget {
                 const SizedBox(width: 4),
                 Icon(Icons.edit, size: 14, color: color),
               ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Optional one-tap food rating that sits on the card; never prompts.
+class _MoodPicker extends StatelessWidget {
+  final FoodMood? selected;
+  final ValueChanged<FoodMood> onSelected;
+
+  const _MoodPicker({required this.selected, required this.onSelected});
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        for (final mood in FoodMood.values)
+          _moodButton(mood, l10n.moodLabel(mood)),
+      ],
+    );
+  }
+
+  Widget _moodButton(FoodMood mood, String label) {
+    final isSelected = mood == selected;
+    // Unrated faces stay visible enough to invite a tap; once rated, the
+    // choice stands out and the others fade back.
+    final opacity = isSelected ? 1.0 : (selected == null ? 0.55 : 0.3);
+
+    return Semantics(
+      button: true,
+      selected: isSelected,
+      label: label,
+      child: InkResponse(
+        onTap: () {
+          HapticFeedback.selectionClick();
+          onSelected(mood);
+        },
+        radius: 22,
+        child: SizedBox(
+          width: 40,
+          height: 40,
+          child: Center(
+            child: AnimatedScale(
+              scale: isSelected ? 1.2 : 1.0,
+              duration: const Duration(milliseconds: 180),
+              curve: Curves.easeOutBack,
+              child: AnimatedOpacity(
+                opacity: opacity,
+                duration: const Duration(milliseconds: 180),
+                child: Image.asset(mood.assetPath, width: 28, height: 28),
+              ),
             ),
           ),
         ),

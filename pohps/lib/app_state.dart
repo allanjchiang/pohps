@@ -32,6 +32,7 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
   DietType _dietType = DietType.lactoOvo;
   bool _waterTrackerEnabled = false;
   int _dailyWaterGoalMl = 2000;
+  bool _moodTrackerEnabled = false;
   Map<String, double> _proteinOverrides = {};
   DateTime _viewDate = effectiveDate();
   List<LogEntry> _viewLog = [];
@@ -65,6 +66,7 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
   DietType get dietType => _dietType;
   bool get waterTrackerEnabled => _waterTrackerEnabled;
   int get dailyWaterGoalMl => _dailyWaterGoalMl;
+  bool get moodTrackerEnabled => _moodTrackerEnabled;
   Map<String, double> get proteinOverrides =>
       Map.unmodifiable(_proteinOverrides);
   DateTime get viewDate => _viewDate;
@@ -273,6 +275,7 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
     _dietType = _storage.dietType;
     _waterTrackerEnabled = _storage.waterTrackerEnabled;
     _dailyWaterGoalMl = _storage.dailyWaterGoalMl;
+    _moodTrackerEnabled = _storage.moodTrackerEnabled;
     _proteinOverrides = _storage.proteinOverrides;
     _customFoods = _storage.customFoods;
     _favoriteFoodIds = _storage.favoriteFoodIds;
@@ -422,6 +425,12 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
     notifyListeners();
   }
 
+  Future<void> setMoodTrackerEnabled(bool enabled) async {
+    _moodTrackerEnabled = enabled;
+    await _storage.setMoodTrackerEnabled(enabled);
+    notifyListeners();
+  }
+
   Future<void> setDailyWaterGoalMl(int goalMl) async {
     _dailyWaterGoalMl = goalMl;
     await _storage.setDailyWaterGoalMl(goalMl);
@@ -466,6 +475,17 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
     final index = log.indexWhere((e) => e.id == entryId);
     if (index == -1) return;
     log[index] = log[index].copyWith(timestamp: timestamp);
+    await _saveViewLog(log);
+    notifyListeners();
+  }
+
+  /// Pass null to clear the mood.
+  Future<void> updateEntryMood(String entryId, FoodMood? mood) async {
+    _refreshLogIfDateChanged();
+    final log = _viewLogFromStorage();
+    final index = log.indexWhere((e) => e.id == entryId);
+    if (index == -1) return;
+    log[index] = log[index].withMood(mood);
     await _saveViewLog(log);
     notifyListeners();
   }

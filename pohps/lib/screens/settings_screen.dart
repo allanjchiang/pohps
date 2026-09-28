@@ -109,6 +109,45 @@ class SettingsScreen extends StatelessWidget {
           ),
           const SizedBox(height: 12),
 
+          // Food mood
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(l10n.moodTracker, style: theme.textTheme.titleLarge),
+                  const SizedBox(height: 8),
+                  Text(
+                    l10n.moodTrackerHint,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  SwitchListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: Row(
+                      children: [
+                        Text(l10n.moodTracker),
+                        const SizedBox(width: 8),
+                        for (final mood in FoodMood.values)
+                          Padding(
+                            padding: const EdgeInsets.only(right: 2),
+                            child: Image.asset(mood.assetPath,
+                                width: 20, height: 20),
+                          ),
+                      ],
+                    ),
+                    value: appState.moodTrackerEnabled,
+                    onChanged: appState.setMoodTrackerEnabled,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+
           // Diet
           Card(
             child: Padding(

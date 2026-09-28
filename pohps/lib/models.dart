@@ -10,6 +10,18 @@ enum DietType {
   alliumVegan,
 }
 
+/// How the user felt about a logged food. Order is left to right on the card.
+enum FoodMood {
+  sad,
+  neutral,
+  happy;
+
+  String get assetPath => 'assets/moods/$name.png';
+
+  static FoodMood? fromName(String? name) =>
+      values.where((m) => m.name == name).firstOrNull;
+}
+
 enum TrendPeriod {
   week,
   month,
@@ -102,12 +114,14 @@ class LogEntry {
   final FoodItem food;
   final DateTime timestamp;
   final double fraction;
+  final FoodMood? mood;
 
   const LogEntry({
     required this.id,
     required this.food,
     required this.timestamp,
     this.fraction = 1.0,
+    this.mood,
   });
 
   double get totalProtein => food.proteinGrams * fraction;
@@ -119,6 +133,16 @@ class LogEntry {
         food: food,
         timestamp: timestamp ?? this.timestamp,
         fraction: fraction ?? this.fraction,
+        mood: mood,
+      );
+
+  /// Separate from [copyWith] so the mood can be cleared back to null.
+  LogEntry withMood(FoodMood? mood) => LogEntry(
+        id: id,
+        food: food,
+        timestamp: timestamp,
+        fraction: fraction,
+        mood: mood,
       );
 
   Map<String, dynamic> toJson() => {
@@ -126,6 +150,7 @@ class LogEntry {
         'food': food.toJson(),
         'timestamp': timestamp.toIso8601String(),
         'fraction': fraction,
+        if (mood != null) 'mood': mood!.name,
       };
 
   factory LogEntry.fromJson(Map<String, dynamic> json) => LogEntry(
@@ -135,6 +160,7 @@ class LogEntry {
         fraction: (json['fraction'] as num?)?.toDouble() ??
             (json['quantity'] as num?)?.toDouble() ??
             1.0,
+        mood: FoodMood.fromName(json['mood'] as String?),
       );
 }
 

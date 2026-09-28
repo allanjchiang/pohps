@@ -84,6 +84,11 @@ class StorageService {
   Future<void> setWaterTrackerEnabled(bool value) =>
       _prefs.setBool('water_tracker_enabled', value);
 
+  bool get moodTrackerEnabled =>
+      _prefs.getBool('mood_tracker_enabled') ?? false;
+  Future<void> setMoodTrackerEnabled(bool value) =>
+      _prefs.setBool('mood_tracker_enabled', value);
+
   int get dailyWaterGoalMl => _prefs.getInt('daily_water_goal_ml') ?? 2000;
   Future<void> setDailyWaterGoalMl(int value) =>
       _prefs.setInt('daily_water_goal_ml', value);
@@ -233,6 +238,7 @@ class StorageService {
       'dietType': _prefs.getString('diet_type') ?? 'lacto_ovo',
       'waterTrackerEnabled': waterTrackerEnabled,
       'dailyWaterGoalMl': dailyWaterGoalMl,
+      'moodTrackerEnabled': moodTrackerEnabled,
       'proteinOverrides': proteinOverrides,
       'customFoods': customFoods.map((f) => f.toJson()).toList(),
       'favoriteFoodIds': favoriteFoodIds,
@@ -281,6 +287,7 @@ class StorageService {
     });
 
     await setWaterTrackerEnabled(data['waterTrackerEnabled'] as bool? ?? false);
+    await setMoodTrackerEnabled(data['moodTrackerEnabled'] as bool? ?? false);
     await setDailyWaterGoalMl(
       (data['dailyWaterGoalMl'] as num?)?.toInt() ?? 2000,
     );
