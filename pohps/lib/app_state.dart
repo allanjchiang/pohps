@@ -460,6 +460,16 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
     notifyListeners();
   }
 
+  Future<void> updateEntryTime(String entryId, DateTime timestamp) async {
+    _refreshLogIfDateChanged();
+    final log = _viewLogFromStorage();
+    final index = log.indexWhere((e) => e.id == entryId);
+    if (index == -1) return;
+    log[index] = log[index].copyWith(timestamp: timestamp);
+    await _saveViewLog(log);
+    notifyListeners();
+  }
+
   Future<void> removeEntry(String entryId) async {
     _refreshLogIfDateChanged();
     final log = _viewLogFromStorage()..removeWhere((e) => e.id == entryId);

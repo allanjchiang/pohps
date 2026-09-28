@@ -114,10 +114,10 @@ class LogEntry {
 
   double get totalWaterMl => food.waterMlPerServing * fraction;
 
-  LogEntry copyWith({double? fraction}) => LogEntry(
+  LogEntry copyWith({double? fraction, DateTime? timestamp}) => LogEntry(
         id: id,
         food: food,
-        timestamp: timestamp,
+        timestamp: timestamp ?? this.timestamp,
         fraction: fraction ?? this.fraction,
       );
 

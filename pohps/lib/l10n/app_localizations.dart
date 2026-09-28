@@ -245,6 +245,28 @@ class AppLocalizations {
 
   String get full => _t('Full', '全部', '全部');
 
+  /// Time a food was eaten, e.g. "2:45 PM" or "14:45".
+  String formatLogTime(DateTime time, {required bool use24Hour}) =>
+      (use24Hour ? DateFormat.Hm(_dateLocaleTag) : DateFormat.jm(_dateLocaleTag))
+          .format(time);
+
+  String get changeTimeTooltip =>
+      _t('Change time eaten', '更改進食時間', '更改进食时间');
+
+  String whenDidYouEat(String name) =>
+      _t('When did you eat $name?', '什麼時候吃了$name？', '什么时候吃了$name？');
+
+  String get justNow => _t('Just now', '剛剛', '刚刚');
+
+  String minutesAgo(int minutes) => minutes >= 60
+      ? _t('${minutes ~/ 60} hr ago', '${minutes ~/ 60} 小時前',
+          '${minutes ~/ 60} 小时前')
+      : _t('$minutes min ago', '$minutes 分鐘前', '$minutes 分钟前');
+
+  String get breakfast => _t('Breakfast', '早餐', '早餐');
+  String get lunch => _t('Lunch', '午餐', '午餐');
+  String get dinner => _t('Dinner', '晚餐', '晚餐');
+
   // ── Settings Screen ────────────────────────────────────────────────────
 
   String get dailyProteinGoal =>

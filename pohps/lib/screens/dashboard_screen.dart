@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../app_state.dart';
@@ -341,13 +342,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
         onTap: () => _showFractionPicker(context, appState, entry),
         leading: Text(entry.food.emoji, style: const TextStyle(fontSize: 32)),
         title: Text(displayName, style: theme.textTheme.titleMedium),
-        subtitle: Text(
-          entry.fraction == 1.0
-              ? displayServing
-              : '${entry.fraction}× $displayServing',
-          style: theme.textTheme.bodyMedium?.copyWith(
-            color: theme.colorScheme.onSurfaceVariant,
-          ),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              entry.fraction == 1.0
+                  ? displayServing
+                  : '${entry.fraction}× $displayServing',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 6),
+            _LogTimeChip(
+              time: entry.timestamp,
+              onTap: () => _showTimePicker(context, appState, entry),
+            ),
+          ],
         ),
         trailing: Text.rich(
           TextSpan(
@@ -424,6 +436,27 @@ class _DashboardScreenState extends State<DashboardScreen> {
         initialFraction: entry.fraction,
         onChanged: (fraction) {
           appState.updateEntryFraction(entry.id, fraction);
+          Navigator.pop(ctx);
+        },
+      ),
+    );
+  }
+
+  void _showTimePicker(
+      BuildContext context, AppState appState, LogEntry entry) {
+    final l10n = AppLocalizations.of(context);
+    showModalBottomSheet(
+      context: context,
+      showDragHandle: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) => _TimePickerSheet(
+        foodName: l10n.foodDisplayName(entry.food.id, entry.food.name),
+        initialTime: entry.timestamp,
+        showRelativePresets: appState.isViewingToday,
+        onChanged: (time) {
+          appState.updateEntryTime(entry.id, time);
           Navigator.pop(ctx);
         },
       ),
@@ -678,6 +711,153 @@ class _FractionPickerDialogState extends State<_FractionPickerDialog> {
           child: Text(l10n.save),
         ),
       ],
+    );
+  }
+}
+
+/// Tappable time shown under the serving size; opens the time picker.
+class _LogTimeChip extends StatelessWidget {
+  final DateTime time;
+  final VoidCallback onTap;
+
+  const _LogTimeChip({required this.time, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
+    final use24Hour = MediaQuery.alwaysUse24HourFormatOf(context);
+    final color = theme.colorScheme.onSecondaryContainer;
+
+    return Tooltip(
+      message: l10n.changeTimeTooltip,
+      child: Material(
+        color: theme.colorScheme.secondaryContainer,
+        shape: const StadiumBorder(),
+        child: InkWell(
+          customBorder: const StadiumBorder(),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.schedule, size: 16, color: color),
+                const SizedBox(width: 4),
+                Text(
+                  l10n.formatLogTime(time, use24Hour: use24Hour),
+                  style: theme.textTheme.labelLarge?.copyWith(color: color),
+                ),
+                const SizedBox(width: 4),
+                Icon(Icons.edit, size: 14, color: color),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// One tap on a preset saves immediately; the wheel covers any other time.
+class _TimePickerSheet extends StatefulWidget {
+  final String foodName;
+  final DateTime initialTime;
+  final bool showRelativePresets;
+  final ValueChanged<DateTime> onChanged;
+
+  const _TimePickerSheet({
+    required this.foodName,
+    required this.initialTime,
+    required this.showRelativePresets,
+    required this.onChanged,
+  });
+
+  @override
+  State<_TimePickerSheet> createState() => _TimePickerSheetState();
+}
+
+class _TimePickerSheetState extends State<_TimePickerSheet> {
+  static const _minutesAgoPresets = [15, 30, 60, 120];
+
+  late DateTime _time = widget.initialTime;
+
+  /// Keeps the entry's date and only swaps the time of day.
+  DateTime _atTimeOfDay(int hour, int minute) {
+    final t = widget.initialTime;
+    return DateTime(t.year, t.month, t.day, hour, minute);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
+    final use24Hour = MediaQuery.alwaysUse24HourFormatOf(context);
+
+    Widget preset(String label, DateTime Function() time) => ActionChip(
+          label: Text(label, style: const TextStyle(fontSize: 16)),
+          onPressed: () => widget.onChanged(time()),
+        );
+
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              l10n.whenDidYouEat(widget.foodName),
+              style: theme.textTheme.titleLarge,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              alignment: WrapAlignment.center,
+              children: [
+                if (widget.showRelativePresets) ...[
+                  preset(l10n.justNow, DateTime.now),
+                  for (final m in _minutesAgoPresets)
+                    preset(
+                      l10n.minutesAgo(m),
+                      () => DateTime.now().subtract(Duration(minutes: m)),
+                    ),
+                ],
+                preset(l10n.breakfast, () => _atTimeOfDay(8, 0)),
+                preset(l10n.lunch, () => _atTimeOfDay(12, 0)),
+                preset(l10n.dinner, () => _atTimeOfDay(18, 0)),
+              ],
+            ),
+            const SizedBox(height: 8),
+            SizedBox(
+              height: 180,
+              child: CupertinoTheme(
+                data: CupertinoThemeData(
+                  brightness: theme.brightness,
+                  textTheme: CupertinoTextThemeData(
+                    dateTimePickerTextStyle: theme.textTheme.headlineSmall,
+                  ),
+                ),
+                child: CupertinoDatePicker(
+                  mode: CupertinoDatePickerMode.time,
+                  initialDateTime: widget.initialTime,
+                  use24hFormat: use24Hour,
+                  onDateTimeChanged: (t) => _time = t,
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            FilledButton(
+              onPressed: () =>
+                  widget.onChanged(_atTimeOfDay(_time.hour, _time.minute)),
+              style: FilledButton.styleFrom(minimumSize: const Size(0, 52)),
+              child: Text(l10n.save, style: const TextStyle(fontSize: 18)),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
