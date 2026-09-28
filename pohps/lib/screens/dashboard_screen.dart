@@ -448,6 +448,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     showModalBottomSheet(
       context: context,
       showDragHandle: true,
+      isScrollControlled: true,
+      useSafeArea: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -799,8 +801,14 @@ class _TimePickerSheetState extends State<_TimePickerSheet> {
           onPressed: () => widget.onChanged(time()),
         );
 
+    // Shrink the wheel on short screens (small phones, landscape) so the
+    // whole sheet fits without scrolling where possible.
+    final screenHeight = MediaQuery.sizeOf(context).height;
+    final wheelHeight = (screenHeight * 0.22).clamp(120.0, 200.0);
+
     return SafeArea(
-      child: Padding(
+      top: false,
+      child: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -832,7 +840,7 @@ class _TimePickerSheetState extends State<_TimePickerSheet> {
             ),
             const SizedBox(height: 8),
             SizedBox(
-              height: 180,
+              height: wheelHeight,
               child: CupertinoTheme(
                 data: CupertinoThemeData(
                   brightness: theme.brightness,
