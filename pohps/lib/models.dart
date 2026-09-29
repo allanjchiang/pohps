@@ -61,6 +61,7 @@ class FoodItem {
   final String category;
   final double proteinGrams;
   final double waterMlPerServing;
+  final double ironMg;
   final String servingSize;
   final String emoji;
   final bool isCustom;
@@ -72,6 +73,7 @@ class FoodItem {
     required this.category,
     required this.proteinGrams,
     required this.waterMlPerServing,
+    this.ironMg = 0,
     required this.servingSize,
     required this.emoji,
     this.isCustom = false,
@@ -86,6 +88,7 @@ class FoodItem {
         'category': category,
         'proteinGrams': proteinGrams,
         'waterMlPerServing': waterMlPerServing,
+        'ironMg': ironMg,
         'servingSize': servingSize,
         'emoji': emoji,
         'isCustom': isCustom,
@@ -100,6 +103,7 @@ class FoodItem {
         proteinGrams: (json['proteinGrams'] as num).toDouble(),
         waterMlPerServing:
             (json['waterMlPerServing'] as num?)?.toDouble() ?? 0,
+        ironMg: (json['ironMg'] as num?)?.toDouble() ?? 0,
         servingSize: json['servingSize'] as String,
         emoji: json['emoji'] as String,
         isCustom: (json['isCustom'] as bool?) ?? false,
@@ -127,6 +131,8 @@ class LogEntry {
   double get totalProtein => food.proteinGrams * fraction;
 
   double get totalWaterMl => food.waterMlPerServing * fraction;
+
+  double get totalIronMg => food.ironMg * fraction;
 
   LogEntry copyWith({double? fraction, DateTime? timestamp}) => LogEntry(
         id: id,

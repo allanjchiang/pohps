@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../app_state.dart';
 import '../l10n/app_localizations.dart';
 import '../models.dart';
+import '../widgets/iron_progress_ring.dart';
 import '../widgets/progress_tracker_carousel.dart';
 import '../widgets/swipeable_date_title.dart';
 import '../widgets/food_reorder_list.dart';
@@ -392,6 +393,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
+              if (appState.ironTrackerEnabled && entry.totalIronMg > 0)
+                TextSpan(
+                  text: '\n${l10n.ironAmountLabel(entry.totalIronMg)}',
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: IronProgressRing.ironRedComplete,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
             ],
           ),
           textAlign: TextAlign.end,
@@ -615,7 +624,65 @@ class _CollapsibleProgressSection extends StatelessWidget {
                   measurementSystem: appState.measurementSystem,
                   waterGoalReached: appState.viewWaterGoalReached,
                   waterGoalReachedText: l10n.waterGoalReachedWellDone,
+                  ironTrackerEnabled: appState.ironTrackerEnabled,
+                  ironProgress: appState.viewIronProgressPercent,
+                  ironCurrentMg: appState.viewIronMg,
+                  ironGoalMg: appState.dailyIronGoalMg,
+                  ironGoalReached: appState.viewIronGoalReached,
+                  ironGoalReachedText: l10n.ironGoalReachedWellDone,
                 ),
+                if (appState.b12ReminderEnabled)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                    child: Card(
+                      margin: EdgeInsets.zero,
+                      clipBehavior: Clip.antiAlias,
+                      child: CheckboxListTile(
+                        value: appState.viewB12Taken,
+                        onChanged: (taken) =>
+                            appState.setViewB12Taken(taken ?? false),
+                        secondary: const Text(
+                          '💊',
+                          style: TextStyle(fontSize: 26),
+                        ),
+                        title: Text(
+                          l10n.b12Taken(isToday: appState.isViewingToday),
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                      ),
+                    ),
+                  ),
+                if (appState.ironTrackerEnabled &&
+                    appState.viewHasIronInhibitingDrink)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                    child: Card(
+                      margin: EdgeInsets.zero,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('💡', style: TextStyle(fontSize: 22)),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                l10n.ironTeaCoffeeTip,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurfaceVariant,
+                                    ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
                 const SizedBox(height: 24),
               ],
             ),

@@ -6,6 +6,7 @@ import '../models.dart';
 import '../food_data.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/food_reorder_list.dart';
+import '../widgets/iron_progress_ring.dart';
 import 'custom_food_screen.dart';
 
 /// Full-height modal with interactive drag (panel follows the finger).
@@ -669,6 +670,8 @@ class _FoodCardState extends State<_FoodCard> {
                             );
                       final showWater = appState.waterTrackerEnabled &&
                           widget.food.waterMlPerServing > 0;
+                      final showIron = appState.ironTrackerEnabled &&
+                          widget.food.ironMg > 0;
 
                       return FittedBox(
                         fit: BoxFit.scaleDown,
@@ -718,6 +721,21 @@ class _FoodCardState extends State<_FoodCard> {
                                   ),
                                   style: theme.textTheme.bodySmall?.copyWith(
                                     color: const Color(0xFF1565C0),
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 11,
+                                    height: 1.15,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                              if (showIron) ...[
+                                const SizedBox(height: 1),
+                                Text(
+                                  l10n.ironAmountLabel(widget.food.ironMg),
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    color: IronProgressRing.ironRedComplete,
                                     fontWeight: FontWeight.w600,
                                     fontSize: 11,
                                     height: 1.15,

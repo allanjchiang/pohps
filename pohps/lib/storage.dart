@@ -93,6 +93,34 @@ class StorageService {
   Future<void> setDailyWaterGoalMl(int value) =>
       _prefs.setInt('daily_water_goal_ml', value);
 
+  bool get ironTrackerEnabled =>
+      _prefs.getBool('iron_tracker_enabled') ?? false;
+  Future<void> setIronTrackerEnabled(bool value) =>
+      _prefs.setBool('iron_tracker_enabled', value);
+
+  int get dailyIronGoalMg => _prefs.getInt('daily_iron_goal_mg') ?? 18;
+  Future<void> setDailyIronGoalMg(int value) =>
+      _prefs.setInt('daily_iron_goal_mg', value);
+
+  bool get b12ReminderEnabled =>
+      _prefs.getBool('b12_reminder_enabled') ?? false;
+  Future<void> setB12ReminderEnabled(bool value) =>
+      _prefs.setBool('b12_reminder_enabled', value);
+
+  /// Days the B12 supplement was checked off, as `yyyy-MM-dd` strings.
+  Set<String> get b12TakenDates {
+    final json = _prefs.getString('b12_taken_dates');
+    if (json == null) return {};
+    final decoded = jsonDecode(json);
+    if (decoded is! List) return {};
+    return decoded.whereType<String>().toSet();
+  }
+
+  Future<void> saveB12TakenDates(Set<String> dates) {
+    final sorted = dates.toList()..sort();
+    return _prefs.setString('b12_taken_dates', jsonEncode(sorted));
+  }
+
   Map<String, double> get proteinOverrides {
     final json = _prefs.getString('protein_overrides');
     if (json == null) return {};
@@ -213,6 +241,10 @@ class StorageService {
     'diet_type',
     'water_tracker_enabled',
     'daily_water_goal_ml',
+    'iron_tracker_enabled',
+    'daily_iron_goal_mg',
+    'b12_reminder_enabled',
+    'b12_taken_dates',
     'protein_overrides',
     'custom_foods',
     'unlocked_achievements',
@@ -239,6 +271,10 @@ class StorageService {
       'waterTrackerEnabled': waterTrackerEnabled,
       'dailyWaterGoalMl': dailyWaterGoalMl,
       'moodTrackerEnabled': moodTrackerEnabled,
+      'ironTrackerEnabled': ironTrackerEnabled,
+      'dailyIronGoalMg': dailyIronGoalMg,
+      'b12ReminderEnabled': b12ReminderEnabled,
+      'b12TakenDates': b12TakenDates.toList()..sort(),
       'proteinOverrides': proteinOverrides,
       'customFoods': customFoods.map((f) => f.toJson()).toList(),
       'favoriteFoodIds': favoriteFoodIds,
@@ -291,6 +327,14 @@ class StorageService {
     await setDailyWaterGoalMl(
       (data['dailyWaterGoalMl'] as num?)?.toInt() ?? 2000,
     );
+
+    await setIronTrackerEnabled(data['ironTrackerEnabled'] as bool? ?? false);
+    await setDailyIronGoalMg((data['dailyIronGoalMg'] as num?)?.toInt() ?? 18);
+    await setB12ReminderEnabled(data['b12ReminderEnabled'] as bool? ?? false);
+    final b12Dates = data['b12TakenDates'];
+    if (b12Dates is List) {
+      await saveB12TakenDates(b12Dates.whereType<String>().toSet());
+    }
 
     final overrides = data['proteinOverrides'];
     if (overrides is Map) {

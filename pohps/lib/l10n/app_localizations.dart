@@ -188,6 +188,25 @@ class AppLocalizations {
   String get swipeForProtein =>
       _t('← Swipe for protein', '← 滑動查看蛋白質', '← 滑动查看蛋白质');
 
+  String get swipeForIron =>
+      _t('Swipe for iron →', '滑動查看鐵質 →', '滑动查看铁质 →');
+
+  String get ironGoalReachedWellDone => _t(
+        'Iron goal reached! Great choices!',
+        '鐵質目標達成！選得好！',
+        '铁质目标达成！选得好！',
+      );
+
+  String b12Taken({required bool isToday}) => isToday
+      ? _t('Took my B12 today', '今天已服用 B12', '今天已服用 B12')
+      : _t('Took my B12', '已服用 B12', '已服用 B12');
+
+  String get ironTeaCoffeeTip => _t(
+        'Tip: tea and coffee reduce iron absorption. Try having them at least an hour before or after iron-rich meals. Vitamin C (citrus, capsicum, berries) helps your body absorb iron.',
+        '小提示：茶和咖啡會降低鐵質吸收。建議在富含鐵質的餐點前後至少間隔一小時再飲用。維生素 C（柑橘、甜椒、莓果）有助於鐵質吸收。',
+        '小提示：茶和咖啡会降低铁质吸收。建议在富含铁质的餐食前后至少间隔一小时再饮用。维生素 C（柑橘、甜椒、莓果）有助于铁质吸收。',
+      );
+
   String get swipeDateHint => _t(
         'Swipe the date to view previous days',
         '滑動日期以查看先前紀錄',
@@ -298,6 +317,39 @@ class AppLocalizations {
       );
 
   String get mlPerDay => _t('Millilitres per day', '每日毫升', '每日毫升');
+
+  String get ironTracker => _t('Iron Tracker', '鐵質追蹤', '铁质追踪');
+
+  String get ironTrackerHint => _t(
+        'Track iron from foods. Iron from plants is absorbed less well, so vegetarians are often advised to aim for about 1.8× the usual amount: roughly 14 mg a day for men and 32 mg for women aged 19–50. Ask your doctor what goal suits you.',
+        '追蹤食物中的鐵質。植物性鐵質較不易吸收，因此一般建議素食者攝取約一般建議量的 1.8 倍：19–50 歲男性每日約 14 mg，女性約 32 mg。請諮詢醫師適合您的目標。',
+        '追踪食物中的铁质。植物性铁质较难吸收，因此一般建议素食者摄入约常规建议量的 1.8 倍：19–50 岁男性每日约 14 mg，女性约 32 mg。请咨询医生适合您的目标。',
+      );
+
+  String get changeIronGoal =>
+      _t('Change Iron Goal', '更改鐵質目標', '更改铁质目标');
+
+  String get mgPerDay => _t('Milligrams per day', '每日毫克', '每日毫克');
+
+  String formatIronMg(double mg) => '${mg.toStringAsFixed(1)} mg';
+
+  String ironAmountLabel(double mg) => _t(
+        '${formatIronMg(mg)} iron',
+        '鐵質 ${formatIronMg(mg)}',
+        '铁质 ${formatIronMg(mg)}',
+      );
+
+  String ironOfGoal(int goalMg) =>
+      _t('of $goalMg mg', '目標 $goalMg mg', '目标 $goalMg mg');
+
+  String get b12Reminder =>
+      _t('Vitamin B12 Check-off', '維生素 B12 打卡', '维生素 B12 打卡');
+
+  String get b12ReminderHint => _t(
+        'Vitamin B12 comes mainly from animal and fortified foods, so many vegetarians take a supplement. Adds a daily check-off to your dashboard.',
+        '維生素 B12 主要來自動物性食品與營養強化食品，因此許多素食者會服用補充劑。開啟後會在主畫面加入每日打卡。',
+        '维生素 B12 主要来自动物性食品与营养强化食品，因此许多素食者会服用补充剂。开启后会在主页加入每日打卡。',
+      );
 
   String get changeWaterGoal =>
       _t('Change Water Goal', '更改水分目標', '更改水分目标');
@@ -521,6 +573,11 @@ class AppLocalizations {
       _t('Protein per Serving', '每份蛋白質含量', '每份蛋白质含量');
 
   String get egProtein => _t('e.g. 15', '例如 15', '例如 15');
+
+  String get ironOptional =>
+      _t('Iron (optional)', '鐵質（選填）', '铁质（选填）');
+
+  String get egIron => _t('e.g. 2.5', '例如 2.5', '例如 2.5');
   String get servingSizeLabel => _t('Serving Size', '份量大小', '份量大小');
 
   String get egServingSize =>

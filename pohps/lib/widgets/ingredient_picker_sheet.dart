@@ -263,10 +263,16 @@ class CustomIngredientList {
   }) {
     var protein = 0.0;
     var water = 0.0;
+    var iron = 0.0;
     for (final entry in entries) {
       protein += entry.food.proteinGrams * entry.fraction;
       water += entry.food.waterMlPerServing * entry.fraction;
+      iron += entry.food.ironMg * entry.fraction;
     }
-    return CustomFoodTotals(proteinGrams: protein, waterMl: water);
+    return CustomFoodTotals(
+      proteinGrams: protein,
+      waterMl: water,
+      ironMg: iron,
+    );
   }
 }

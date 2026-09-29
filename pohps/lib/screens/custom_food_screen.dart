@@ -6,6 +6,7 @@ import '../food_data.dart';
 import '../l10n/app_localizations.dart';
 import '../models.dart';
 import '../widgets/ingredient_picker_sheet.dart';
+import '../widgets/iron_progress_ring.dart';
 
 class CustomFoodScreen extends StatefulWidget {
   final FoodItem? existingFood;
@@ -19,6 +20,7 @@ class CustomFoodScreen extends StatefulWidget {
 class _CustomFoodScreenState extends State<CustomFoodScreen> {
   final _nameController = TextEditingController();
   final _proteinController = TextEditingController();
+  final _ironController = TextEditingController();
   final _servingController = TextEditingController();
   final _ingredients = CustomIngredientList();
   String _selectedCategory = categoryOther;
@@ -57,6 +59,9 @@ class _CustomFoodScreenState extends State<CustomFoodScreen> {
       _proteinController.text = protein == protein.roundToDouble()
           ? '${protein.round()}'
           : protein.toStringAsFixed(1);
+      if (existing.ironMg > 0) {
+        _ironController.text = existing.ironMg.toStringAsFixed(1);
+      }
     }
   }
 
@@ -64,6 +69,7 @@ class _CustomFoodScreenState extends State<CustomFoodScreen> {
   void dispose() {
     _nameController.dispose();
     _proteinController.dispose();
+    _ironController.dispose();
     _servingController.dispose();
     super.dispose();
   }
@@ -226,6 +232,17 @@ class _CustomFoodScreenState extends State<CustomFoodScreen> {
                           ),
                         ),
                       ],
+                      if (appState.ironTrackerEnabled &&
+                          totals.ironMg > 0) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          l10n.ironAmountLabel(totals.ironMg),
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            color: IronProgressRing.ironRedComplete,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                 ),
@@ -251,6 +268,23 @@ class _CustomFoodScreenState extends State<CustomFoodScreen> {
                 ],
                 style: theme.textTheme.bodyLarge,
               ),
+              if (appState.ironTrackerEnabled) ...[
+                const SizedBox(height: 12),
+                TextField(
+                  controller: _ironController,
+                  decoration: InputDecoration(
+                    labelText: l10n.ironOptional,
+                    hintText: l10n.egIron,
+                    suffixText: 'mg',
+                  ),
+                  keyboardType:
+                      const TextInputType.numberWithOptions(decimal: true),
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'[\d.]')),
+                  ],
+                  style: theme.textTheme.bodyLarge,
+                ),
+              ],
             ],
             const SizedBox(height: 28),
             Text(l10n.categoryLabel, style: theme.textTheme.titleMedium),
@@ -308,6 +342,7 @@ class _CustomFoodScreenState extends State<CustomFoodScreen> {
 
     double protein;
     double water;
+    double iron;
     List<CustomFoodComponent>? components;
 
     if (_ingredients.isEmpty) {
@@ -318,6 +353,10 @@ class _CustomFoodScreenState extends State<CustomFoodScreen> {
       }
       protein = manualProtein;
       water = 0;
+      // Keep the saved value when iron fields are hidden (tracker off).
+      iron = appState.ironTrackerEnabled
+          ? double.tryParse(_ironController.text) ?? 0
+          : widget.existingFood?.ironMg ?? 0;
       components = null;
     } else {
       final totals = _ingredients.totals(
@@ -326,6 +365,7 @@ class _CustomFoodScreenState extends State<CustomFoodScreen> {
       );
       protein = totals.proteinGrams;
       water = totals.waterMl;
+      iron = totals.ironMg;
       components = _ingredients.toComponents();
     }
 
@@ -336,6 +376,7 @@ class _CustomFoodScreenState extends State<CustomFoodScreen> {
       category: _selectedCategory,
       proteinGrams: protein,
       waterMlPerServing: water,
+      ironMg: iron,
       servingSize: serving,
       emoji: _selectedEmoji,
       isCustom: true,
@@ -391,6 +432,7 @@ class _IngredientCard extends StatelessWidget {
     final food = entry.food;
     final protein = food.proteinGrams * entry.fraction;
     final water = food.waterMlPerServing * entry.fraction;
+    final iron = food.ironMg * entry.fraction;
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
@@ -438,6 +480,14 @@ class _IngredientCard extends StatelessWidget {
                           ),
                           style: theme.textTheme.bodySmall?.copyWith(
                             color: const Color(0xFF1565C0),
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      if (appState.ironTrackerEnabled && iron > 0)
+                        Text(
+                          l10n.ironAmountLabel(iron),
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: IronProgressRing.ironRedComplete,
                             fontWeight: FontWeight.w600,
                           ),
                         ),

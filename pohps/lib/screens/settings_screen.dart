@@ -6,6 +6,7 @@ import '../l10n/app_localizations.dart';
 import '../models.dart';
 import '../services/backup_service.dart';
 import '../widgets/donation_tiers.dart';
+import '../widgets/iron_progress_ring.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -103,6 +104,85 @@ class SettingsScreen extends StatelessWidget {
                       ],
                     ),
                   ],
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          // Iron tracker
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(l10n.ironTracker, style: theme.textTheme.titleLarge),
+                  const SizedBox(height: 8),
+                  Text(
+                    l10n.ironTrackerHint,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  SwitchListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: Text(l10n.ironTracker),
+                    value: appState.ironTrackerEnabled,
+                    activeThumbColor: IronProgressRing.ironRed,
+                    onChanged: appState.setIronTrackerEnabled,
+                  ),
+                  if (appState.ironTrackerEnabled) ...[
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Text(
+                          '${appState.dailyIronGoalMg} mg',
+                          style: theme.textTheme.headlineMedium?.copyWith(
+                            color: IronProgressRing.ironRedComplete,
+                          ),
+                        ),
+                        const Spacer(),
+                        FilledButton.tonal(
+                          onPressed: () => _editIronGoal(context, appState),
+                          style: FilledButton.styleFrom(
+                            minimumSize: const Size(0, 48),
+                            foregroundColor: IronProgressRing.ironRedComplete,
+                          ),
+                          child: Text(l10n.change),
+                        ),
+                      ],
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          // Vitamin B12
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(l10n.b12Reminder, style: theme.textTheme.titleLarge),
+                  const SizedBox(height: 8),
+                  Text(
+                    l10n.b12ReminderHint,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  SwitchListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: Text(l10n.b12Reminder),
+                    value: appState.b12ReminderEnabled,
+                    onChanged: appState.setB12ReminderEnabled,
+                  ),
                 ],
               ),
             ),
@@ -543,6 +623,45 @@ class SettingsScreen extends StatelessWidget {
               final value = int.tryParse(controller.text);
               if (value != null && value > 0) {
                 appState.setDailyWaterGoalMl(value);
+                Navigator.pop(ctx);
+              }
+            },
+            child: Text(l10n.save),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _editIronGoal(BuildContext context, AppState appState) {
+    final l10n = AppLocalizations.of(context);
+    final controller =
+        TextEditingController(text: appState.dailyIronGoalMg.toString());
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.changeIronGoal),
+        content: TextField(
+          controller: controller,
+          keyboardType: TextInputType.number,
+          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+          decoration: InputDecoration(
+            hintText: l10n.mgPerDay,
+            suffixText: 'mg',
+          ),
+          autofocus: true,
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: () {
+              final value = int.tryParse(controller.text);
+              if (value != null && value > 0) {
+                appState.setDailyIronGoalMg(value);
                 Navigator.pop(ctx);
               }
             },

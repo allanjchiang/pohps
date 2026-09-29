@@ -33,6 +33,10 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
   bool _waterTrackerEnabled = false;
   int _dailyWaterGoalMl = 2000;
   bool _moodTrackerEnabled = false;
+  bool _ironTrackerEnabled = false;
+  int _dailyIronGoalMg = 18;
+  bool _b12ReminderEnabled = false;
+  Set<String> _b12TakenDates = {};
   Map<String, double> _proteinOverrides = {};
   DateTime _viewDate = effectiveDate();
   List<LogEntry> _viewLog = [];
@@ -67,6 +71,10 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
   bool get waterTrackerEnabled => _waterTrackerEnabled;
   int get dailyWaterGoalMl => _dailyWaterGoalMl;
   bool get moodTrackerEnabled => _moodTrackerEnabled;
+  bool get ironTrackerEnabled => _ironTrackerEnabled;
+  int get dailyIronGoalMg => _dailyIronGoalMg;
+  bool get b12ReminderEnabled => _b12ReminderEnabled;
+  bool get viewB12Taken => _b12TakenDates.contains(_dateKey(_viewDate));
   Map<String, double> get proteinOverrides =>
       Map.unmodifiable(_proteinOverrides);
   DateTime get viewDate => _viewDate;
@@ -120,6 +128,7 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
         category: food.category,
         proteinGrams: override,
         waterMlPerServing: food.waterMlPerServing,
+        ironMg: food.ironMg,
         servingSize: food.servingSize,
         emoji: food.emoji,
         isCustom: food.isCustom,
@@ -140,6 +149,18 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
   bool get viewGoalReached => _dailyGoal > 0 && viewProtein >= _dailyGoal;
   bool get viewWaterGoalReached =>
       _dailyWaterGoalMl > 0 && viewWaterMl >= _dailyWaterGoalMl;
+  double get viewIronMg =>
+      _viewLog.fold(0.0, (sum, e) => sum + e.totalIronMg);
+  double get viewIronProgressPercent => _dailyIronGoalMg > 0
+      ? (viewIronMg / _dailyIronGoalMg).clamp(0.0, 1.0)
+      : 0.0;
+  bool get viewIronGoalReached =>
+      _dailyIronGoalMg > 0 && viewIronMg >= _dailyIronGoalMg;
+
+  /// Tea or coffee was logged on the viewed day, so an iron absorption tip
+  /// is worth showing.
+  bool get viewHasIronInhibitingDrink =>
+      _viewLog.any((e) => ironInhibitingDrinkIds.contains(e.food.id));
 
   Achievement? get pendingAchievement =>
       _pendingAchievements.isNotEmpty ? _pendingAchievements.first : null;
@@ -148,6 +169,7 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
     await _storage.init();
     _loadFromStorage();
     await _seedPresetCustomFoods();
+    await _backfillCustomFoodIron();
     WidgetsBinding.instance.addObserver(this);
     _scheduleNextReset();
     unawaited(_storage.clearLegacyProState());
@@ -266,6 +288,37 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
     await _storage.saveCustomFoods(_customFoods);
   }
 
+  /// Custom foods built from ingredients before iron tracking existed were
+  /// saved without iron. Iron is derived from the ingredients, so fill it in.
+  Future<void> _backfillCustomFoodIron() async {
+    var changed = false;
+    final foods = _customFoods.map((food) {
+      if (!food.hasComponents || food.ironMg > 0) return food;
+      final iron = computeCustomFoodTotals(
+        food.components!,
+        diet: _dietType,
+        waterTrackerEnabled: true,
+      ).ironMg;
+      if (iron <= 0) return food;
+      changed = true;
+      return FoodItem(
+        id: food.id,
+        name: food.name,
+        category: food.category,
+        proteinGrams: food.proteinGrams,
+        waterMlPerServing: food.waterMlPerServing,
+        ironMg: iron,
+        servingSize: food.servingSize,
+        emoji: food.emoji,
+        isCustom: food.isCustom,
+        components: food.components,
+      );
+    }).toList();
+    if (!changed) return;
+    _customFoods = foods;
+    await _storage.saveCustomFoods(_customFoods);
+  }
+
   void _loadFromStorage() {
     _disclaimerAccepted = _storage.disclaimerAccepted;
     _dailyGoal = _storage.dailyGoal;
@@ -276,6 +329,10 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
     _waterTrackerEnabled = _storage.waterTrackerEnabled;
     _dailyWaterGoalMl = _storage.dailyWaterGoalMl;
     _moodTrackerEnabled = _storage.moodTrackerEnabled;
+    _ironTrackerEnabled = _storage.ironTrackerEnabled;
+    _dailyIronGoalMg = _storage.dailyIronGoalMg;
+    _b12ReminderEnabled = _storage.b12ReminderEnabled;
+    _b12TakenDates = _storage.b12TakenDates;
     _proteinOverrides = _storage.proteinOverrides;
     _customFoods = _storage.customFoods;
     _favoriteFoodIds = _storage.favoriteFoodIds;
@@ -293,6 +350,7 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
     await _storage.importSnapshot(snapshot);
     _pendingAchievements.clear();
     _loadFromStorage();
+    await _backfillCustomFoodIron();
     notifyListeners();
   }
 
@@ -430,6 +488,39 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
     await _storage.setMoodTrackerEnabled(enabled);
     notifyListeners();
   }
+
+  Future<void> setIronTrackerEnabled(bool enabled) async {
+    _ironTrackerEnabled = enabled;
+    await _storage.setIronTrackerEnabled(enabled);
+    notifyListeners();
+  }
+
+  Future<void> setDailyIronGoalMg(int goalMg) async {
+    _dailyIronGoalMg = goalMg;
+    await _storage.setDailyIronGoalMg(goalMg);
+    notifyListeners();
+  }
+
+  Future<void> setB12ReminderEnabled(bool enabled) async {
+    _b12ReminderEnabled = enabled;
+    await _storage.setB12ReminderEnabled(enabled);
+    notifyListeners();
+  }
+
+  Future<void> setViewB12Taken(bool taken) async {
+    final key = _dateKey(_viewDate);
+    _b12TakenDates = {..._b12TakenDates};
+    if (taken) {
+      _b12TakenDates.add(key);
+    } else {
+      _b12TakenDates.remove(key);
+    }
+    await _storage.saveB12TakenDates(_b12TakenDates);
+    notifyListeners();
+  }
+
+  static String _dateKey(DateTime date) =>
+      '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
 
   Future<void> setDailyWaterGoalMl(int goalMl) async {
     _dailyWaterGoalMl = goalMl;
