@@ -33,6 +33,23 @@ class PatchNote {
 /// A version without an entry updates silently.
 const List<PatchNote> patchNotes = [
   PatchNote(
+    version: '1.4.0',
+    items: [
+      PatchNoteItem(
+        emoji: '🦴',
+        en: 'New Calcium Tracker: track calcium from your foods, with tips for dairy-free sources. Turn it on in Settings.',
+        zhTW: '全新鈣質追蹤：追蹤食物中的鈣質，並提供不含乳製品的來源建議。可在設定中開啟。',
+        zhCN: '全新钙质追踪：追踪食物中的钙质，并提供不含乳制品的来源建议。可在设置中开启。',
+      ),
+      PatchNoteItem(
+        emoji: '🥬',
+        en: 'POHPS now welcomes vegans and anyone avoiding dairy. Choose Vegan in Settings to hide eggs and dairy.',
+        zhTW: 'POHPS 現在也適合全素者及不吃乳製品的人。在設定中選擇「全素」即可隱藏蛋類和乳製品。',
+        zhCN: 'POHPS 现在也适合全素者及不吃乳制品的人。在设置中选择“全素”即可隐藏蛋类和乳制品。',
+      ),
+    ],
+  ),
+  PatchNote(
     version: '1.3.0',
     important: true,
     items: [
