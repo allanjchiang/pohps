@@ -392,6 +392,15 @@ const List<FoodItem> defaultFoods = [
     emoji: '🍞',
   ),
   FoodItem(
+    id: 'roti',
+    name: 'Roti',
+    category: categoryGrains,
+    proteinGrams: 3,
+    waterMlPerServing: 12,
+    servingSize: '1 piece (40g)',
+    emoji: '🫓',
+  ),
+  FoodItem(
     id: 'oats',
     name: 'Oats',
     category: categoryGrains,
