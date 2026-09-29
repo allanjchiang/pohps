@@ -102,6 +102,16 @@ class StorageService {
   Future<void> setDailyIronGoalMg(int value) =>
       _prefs.setInt('daily_iron_goal_mg', value);
 
+  bool get calciumTrackerEnabled =>
+      _prefs.getBool('calcium_tracker_enabled') ?? false;
+  Future<void> setCalciumTrackerEnabled(bool value) =>
+      _prefs.setBool('calcium_tracker_enabled', value);
+
+  int get dailyCalciumGoalMg =>
+      _prefs.getInt('daily_calcium_goal_mg') ?? 1000;
+  Future<void> setDailyCalciumGoalMg(int value) =>
+      _prefs.setInt('daily_calcium_goal_mg', value);
+
   bool get b12ReminderEnabled =>
       _prefs.getBool('b12_reminder_enabled') ?? false;
   Future<void> setB12ReminderEnabled(bool value) =>
@@ -243,6 +253,8 @@ class StorageService {
     'daily_water_goal_ml',
     'iron_tracker_enabled',
     'daily_iron_goal_mg',
+    'calcium_tracker_enabled',
+    'daily_calcium_goal_mg',
     'b12_reminder_enabled',
     'b12_taken_dates',
     'protein_overrides',
@@ -273,6 +285,8 @@ class StorageService {
       'moodTrackerEnabled': moodTrackerEnabled,
       'ironTrackerEnabled': ironTrackerEnabled,
       'dailyIronGoalMg': dailyIronGoalMg,
+      'calciumTrackerEnabled': calciumTrackerEnabled,
+      'dailyCalciumGoalMg': dailyCalciumGoalMg,
       'b12ReminderEnabled': b12ReminderEnabled,
       'b12TakenDates': b12TakenDates.toList()..sort(),
       'proteinOverrides': proteinOverrides,
@@ -330,6 +344,12 @@ class StorageService {
 
     await setIronTrackerEnabled(data['ironTrackerEnabled'] as bool? ?? false);
     await setDailyIronGoalMg((data['dailyIronGoalMg'] as num?)?.toInt() ?? 18);
+    await setCalciumTrackerEnabled(
+      data['calciumTrackerEnabled'] as bool? ?? false,
+    );
+    await setDailyCalciumGoalMg(
+      (data['dailyCalciumGoalMg'] as num?)?.toInt() ?? 1000,
+    );
     await setB12ReminderEnabled(data['b12ReminderEnabled'] as bool? ?? false);
     final b12Dates = data['b12TakenDates'];
     if (b12Dates is List) {

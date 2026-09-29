@@ -1,6 +1,6 @@
 # POHPS: Veggie Nutrient Tracker
 
-A lacto-ovo vegetarian nutrient tracking app (protein, water, iron and B12) built with Flutter.
+A nutrient tracking app for vegetarians and vegans (protein, water, iron, calcium and B12) built with Flutter.
 
 ## Features
 

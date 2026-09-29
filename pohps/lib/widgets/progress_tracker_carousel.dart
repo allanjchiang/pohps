@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
 import '../models.dart';
+import 'calcium_progress_ring.dart';
 import 'iron_progress_ring.dart';
 import 'progress_ring.dart';
 import 'water_progress_ring.dart';
 
-enum _TrackerPage { protein, water, iron }
+enum _TrackerPage { protein, water, iron, calcium }
 
-/// Swipe horizontally between protein, water and iron progress rings.
+/// Swipe horizontally between protein, water, iron and calcium progress rings.
 class ProgressTrackerCarousel extends StatefulWidget {
   final double proteinProgress;
   final double proteinCurrent;
@@ -30,6 +31,13 @@ class ProgressTrackerCarousel extends StatefulWidget {
   final bool ironGoalReached;
   final String ironGoalReachedText;
 
+  final bool calciumTrackerEnabled;
+  final double calciumProgress;
+  final double calciumCurrentMg;
+  final int calciumGoalMg;
+  final bool calciumGoalReached;
+  final String calciumGoalReachedText;
+
   const ProgressTrackerCarousel({
     super.key,
     required this.proteinProgress,
@@ -50,6 +58,12 @@ class ProgressTrackerCarousel extends StatefulWidget {
     required this.ironGoalMg,
     required this.ironGoalReached,
     required this.ironGoalReachedText,
+    required this.calciumTrackerEnabled,
+    required this.calciumProgress,
+    required this.calciumCurrentMg,
+    required this.calciumGoalMg,
+    required this.calciumGoalReached,
+    required this.calciumGoalReachedText,
   });
 
   @override
@@ -77,6 +91,7 @@ class _ProgressTrackerCarouselState extends State<ProgressTrackerCarousel> {
       _TrackerPage.protein,
       if (widget.waterTrackerEnabled) _TrackerPage.water,
       if (widget.ironTrackerEnabled) _TrackerPage.iron,
+      if (widget.calciumTrackerEnabled) _TrackerPage.calcium,
     ];
     // A tracker switched off in Settings can leave the index past the end.
     final pageIndex = _page.clamp(0, pages.length - 1);
@@ -97,6 +112,11 @@ class _ProgressTrackerCarouselState extends State<ProgressTrackerCarousel> {
           widget.ironGoalReached,
           widget.ironGoalReachedText,
           IronProgressRing.ironRedComplete,
+        ),
+      _TrackerPage.calcium => (
+          widget.calciumGoalReached,
+          widget.calciumGoalReachedText,
+          CalciumProgressRing.calciumVioletComplete,
         ),
     };
 
@@ -180,12 +200,19 @@ class _ProgressTrackerCarouselState extends State<ProgressTrackerCarousel> {
             goalMg: widget.ironGoalMg,
             size: _ringSize,
           ),
+        _TrackerPage.calcium => CalciumProgressRing(
+            progress: widget.calciumProgress,
+            currentMg: widget.calciumCurrentMg,
+            goalMg: widget.calciumGoalMg,
+            size: _ringSize,
+          ),
       };
 
   Color _dotColor(_TrackerPage page, ThemeData theme) => switch (page) {
         _TrackerPage.protein => theme.colorScheme.primary,
         _TrackerPage.water => const Color(0xFF42A5F5),
         _TrackerPage.iron => IronProgressRing.ironRed,
+        _TrackerPage.calcium => CalciumProgressRing.calciumViolet,
       };
 
   /// Points to the next ring, or back to protein from the last one.
@@ -198,6 +225,7 @@ class _ProgressTrackerCarouselState extends State<ProgressTrackerCarousel> {
     return switch (pages[index + 1]) {
       _TrackerPage.water => l10n.swipeForWater,
       _TrackerPage.iron => l10n.swipeForIron,
+      _TrackerPage.calcium => l10n.swipeForCalcium,
       _TrackerPage.protein => l10n.swipeForProtein,
     };
   }

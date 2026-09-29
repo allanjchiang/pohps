@@ -1,5 +1,5 @@
 name: pohps
-description: "POHPS: Veggie Nutrient Tracker — a lacto-ovo vegetarian nutrient tracking app. Free, open-source, no ads."
+description: "POHPS: Veggie Nutrient Tracker — a nutrient tracking app for vegetarians and vegans. Free, open-source, no ads."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev

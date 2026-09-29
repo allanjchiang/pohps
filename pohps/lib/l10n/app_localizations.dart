@@ -75,9 +75,9 @@ class AppLocalizations {
   // ── Disclaimer Screen ──────────────────────────────────────────────────
 
   String get appSubtitle => _t(
-        'Nutrient Tracker for\nLacto-Ovo Vegetarians',
-        '蛋奶素食者的\n營養追蹤工具',
-        '蛋奶素食者的\n营养追踪工具',
+        'Nutrient Tracker for\nVegetarians & Vegans',
+        '素食者與全素者的\n營養追蹤工具',
+        '素食者与全素者的\n营养追踪工具',
       );
 
   String get importantDisclaimer =>
@@ -195,6 +195,15 @@ class AppLocalizations {
         'Iron goal reached! Great choices!',
         '鐵質目標達成！選得好！',
         '铁质目标达成！选得好！',
+      );
+
+  String get swipeForCalcium =>
+      _t('Swipe for calcium →', '滑動查看鈣質 →', '滑动查看钙质 →');
+
+  String get calciumGoalReachedWellDone => _t(
+        'Calcium goal reached! Strong bones!',
+        '鈣質目標達成！骨骼更強壯！',
+        '钙质目标达成！骨骼更强壮！',
       );
 
   String b12Taken({required bool isToday}) => isToday
@@ -342,6 +351,28 @@ class AppLocalizations {
   String ironOfGoal(int goalMg) =>
       _t('of $goalMg mg', '目標 $goalMg mg', '目标 $goalMg mg');
 
+  String get calciumTracker => _t('Calcium Tracker', '鈣質追蹤', '钙质追踪');
+
+  String get calciumTrackerHint => _t(
+        'Track calcium from foods. Most adults need about 1,000 mg a day, or 1,200 mg for women over 50 and everyone over 70. Without dairy, good sources are calcium-set tofu, fortified plant milks, and greens like bok choy and kale. Values here assume fortified plant milks and calcium-set tofu, so check your labels. Ask your doctor what goal suits you.',
+        '追蹤食物中的鈣質。多數成人每日約需 1,000 mg，50 歲以上女性及 70 歲以上者約需 1,200 mg。不吃乳製品時，良好來源包括以鈣凝固的豆腐、鈣強化植物奶，以及青江菜、羽衣甘藍等蔬菜。此處數值以鈣強化植物奶與鈣凝固豆腐計算，請參考產品標示。請諮詢醫師適合您的目標。',
+        '追踪食物中的钙质。多数成人每日约需 1,000 mg，50 岁以上女性及 70 岁以上者约需 1,200 mg。不吃乳制品时，良好来源包括以钙凝固的豆腐、钙强化植物奶，以及青菜、羽衣甘蓝等蔬菜。此处数值以钙强化植物奶与钙凝固豆腐计算，请参考产品标签。请咨询医生适合您的目标。',
+      );
+
+  String get changeCalciumGoal =>
+      _t('Change Calcium Goal', '更改鈣質目標', '更改钙质目标');
+
+  String formatCalciumMg(double mg) => '${mg.round()} mg';
+
+  String calciumAmountLabel(double mg) => _t(
+        '${formatCalciumMg(mg)} calcium',
+        '鈣質 ${formatCalciumMg(mg)}',
+        '钙质 ${formatCalciumMg(mg)}',
+      );
+
+  String calciumOfGoal(int goalMg) =>
+      _t('of $goalMg mg', '目標 $goalMg mg', '目标 $goalMg mg');
+
   String get b12Reminder =>
       _t('Vitamin B12 Check-off', '維生素 B12 打卡', '维生素 B12 打卡');
 
@@ -417,9 +448,9 @@ class AppLocalizations {
       _t('Allium Vegetarian', '五辛素', '五辛素');
   String get dietAlliumVegan => _t('Allium Vegan', '五辛全素', '五辛全素');
   String get dietHint => _t(
-        'Vegan and Allium Vegan hide eggs and dairy. Lacto-Ovo and Allium Vegetarian include them. Allium diets add onions, garlic, leeks, shallots, chives, and spring onions.',
-        '全素與五辛全素會隱藏蛋類和乳製品；蛋奶素與五辛素則包含。五辛飲食會新增洋蔥、大蒜、韭蔥、紅蔥頭、細香蔥與青蔥。',
-        '全素与五辛全素会隐藏蛋类和乳制品；蛋奶素与五辛素则包含。五辛饮食会新增洋葱、大蒜、韭葱、红葱头、细香葱与青葱。',
+        'Vegan and Allium Vegan hide eggs and dairy, so they also suit anyone avoiding dairy, such as people with lactose intolerance. Lacto-Ovo and Allium Vegetarian include them. Allium diets add onions, garlic, leeks, shallots, chives, and spring onions.',
+        '全素與五辛全素會隱藏蛋類和乳製品，因此也適合不吃乳製品的人，例如乳糖不耐者；蛋奶素與五辛素則包含。五辛飲食會新增洋蔥、大蒜、韭蔥、紅蔥頭、細香蔥與青蔥。',
+        '全素与五辛全素会隐藏蛋类和乳制品，因此也适合不吃乳制品的人，例如乳糖不耐者；蛋奶素与五辛素则包含。五辛饮食会新增洋葱、大蒜、韭葱、红葱头、细香葱与青葱。',
       );
 
   String get language => _t('Language', '語言', '语言');
@@ -482,9 +513,9 @@ class AppLocalizations {
   String get aboutPohps => _t('About POHPS', '關於 POHPS', '关于 POHPS');
 
   String get aboutDescription => _t(
-        'A free nutrient tracking app designed for lacto-ovo vegetarians.',
-        '一款免費的營養追蹤應用程式，專為蛋奶素食者設計。',
-        '一款免费的营养追踪应用，专为蛋奶素食者设计。',
+        'A free nutrient tracking app designed for vegetarians and vegans.',
+        '一款免費的營養追蹤應用程式，專為素食者與全素者設計。',
+        '一款免费的营养追踪应用，专为素食者与全素者设计。',
       );
 
   String get aboutBullets => _t(
@@ -578,6 +609,11 @@ class AppLocalizations {
       _t('Iron (optional)', '鐵質（選填）', '铁质（选填）');
 
   String get egIron => _t('e.g. 2.5', '例如 2.5', '例如 2.5');
+
+  String get calciumOptional =>
+      _t('Calcium (optional)', '鈣質（選填）', '钙质（选填）');
+
+  String get egCalcium => _t('e.g. 150', '例如 150', '例如 150');
   String get servingSizeLabel => _t('Serving Size', '份量大小', '份量大小');
 
   String get egServingSize =>

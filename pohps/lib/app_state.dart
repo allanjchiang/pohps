@@ -35,6 +35,8 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
   bool _moodTrackerEnabled = false;
   bool _ironTrackerEnabled = false;
   int _dailyIronGoalMg = 18;
+  bool _calciumTrackerEnabled = false;
+  int _dailyCalciumGoalMg = 1000;
   bool _b12ReminderEnabled = false;
   Set<String> _b12TakenDates = {};
   Map<String, double> _proteinOverrides = {};
@@ -73,6 +75,8 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
   bool get moodTrackerEnabled => _moodTrackerEnabled;
   bool get ironTrackerEnabled => _ironTrackerEnabled;
   int get dailyIronGoalMg => _dailyIronGoalMg;
+  bool get calciumTrackerEnabled => _calciumTrackerEnabled;
+  int get dailyCalciumGoalMg => _dailyCalciumGoalMg;
   bool get b12ReminderEnabled => _b12ReminderEnabled;
   bool get viewB12Taken => _b12TakenDates.contains(_dateKey(_viewDate));
   Map<String, double> get proteinOverrides =>
@@ -129,6 +133,7 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
         proteinGrams: override,
         waterMlPerServing: food.waterMlPerServing,
         ironMg: food.ironMg,
+        calciumMg: food.calciumMg,
         servingSize: food.servingSize,
         emoji: food.emoji,
         isCustom: food.isCustom,
@@ -156,6 +161,13 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
       : 0.0;
   bool get viewIronGoalReached =>
       _dailyIronGoalMg > 0 && viewIronMg >= _dailyIronGoalMg;
+  double get viewCalciumMg =>
+      _viewLog.fold(0.0, (sum, e) => sum + e.totalCalciumMg);
+  double get viewCalciumProgressPercent => _dailyCalciumGoalMg > 0
+      ? (viewCalciumMg / _dailyCalciumGoalMg).clamp(0.0, 1.0)
+      : 0.0;
+  bool get viewCalciumGoalReached =>
+      _dailyCalciumGoalMg > 0 && viewCalciumMg >= _dailyCalciumGoalMg;
 
   /// Tea or coffee was logged on the viewed day, so an iron absorption tip
   /// is worth showing.
@@ -169,7 +181,7 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
     await _storage.init();
     _loadFromStorage();
     await _seedPresetCustomFoods();
-    await _backfillCustomFoodIron();
+    await _backfillCustomFoodMinerals();
     WidgetsBinding.instance.addObserver(this);
     _scheduleNextReset();
     unawaited(_storage.clearLegacyProState());
@@ -288,18 +300,23 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
     await _storage.saveCustomFoods(_customFoods);
   }
 
-  /// Custom foods built from ingredients before iron tracking existed were
-  /// saved without iron. Iron is derived from the ingredients, so fill it in.
-  Future<void> _backfillCustomFoodIron() async {
+  /// Custom foods built from ingredients before iron or calcium tracking
+  /// existed were saved without them. Both are derived from the ingredients,
+  /// so fill in whichever is missing.
+  Future<void> _backfillCustomFoodMinerals() async {
     var changed = false;
     final foods = _customFoods.map((food) {
-      if (!food.hasComponents || food.ironMg > 0) return food;
-      final iron = computeCustomFoodTotals(
+      if (!food.hasComponents || (food.ironMg > 0 && food.calciumMg > 0)) {
+        return food;
+      }
+      final totals = computeCustomFoodTotals(
         food.components!,
         diet: _dietType,
         waterTrackerEnabled: true,
-      ).ironMg;
-      if (iron <= 0) return food;
+      );
+      final iron = food.ironMg > 0 ? food.ironMg : totals.ironMg;
+      final calcium = food.calciumMg > 0 ? food.calciumMg : totals.calciumMg;
+      if (iron == food.ironMg && calcium == food.calciumMg) return food;
       changed = true;
       return FoodItem(
         id: food.id,
@@ -308,6 +325,7 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
         proteinGrams: food.proteinGrams,
         waterMlPerServing: food.waterMlPerServing,
         ironMg: iron,
+        calciumMg: calcium,
         servingSize: food.servingSize,
         emoji: food.emoji,
         isCustom: food.isCustom,
@@ -331,6 +349,8 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
     _moodTrackerEnabled = _storage.moodTrackerEnabled;
     _ironTrackerEnabled = _storage.ironTrackerEnabled;
     _dailyIronGoalMg = _storage.dailyIronGoalMg;
+    _calciumTrackerEnabled = _storage.calciumTrackerEnabled;
+    _dailyCalciumGoalMg = _storage.dailyCalciumGoalMg;
     _b12ReminderEnabled = _storage.b12ReminderEnabled;
     _b12TakenDates = _storage.b12TakenDates;
     _proteinOverrides = _storage.proteinOverrides;
@@ -350,7 +370,7 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
     await _storage.importSnapshot(snapshot);
     _pendingAchievements.clear();
     _loadFromStorage();
-    await _backfillCustomFoodIron();
+    await _backfillCustomFoodMinerals();
     notifyListeners();
   }
 
@@ -498,6 +518,18 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
   Future<void> setDailyIronGoalMg(int goalMg) async {
     _dailyIronGoalMg = goalMg;
     await _storage.setDailyIronGoalMg(goalMg);
+    notifyListeners();
+  }
+
+  Future<void> setCalciumTrackerEnabled(bool enabled) async {
+    _calciumTrackerEnabled = enabled;
+    await _storage.setCalciumTrackerEnabled(enabled);
+    notifyListeners();
+  }
+
+  Future<void> setDailyCalciumGoalMg(int goalMg) async {
+    _dailyCalciumGoalMg = goalMg;
+    await _storage.setDailyCalciumGoalMg(goalMg);
     notifyListeners();
   }
 

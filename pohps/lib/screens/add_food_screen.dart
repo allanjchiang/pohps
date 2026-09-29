@@ -6,6 +6,7 @@ import '../models.dart';
 import '../food_data.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/food_reorder_list.dart';
+import '../widgets/calcium_progress_ring.dart';
 import '../widgets/iron_progress_ring.dart';
 import 'custom_food_screen.dart';
 
@@ -672,6 +673,8 @@ class _FoodCardState extends State<_FoodCard> {
                           widget.food.waterMlPerServing > 0;
                       final showIron = appState.ironTrackerEnabled &&
                           widget.food.ironMg > 0;
+                      final showCalcium = appState.calciumTrackerEnabled &&
+                          widget.food.calciumMg > 0;
 
                       return FittedBox(
                         fit: BoxFit.scaleDown,
@@ -736,6 +739,24 @@ class _FoodCardState extends State<_FoodCard> {
                                   l10n.ironAmountLabel(widget.food.ironMg),
                                   style: theme.textTheme.bodySmall?.copyWith(
                                     color: IronProgressRing.ironRedComplete,
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 11,
+                                    height: 1.15,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                              if (showCalcium) ...[
+                                const SizedBox(height: 1),
+                                Text(
+                                  l10n.calciumAmountLabel(
+                                    widget.food.calciumMg,
+                                  ),
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    color: CalciumProgressRing
+                                        .calciumVioletComplete,
                                     fontWeight: FontWeight.w600,
                                     fontSize: 11,
                                     height: 1.15,

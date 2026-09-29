@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../app_state.dart';
 import '../l10n/app_localizations.dart';
 import '../models.dart';
+import '../widgets/calcium_progress_ring.dart';
 import '../widgets/iron_progress_ring.dart';
 import '../widgets/progress_tracker_carousel.dart';
 import '../widgets/swipeable_date_title.dart';
@@ -401,6 +402,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
+              if (appState.calciumTrackerEnabled && entry.totalCalciumMg > 0)
+                TextSpan(
+                  text: '\n${l10n.calciumAmountLabel(entry.totalCalciumMg)}',
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: CalciumProgressRing.calciumVioletComplete,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
             ],
           ),
           textAlign: TextAlign.end,
@@ -630,6 +639,12 @@ class _CollapsibleProgressSection extends StatelessWidget {
                   ironGoalMg: appState.dailyIronGoalMg,
                   ironGoalReached: appState.viewIronGoalReached,
                   ironGoalReachedText: l10n.ironGoalReachedWellDone,
+                  calciumTrackerEnabled: appState.calciumTrackerEnabled,
+                  calciumProgress: appState.viewCalciumProgressPercent,
+                  calciumCurrentMg: appState.viewCalciumMg,
+                  calciumGoalMg: appState.dailyCalciumGoalMg,
+                  calciumGoalReached: appState.viewCalciumGoalReached,
+                  calciumGoalReachedText: l10n.calciumGoalReachedWellDone,
                 ),
                 if (appState.b12ReminderEnabled)
                   Padding(
