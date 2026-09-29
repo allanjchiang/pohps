@@ -75,9 +75,9 @@ class AppLocalizations {
   // ── Disclaimer Screen ──────────────────────────────────────────────────
 
   String get appSubtitle => _t(
-        'Protein Tracker for\nLacto-Ovo Vegetarians',
-        '蛋奶素食者的\n蛋白質追蹤工具',
-        '蛋奶素食者的\n蛋白质追踪工具',
+        'Nutrient Tracker for\nLacto-Ovo Vegetarians',
+        '蛋奶素食者的\n營養追蹤工具',
+        '蛋奶素食者的\n营养追踪工具',
       );
 
   String get importantDisclaimer =>
@@ -482,9 +482,9 @@ class AppLocalizations {
   String get aboutPohps => _t('About POHPS', '關於 POHPS', '关于 POHPS');
 
   String get aboutDescription => _t(
-        'A free protein tracking app designed for lacto-ovo vegetarians.',
-        '一款免費的蛋白質追蹤應用程式，專為蛋奶素食者設計。',
-        '一款免费的蛋白质追踪应用，专为蛋奶素食者设计。',
+        'A free nutrient tracking app designed for lacto-ovo vegetarians.',
+        '一款免費的營養追蹤應用程式，專為蛋奶素食者設計。',
+        '一款免费的营养追踪应用，专为蛋奶素食者设计。',
       );
 
   String get aboutBullets => _t(
