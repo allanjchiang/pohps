@@ -1,4 +1,4 @@
-# POHPS: Veggie Nutrient Tracker
+# POHPS: Vegetarian Protein
 
 ![POHPS feature graphic](pohps/docs/pohps-feature-graphic.jpg)
 
