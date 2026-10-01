@@ -162,6 +162,8 @@ class AppLocalizations {
 
   String get startTracking => _t('Start Tracking', '開始追蹤', '开始追踪');
 
+  String get alsoTrack => _t('Also track', '同時追蹤', '同时追踪');
+
   String get invalidGoalMessage => _t(
         'Please enter a valid protein goal in grams.',
         '請輸入有效的蛋白質目標（公克）。',

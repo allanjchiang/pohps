@@ -13,6 +13,10 @@ class GoalSetupScreen extends StatefulWidget {
 
 class _GoalSetupScreenState extends State<GoalSetupScreen> {
   final _controller = TextEditingController();
+  bool _water = true;
+  bool _iron = true;
+  bool _calcium = true;
+  bool _b12 = true;
 
   @override
   void dispose() {
@@ -68,11 +72,37 @@ class _GoalSetupScreenState extends State<GoalSetupScreen> {
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
               ),
-              const SizedBox(height: 36),
-              FilledButton(
-                onPressed: _submit,
-                child: Text(l10n.startTracking),
+              const SizedBox(height: 32),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(l10n.alsoTrack, style: theme.textTheme.titleMedium),
               ),
+              CheckboxListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(l10n.waterTracker),
+                value: _water,
+                onChanged: (v) => setState(() => _water = v ?? false),
+              ),
+              CheckboxListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(l10n.ironTracker),
+                value: _iron,
+                onChanged: (v) => setState(() => _iron = v ?? false),
+              ),
+              CheckboxListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(l10n.calciumTracker),
+                value: _calcium,
+                onChanged: (v) => setState(() => _calcium = v ?? false),
+              ),
+              CheckboxListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(l10n.b12Reminder),
+                value: _b12,
+                onChanged: (v) => setState(() => _b12 = v ?? false),
+              ),
+              const SizedBox(height: 24),
+              FilledButton(onPressed: _submit, child: Text(l10n.startTracking)),
             ],
           ),
         ),
@@ -80,7 +110,7 @@ class _GoalSetupScreenState extends State<GoalSetupScreen> {
     );
   }
 
-  void _submit() {
+  Future<void> _submit() async {
     final value = int.tryParse(_controller.text);
     if (value == null || value <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -90,6 +120,13 @@ class _GoalSetupScreenState extends State<GoalSetupScreen> {
       );
       return;
     }
-    context.read<AppState>().setDailyGoal(value);
+    final appState = context.read<AppState>();
+    // Save trackers before the goal: setting the goal swaps this screen for
+    // the dashboard.
+    await appState.setWaterTrackerEnabled(_water);
+    await appState.setIronTrackerEnabled(_iron);
+    await appState.setCalciumTrackerEnabled(_calcium);
+    await appState.setB12ReminderEnabled(_b12);
+    await appState.setDailyGoal(value);
   }
 }
