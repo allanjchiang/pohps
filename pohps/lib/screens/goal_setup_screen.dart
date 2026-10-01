@@ -17,6 +17,7 @@ class _GoalSetupScreenState extends State<GoalSetupScreen> {
   bool _iron = true;
   bool _calcium = true;
   bool _b12 = true;
+  bool _mood = true;
 
   @override
   void dispose() {
@@ -101,6 +102,12 @@ class _GoalSetupScreenState extends State<GoalSetupScreen> {
                 value: _b12,
                 onChanged: (v) => setState(() => _b12 = v ?? false),
               ),
+              CheckboxListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(l10n.moodTracker),
+                value: _mood,
+                onChanged: (v) => setState(() => _mood = v ?? false),
+              ),
               const SizedBox(height: 24),
               FilledButton(onPressed: _submit, child: Text(l10n.startTracking)),
             ],
@@ -127,6 +134,7 @@ class _GoalSetupScreenState extends State<GoalSetupScreen> {
     await appState.setIronTrackerEnabled(_iron);
     await appState.setCalciumTrackerEnabled(_calcium);
     await appState.setB12ReminderEnabled(_b12);
+    await appState.setMoodTrackerEnabled(_mood);
     await appState.setDailyGoal(value);
   }
 }

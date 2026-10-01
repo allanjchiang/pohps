@@ -251,6 +251,7 @@ class StorageService {
     'diet_type',
     'water_tracker_enabled',
     'daily_water_goal_ml',
+    'mood_tracker_enabled',
     'iron_tracker_enabled',
     'daily_iron_goal_mg',
     'calcium_tracker_enabled',
@@ -262,6 +263,23 @@ class StorageService {
     'unlocked_achievements',
     'favorite_food_ids',
   };
+
+  /// Snapshot keys for preferences (not user data) that an import should
+  /// leave unchanged when the backup predates them.
+  static const _settingKeys = [
+    'locale',
+    'themeMode',
+    'measurementSystem',
+    'dietType',
+    'waterTrackerEnabled',
+    'dailyWaterGoalMl',
+    'moodTrackerEnabled',
+    'ironTrackerEnabled',
+    'dailyIronGoalMg',
+    'calciumTrackerEnabled',
+    'dailyCalciumGoalMg',
+    'b12ReminderEnabled',
+  ];
 
   Map<String, dynamic> exportSnapshot() {
     final dailyLogs = <String, dynamic>{};
@@ -298,6 +316,15 @@ class StorageService {
   }
 
   Future<void> importSnapshot(Map<String, dynamic> data) async {
+    // Settings missing from older backups keep their current values instead
+    // of being reset to defaults.
+    final current = exportSnapshot();
+    data = {
+      for (final key in _settingKeys)
+        if (current.containsKey(key)) key: current[key],
+      ...data,
+    };
+
     for (final key in List<String>.from(_prefs.getKeys())) {
       if (key.startsWith('log_') || _managedKeys.contains(key)) {
         await _prefs.remove(key);
