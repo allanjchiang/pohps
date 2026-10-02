@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 
 /// Optional one-time donations. Nothing is unlocked by a donation — the
@@ -33,12 +34,30 @@ class DonationService {
   Future<List<ProductDetails>> queryProducts() async {
     try {
       final iap = _iap;
-      if (iap == null || !await iap.isAvailable()) return [];
+      if (iap == null) {
+        debugPrint('Donations: no store plugin on this platform');
+        return [];
+      }
+      if (!await iap.isAvailable()) {
+        debugPrint('Donations: store unavailable (billing not connected)');
+        return [];
+      }
       final response = await iap.queryProductDetails(productIds.toSet());
+      // Logged in release builds too (logcat tag "flutter"), so a Play-
+      // installed build can show why the donation card is hidden.
+      if (response.error != null) {
+        debugPrint('Donations: query error ${response.error}');
+      }
+      if (response.notFoundIDs.isNotEmpty) {
+        debugPrint('Donations: products not found ${response.notFoundIDs}');
+      }
+      debugPrint('Donations: loaded '
+          '${response.productDetails.map((p) => p.id).toList()}');
       return response.productDetails.toList()
         ..sort((a, b) =>
             productIds.indexOf(a.id).compareTo(productIds.indexOf(b.id)));
-    } catch (_) {
+    } catch (e) {
+      debugPrint('Donations: query failed $e');
       return [];
     }
   }
