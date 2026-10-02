@@ -6,6 +6,7 @@ import '../data/nutrient_limits.dart';
 import '../l10n/app_localizations.dart';
 import '../models.dart';
 import '../services/backup_service.dart';
+import 'custom_food_screen.dart';
 import '../widgets/donation_tiers.dart';
 import '../widgets/calcium_progress_ring.dart';
 import '../widgets/iron_progress_ring.dart';
@@ -486,7 +487,7 @@ class SettingsScreen extends StatelessWidget {
                                 color: theme.colorScheme.error),
                             iconSize: 26,
                             onPressed: () =>
-                                _confirmDelete(context, appState, food),
+                                confirmDeleteCustomFood(context, food),
                           ),
                         )),
                   ],
@@ -837,31 +838,4 @@ class SettingsScreen extends StatelessWidget {
     }
   }
 
-  void _confirmDelete(
-      BuildContext context, AppState appState, FoodItem food) {
-    final l10n = AppLocalizations.of(context);
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(l10n.deleteCustomFoodTitle),
-        content: Text(l10n.deleteConfirm(food.name)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text(l10n.cancel),
-          ),
-          FilledButton(
-            style: FilledButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.error,
-            ),
-            onPressed: () {
-              appState.removeCustomFood(food.id);
-              Navigator.pop(ctx);
-            },
-            child: Text(l10n.delete),
-          ),
-        ],
-      ),
-    );
-  }
 }

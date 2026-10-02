@@ -70,7 +70,12 @@ class DonationService {
     required void Function(Object error) onError,
   }) {
     _subscription?.cancel();
-    _subscription = _iap?.purchaseStream.listen(onUpdate, onError: onError);
+    try {
+      _subscription = _iap?.purchaseStream.listen(onUpdate, onError: onError);
+    } catch (_) {
+      // No store on this platform (e.g. desktop): nothing to listen to.
+      _subscription = null;
+    }
   }
 
   Future<bool> donate(ProductDetails product) async {

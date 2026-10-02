@@ -649,6 +649,26 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
     notifyListeners();
   }
 
+  /// Puts back a food removed by [removeCustomFood], in its old place, for
+  /// the undo action after deleting.
+  Future<void> restoreCustomFood(
+    FoodItem food, {
+    required int index,
+    required int favoriteIndex,
+  }) async {
+    if (_customFoods.any((f) => f.id == food.id)) return;
+    _customFoods.insert(index.clamp(0, _customFoods.length), food);
+    await _storage.saveCustomFoods(_customFoods);
+    if (favoriteIndex >= 0 && !_favoriteFoodIds.contains(food.id)) {
+      _favoriteFoodIds.insert(
+        favoriteIndex.clamp(0, _favoriteFoodIds.length),
+        food.id,
+      );
+      await _storage.saveFavoriteFoodIds(_favoriteFoodIds);
+    }
+    notifyListeners();
+  }
+
   Future<void> toggleFavorite(String foodId) async {
     if (_favoriteFoodIds.contains(foodId)) {
       _favoriteFoodIds.remove(foodId);

@@ -516,8 +516,7 @@ class _AddFoodPanelState extends State<_AddFoodPanel> {
                     return _FoodCard(
                       food: food,
                       onTap: () => appState.addFood(food),
-                      onEdit: food.isCustom &&
-                              appState.isProteinEditableFood(food)
+                      onEdit: food.isCustom
                           ? () => _editCustomFood(food)
                           : null,
                     );

@@ -10,6 +10,58 @@ import '../widgets/ingredient_picker_sheet.dart';
 import '../widgets/calcium_progress_ring.dart';
 import '../widgets/iron_progress_ring.dart';
 
+/// Asks before deleting a custom food, then offers undo in a snackbar.
+/// Returns whether it was deleted. Logged entries keep their own copy of the
+/// food, so past days are unaffected.
+Future<bool> confirmDeleteCustomFood(BuildContext context, FoodItem food) async {
+  final l10n = AppLocalizations.of(context);
+  final appState = context.read<AppState>();
+  final messenger = ScaffoldMessenger.of(context);
+  final name = l10n.foodDisplayName(food.id, food.name);
+  final confirmed = await showDialog<bool>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      title: Text(l10n.deleteCustomFoodTitle),
+      content: Text(l10n.deleteConfirm(name)),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(ctx, false),
+          child: Text(l10n.cancel),
+        ),
+        FilledButton(
+          style: FilledButton.styleFrom(
+            backgroundColor: Theme.of(ctx).colorScheme.error,
+          ),
+          onPressed: () => Navigator.pop(ctx, true),
+          child: Text(l10n.delete),
+        ),
+      ],
+    ),
+  );
+  if (confirmed != true) return false;
+
+  final index = appState.customFoods.indexWhere((f) => f.id == food.id);
+  final favoriteIndex = appState.favoriteFoodIds.indexOf(food.id);
+  final saved = index >= 0 ? appState.customFoods[index] : food;
+  await appState.removeCustomFood(food.id);
+  messenger.showSnackBar(
+    SnackBar(
+      content: Text(l10n.foodDeleted(name),
+          style: const TextStyle(fontSize: 16)),
+      behavior: SnackBarBehavior.floating,
+      action: SnackBarAction(
+        label: l10n.undo,
+        onPressed: () => appState.restoreCustomFood(
+          saved,
+          index: index,
+          favoriteIndex: favoriteIndex,
+        ),
+      ),
+    ),
+  );
+  return true;
+}
+
 class CustomFoodScreen extends StatefulWidget {
   final FoodItem? existingFood;
 
@@ -148,6 +200,12 @@ class _CustomFoodScreenState extends State<CustomFoodScreen> {
         appBar: AppBar(
           title: Text(_isEditing ? l10n.editCustomFood : l10n.createCustomFood),
           actions: [
+            if (_isEditing)
+              IconButton(
+                tooltip: l10n.deleteFood,
+                icon: const Icon(Icons.delete_outline),
+                onPressed: _delete,
+              ),
             TextButton(onPressed: _save, child: Text(l10n.save)),
             const SizedBox(width: 8),
           ],
@@ -400,12 +458,30 @@ class _CustomFoodScreenState extends State<CustomFoodScreen> {
                 onPressed: _save,
                 child: Text(l10n.saveFood),
               ),
+              if (_isEditing) ...[
+                const SizedBox(height: 12),
+                OutlinedButton.icon(
+                  onPressed: _delete,
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: theme.colorScheme.error,
+                    side: BorderSide(color: theme.colorScheme.error),
+                  ),
+                  icon: const Icon(Icons.delete_outline),
+                  label: Text(l10n.deleteFood),
+                ),
+              ],
               const SizedBox(height: 24),
             ],
           ),
         ),
       ),
     );
+  }
+
+  Future<void> _delete() async {
+    final deleted =
+        await confirmDeleteCustomFood(context, widget.existingFood!);
+    if (deleted && mounted) Navigator.pop(context, true);
   }
 
   /// Back was pressed with unsaved changes: save, discard, or stay.

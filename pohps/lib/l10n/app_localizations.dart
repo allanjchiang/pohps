@@ -716,6 +716,13 @@ class AppLocalizations {
   String foodCreated(String name) =>
       _t('$name has been created!', '$name 已建立！', '$name 已创建！');
 
+  String get deleteFood => _t('Delete food', '刪除食物', '删除食物');
+
+  String foodDeleted(String name) =>
+      _t('$name deleted', '已刪除 $name', '已删除 $name');
+
+  String get undo => _t('Undo', '復原', '撤销');
+
   String foodUpdated(String name) =>
       _t('$name has been updated!', '$name 已更新！', '$name 已更新！');
 
