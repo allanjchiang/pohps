@@ -11,6 +11,12 @@ const String categoryFruits = 'Fruits';
 const String categoryNutsSeeds = 'Nuts & Seeds';
 const String categoryOther = 'Other';
 
+/// Custom iron/calcium supplements. Not in [categories]: supplements aren't
+/// foods, so they're never offered as ingredients or as a food category.
+const String categorySupplements = 'Supplements';
+
+bool isSupplement(FoodItem food) => food.category == categorySupplements;
+
 const List<String> categories = [
   categoryDairyEggs,
   categoryProteinBoosters,

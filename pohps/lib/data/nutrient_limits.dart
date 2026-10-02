@@ -7,6 +7,12 @@ import 'package:flutter/material.dart';
 const int ironUpperLimitMg = 45;
 const int calciumUpperLimitMg = 2000;
 
+/// Per-tablet amounts above these are almost certainly the weight of the
+/// whole compound (e.g. 61 mg ferrous fumarate) rather than the iron or
+/// calcium in it (20 mg iron), so the supplement form double-checks them.
+const double maxPlausibleIronPerTabletMg = 65;
+const double maxPlausibleCalciumPerTabletMg = 1000;
+
 /// Warning colours for a ring whose intake is above the upper limit.
 const Color overLimitAmber = Color(0xFFE69500);
 const Color overLimitAmberDark = Color(0xFF9A5B00);

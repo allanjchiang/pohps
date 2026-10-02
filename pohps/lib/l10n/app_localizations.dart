@@ -45,6 +45,17 @@ class AppLocalizations {
 
   String get cancel => _t('Cancel', '取消', '取消');
   String get save => _t('Save', '儲存', '保存');
+  String get discard => _t('Discard', '捨棄', '放弃');
+  String get keepEditing => _t('Keep editing', '繼續編輯', '继续编辑');
+
+  String get unsavedFoodTitle =>
+      _t('Save this food?', '要儲存這個食物嗎？', '要保存这个食物吗？');
+
+  String get unsavedFoodBody => _t(
+        "You haven't saved your changes yet. If you leave now, they'll be lost.",
+        '您尚未儲存變更。現在離開將會遺失這些變更。',
+        '您尚未保存更改。现在离开将会丢失这些更改。',
+      );
   String get delete => _t('Delete', '刪除', '删除');
   String get goBack => _t('Go Back', '返回', '返回');
   String get reset => _t('Reset', '重設', '重置');
@@ -378,6 +389,55 @@ class AppLocalizations {
       );
 
   String get saveAnyway => _t('Save anyway', '仍要儲存', '仍要保存');
+
+  // ── Supplements ────────────────────────────────────────────────────────
+
+  String get foodKind => _t('Food', '食物', '食物');
+  String get supplementKind => _t('Supplement', '補充劑', '补充剂');
+
+  String get egSupplementServing =>
+      _t('e.g. 1 tablet', '例如：1 錠', '例如：1 片');
+
+  String get ironPerServing =>
+      _t('Iron per serving', '每份鐵質', '每份铁质');
+  String get calciumPerServing =>
+      _t('Calcium per serving', '每份鈣質', '每份钙质');
+
+  String get supplementLabelHint => _t(
+        'Enter the iron or calcium itself, not the weight of the compound it comes in. For example, "ferrous fumarate 61 mg (equiv. iron 20 mg)" → enter 20, and "calcium carbonate 1,250 mg (500 mg calcium)" → enter 500.',
+        '請輸入鐵或鈣本身的含量，而不是化合物的重量。例如「富馬酸亞鐵 61 mg（相當於鐵 20 mg）」請輸入 20；「碳酸鈣 1,250 mg（鈣 500 mg）」請輸入 500。',
+        '请输入铁或钙本身的含量，而不是化合物的重量。例如“富马酸亚铁 61 mg（相当于铁 20 mg）”请输入 20；“碳酸钙 1,250 mg（钙 500 mg）”请输入 500。',
+      );
+
+  String get enterSupplementAmount => _t(
+        'Please enter the iron or calcium per serving.',
+        '請輸入每份的鐵質或鈣質含量。',
+        '请输入每份的铁质或钙质含量。',
+      );
+
+  String get compoundWeightTitle =>
+      _t('Is this the compound weight?', '這是化合物的重量嗎？', '这是化合物的重量吗？');
+
+  String ironCompoundWeightCheck(double mg) => _t(
+        '${formatIronMg(mg)} of iron per serving is unusually high. Labels often list the compound first (e.g. ferrous fumarate 61 mg) and the actual iron separately (equiv. iron 20 mg). Use the iron figure.',
+        '每份 ${formatIronMg(mg)} 鐵質異常地高。標示常先列出化合物（例如富馬酸亞鐵 61 mg），再另外列出實際鐵含量（相當於鐵 20 mg）。請使用鐵含量。',
+        '每份 ${formatIronMg(mg)} 铁质异常地高。标签常先列出化合物（例如富马酸亚铁 61 mg），再另外列出实际铁含量（相当于铁 20 mg）。请使用铁含量。',
+      );
+
+  String calciumCompoundWeightCheck(double mg) => _t(
+        '${formatCalciumMg(mg)} of calcium per serving is unusually high. Labels often list the compound first (e.g. calcium carbonate 1,250 mg) and the actual calcium separately (500 mg calcium). Use the calcium figure.',
+        '每份 ${formatCalciumMg(mg)} 鈣質異常地高。標示常先列出化合物（例如碳酸鈣 1,250 mg），再另外列出實際鈣含量（鈣 500 mg）。請使用鈣含量。',
+        '每份 ${formatCalciumMg(mg)} 钙质异常地高。标签常先列出化合物（例如碳酸钙 1,250 mg），再另外列出实际钙含量（钙 500 mg）。请使用钙含量。',
+      );
+
+  String get changeIt => _t('Change it', '修改', '修改');
+  String get itsCorrect => _t("It's correct", '數值正確', '数值正确');
+
+  /// One-line amount for a supplement, in place of grams of protein.
+  String supplementSummary(FoodItem food) => [
+        if (food.ironMg > 0) ironAmountLabel(food.ironMg),
+        if (food.calciumMg > 0) calciumAmountLabel(food.calciumMg),
+      ].join(' · ');
 
   String get changeCalciumGoal =>
       _t('Change Calcium Goal', '更改鈣質目標', '更改钙质目标');
@@ -728,6 +788,7 @@ class AppLocalizations {
       'Fruits' => _t('Fruits', '水果', '水果'),
       'Nuts & Seeds' => _t('Nuts & Seeds', '堅果與種子', '坚果与种子'),
       'Other' => _t('Other', '其他', '其他'),
+      'Supplements' => _t('Supplements', '補充劑', '补充剂'),
       _ => category,
     };
   }

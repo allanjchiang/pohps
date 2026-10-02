@@ -257,6 +257,7 @@ class _AddFoodPanelState extends State<_AddFoodPanel> {
       'Favorites',
       'All',
       ...categoriesForPicker(waterTrackerEnabled: appState.waterTrackerEnabled),
+      if (appState.customFoods.any(isSupplement)) categorySupplements,
       if (appState.customFoods.isNotEmpty) 'My Foods',
     ];
 
@@ -476,9 +477,11 @@ class _AddFoodPanelState extends State<_AddFoodPanel> {
                                   food.id,
                                   food.name,
                                 ),
-                                subtitle: l10n.gProtein(
-                                  '${appState.proteinForFood(food).round()}',
-                                ),
+                                subtitle: isSupplement(food)
+                                    ? l10n.supplementSummary(food)
+                                    : l10n.gProtein(
+                                        '${appState.proteinForFood(food).round()}',
+                                      ),
                               ),
                             )
                             .toList(),
@@ -657,9 +660,13 @@ class _FoodCardState extends State<_FoodCard> {
                   padding: const EdgeInsets.fromLTRB(4, 36, 4, 6),
                   child: LayoutBuilder(
                     builder: (context, constraints) {
-                      final proteinText = l10n.gProtein(
-                        '${appState.proteinForFood(widget.food).round()}',
-                      );
+                      // Supplements show their iron/calcium here instead.
+                      final supplement = isSupplement(widget.food);
+                      final proteinText = supplement
+                          ? l10n.supplementSummary(widget.food)
+                          : l10n.gProtein(
+                              '${appState.proteinForFood(widget.food).round()}',
+                            );
                       final servingText = _justAdded
                           ? l10n.added
                           : l10n.servingDisplay(
@@ -671,9 +678,11 @@ class _FoodCardState extends State<_FoodCard> {
                             );
                       final showWater = appState.waterTrackerEnabled &&
                           widget.food.waterMlPerServing > 0;
-                      final showIron = appState.ironTrackerEnabled &&
+                      final showIron = !supplement &&
+                          appState.ironTrackerEnabled &&
                           widget.food.ironMg > 0;
-                      final showCalcium = appState.calciumTrackerEnabled &&
+                      final showCalcium = !supplement &&
+                          appState.calciumTrackerEnabled &&
                           widget.food.calciumMg > 0;
 
                       return FittedBox(
@@ -893,9 +902,11 @@ class _SearchResultTileState extends State<_SearchResultTile> {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
     final appState = context.watch<AppState>();
-    final proteinText = l10n.gProtein(
-      '${appState.proteinForFood(widget.food).round()}',
-    );
+    final proteinText = isSupplement(widget.food)
+        ? l10n.supplementSummary(widget.food)
+        : l10n.gProtein(
+            '${appState.proteinForFood(widget.food).round()}',
+          );
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 250),
