@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../app_state.dart';
+import '../data/nutrient_limits.dart';
 import '../l10n/app_localizations.dart';
 import '../models.dart';
 import '../widgets/calcium_progress_ring.dart';
@@ -639,12 +640,18 @@ class _CollapsibleProgressSection extends StatelessWidget {
                   ironGoalMg: appState.dailyIronGoalMg,
                   ironGoalReached: appState.viewIronGoalReached,
                   ironGoalReachedText: l10n.ironGoalReachedWellDone,
+                  ironOverLimit: appState.viewIronOverLimit,
+                  ironOverLimitText:
+                      l10n.overDailyUpperLimit(ironUpperLimitMg),
                   calciumTrackerEnabled: appState.calciumTrackerEnabled,
                   calciumProgress: appState.viewCalciumProgressPercent,
                   calciumCurrentMg: appState.viewCalciumMg,
                   calciumGoalMg: appState.dailyCalciumGoalMg,
                   calciumGoalReached: appState.viewCalciumGoalReached,
                   calciumGoalReachedText: l10n.calciumGoalReachedWellDone,
+                  calciumOverLimit: appState.viewCalciumOverLimit,
+                  calciumOverLimitText:
+                      l10n.overDailyUpperLimit(calciumUpperLimitMg),
                 ),
                 if (appState.b12ReminderEnabled)
                   Padding(

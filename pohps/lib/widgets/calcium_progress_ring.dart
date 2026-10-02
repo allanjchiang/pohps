@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import '../data/nutrient_limits.dart';
 import '../l10n/app_localizations.dart';
 
 /// Violet calcium-intake ring (mirrors [ProgressRing] layout).
@@ -8,6 +9,9 @@ class CalciumProgressRing extends StatelessWidget {
   final double currentMg;
   final int goalMg;
   final double size;
+
+  /// Intake is above the daily upper limit: warn instead of celebrating.
+  final bool overLimit;
 
   static const calciumViolet = Color(0xFF9575CD);
   static const calciumVioletComplete = Color(0xFF6A4BA3);
@@ -18,6 +22,7 @@ class CalciumProgressRing extends StatelessWidget {
     required this.currentMg,
     required this.goalMg,
     this.size = 220,
+    this.overLimit = false,
   });
 
   @override
@@ -39,19 +44,25 @@ class CalciumProgressRing extends StatelessWidget {
             painter: _CalciumRingPainter(
               progress: value,
               trackColor: colorScheme.surfaceContainerHighest,
-              fillColor: completed ? calciumVioletComplete : calciumViolet,
+              fillColor: overLimit
+                  ? overLimitAmber
+                  : completed
+                      ? calciumVioletComplete
+                      : calciumViolet,
               strokeWidth: 14,
             ),
             child: Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (completed)
+                  if (overLimit)
+                    const Text('⚠️', style: TextStyle(fontSize: 28))
+                  else if (completed)
                     const Text('🦴', style: TextStyle(fontSize: 28)),
                   Text(
                     l10n.formatCalciumMg(currentMg),
                     style: theme.textTheme.headlineLarge?.copyWith(
-                      color: calciumVioletComplete,
+                      color: overLimit ? overLimitAmberDark : calciumVioletComplete,
                       fontWeight: FontWeight.bold,
                     ),
                     textAlign: TextAlign.center,

@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import '../data/nutrient_limits.dart';
 import '../l10n/app_localizations.dart';
 
 /// Rust-red iron-intake ring (mirrors [ProgressRing] layout).
@@ -8,6 +9,9 @@ class IronProgressRing extends StatelessWidget {
   final double currentMg;
   final int goalMg;
   final double size;
+
+  /// Intake is above the daily upper limit: warn instead of celebrating.
+  final bool overLimit;
 
   static const ironRed = Color(0xFFE0674F);
   static const ironRedComplete = Color(0xFFB5402A);
@@ -18,6 +22,7 @@ class IronProgressRing extends StatelessWidget {
     required this.currentMg,
     required this.goalMg,
     this.size = 220,
+    this.overLimit = false,
   });
 
   @override
@@ -39,19 +44,25 @@ class IronProgressRing extends StatelessWidget {
             painter: _IronRingPainter(
               progress: value,
               trackColor: colorScheme.surfaceContainerHighest,
-              fillColor: completed ? ironRedComplete : ironRed,
+              fillColor: overLimit
+                  ? overLimitAmber
+                  : completed
+                      ? ironRedComplete
+                      : ironRed,
               strokeWidth: 14,
             ),
             child: Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (completed)
+                  if (overLimit)
+                    const Text('⚠️', style: TextStyle(fontSize: 28))
+                  else if (completed)
                     const Text('💪', style: TextStyle(fontSize: 28)),
                   Text(
                     l10n.formatIronMg(currentMg),
                     style: theme.textTheme.headlineLarge?.copyWith(
-                      color: ironRedComplete,
+                      color: overLimit ? overLimitAmberDark : ironRedComplete,
                       fontWeight: FontWeight.bold,
                     ),
                     textAlign: TextAlign.center,

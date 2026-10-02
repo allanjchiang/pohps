@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
 import '../models.dart';
+import '../data/nutrient_limits.dart';
 import 'calcium_progress_ring.dart';
 import 'iron_progress_ring.dart';
 import 'progress_ring.dart';
@@ -30,6 +31,8 @@ class ProgressTrackerCarousel extends StatefulWidget {
   final int ironGoalMg;
   final bool ironGoalReached;
   final String ironGoalReachedText;
+  final bool ironOverLimit;
+  final String ironOverLimitText;
 
   final bool calciumTrackerEnabled;
   final double calciumProgress;
@@ -37,6 +40,8 @@ class ProgressTrackerCarousel extends StatefulWidget {
   final int calciumGoalMg;
   final bool calciumGoalReached;
   final String calciumGoalReachedText;
+  final bool calciumOverLimit;
+  final String calciumOverLimitText;
 
   const ProgressTrackerCarousel({
     super.key,
@@ -58,12 +63,16 @@ class ProgressTrackerCarousel extends StatefulWidget {
     required this.ironGoalMg,
     required this.ironGoalReached,
     required this.ironGoalReachedText,
+    required this.ironOverLimit,
+    required this.ironOverLimitText,
     required this.calciumTrackerEnabled,
     required this.calciumProgress,
     required this.calciumCurrentMg,
     required this.calciumGoalMg,
     required this.calciumGoalReached,
     required this.calciumGoalReachedText,
+    required this.calciumOverLimit,
+    required this.calciumOverLimitText,
   });
 
   @override
@@ -97,6 +106,15 @@ class _ProgressTrackerCarouselState extends State<ProgressTrackerCarousel> {
     final pageIndex = _page.clamp(0, pages.length - 1);
     final page = pages[pageIndex];
 
+    // Above the upper limit, a warning replaces the goal-reached message.
+    final (overLimit, overLimitText) = switch (page) {
+      _TrackerPage.iron => (widget.ironOverLimit, widget.ironOverLimitText),
+      _TrackerPage.calcium => (
+          widget.calciumOverLimit,
+          widget.calciumOverLimitText,
+        ),
+      _ => (false, ''),
+    };
     final (goalReached, goalReachedText, goalColor) = switch (page) {
       _TrackerPage.protein => (
           widget.proteinGoalReached,
@@ -134,7 +152,19 @@ class _ProgressTrackerCarouselState extends State<ProgressTrackerCarousel> {
             ],
           ),
         ),
-        if (goalReached)
+        if (overLimit)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(24, 8, 24, 0),
+            child: Text(
+              overLimitText,
+              style: theme.textTheme.titleSmall?.copyWith(
+                color: overLimitAmberDark,
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          )
+        else if (goalReached)
           Padding(
             padding: const EdgeInsets.only(top: 8),
             child: Text(
@@ -199,12 +229,14 @@ class _ProgressTrackerCarouselState extends State<ProgressTrackerCarousel> {
             currentMg: widget.ironCurrentMg,
             goalMg: widget.ironGoalMg,
             size: _ringSize,
+            overLimit: widget.ironOverLimit,
           ),
         _TrackerPage.calcium => CalciumProgressRing(
             progress: widget.calciumProgress,
             currentMg: widget.calciumCurrentMg,
             goalMg: widget.calciumGoalMg,
             size: _ringSize,
+            overLimit: widget.calciumOverLimit,
           ),
       };
 

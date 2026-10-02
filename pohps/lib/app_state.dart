@@ -6,6 +6,7 @@ import 'data/patch_notes.dart';
 import 'models.dart';
 import 'food_data.dart';
 import 'services/backup_service.dart';
+import 'data/nutrient_limits.dart';
 import 'services/donation_service.dart';
 import 'services/statistics_service.dart';
 import 'storage.dart';
@@ -161,6 +162,7 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
       : 0.0;
   bool get viewIronGoalReached =>
       _dailyIronGoalMg > 0 && viewIronMg >= _dailyIronGoalMg;
+  bool get viewIronOverLimit => viewIronMg > ironUpperLimitMg;
   double get viewCalciumMg =>
       _viewLog.fold(0.0, (sum, e) => sum + e.totalCalciumMg);
   double get viewCalciumProgressPercent => _dailyCalciumGoalMg > 0
@@ -168,6 +170,7 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
       : 0.0;
   bool get viewCalciumGoalReached =>
       _dailyCalciumGoalMg > 0 && viewCalciumMg >= _dailyCalciumGoalMg;
+  bool get viewCalciumOverLimit => viewCalciumMg > calciumUpperLimitMg;
 
   /// Tea or coffee was logged on the viewed day, so an iron absorption tip
   /// is worth showing.

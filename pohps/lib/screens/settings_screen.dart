@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../app_state.dart';
+import '../data/nutrient_limits.dart';
 import '../l10n/app_localizations.dart';
 import '../models.dart';
 import '../services/backup_service.dart';
@@ -686,80 +687,82 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  void _editIronGoal(BuildContext context, AppState appState) {
-    final l10n = AppLocalizations.of(context);
-    final controller =
-        TextEditingController(text: appState.dailyIronGoalMg.toString());
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(l10n.changeIronGoal),
-        content: TextField(
-          controller: controller,
-          keyboardType: TextInputType.number,
-          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-          decoration: InputDecoration(
-            hintText: l10n.mgPerDay,
-            suffixText: 'mg',
-          ),
-          autofocus: true,
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text(l10n.cancel),
-          ),
-          FilledButton(
-            onPressed: () {
-              final value = int.tryParse(controller.text);
-              if (value != null && value > 0) {
-                appState.setDailyIronGoalMg(value);
-                Navigator.pop(ctx);
-              }
-            },
-            child: Text(l10n.save),
-          ),
-        ],
-      ),
-    );
-  }
+  void _editIronGoal(BuildContext context, AppState appState) =>
+      _editMineralGoal(
+        context,
+        title: AppLocalizations.of(context).changeIronGoal,
+        currentMg: appState.dailyIronGoalMg,
+        upperLimitMg: ironUpperLimitMg,
+        onSave: appState.setDailyIronGoalMg,
+      );
 
-  void _editCalciumGoal(BuildContext context, AppState appState) {
+  void _editCalciumGoal(BuildContext context, AppState appState) =>
+      _editMineralGoal(
+        context,
+        title: AppLocalizations.of(context).changeCalciumGoal,
+        currentMg: appState.dailyCalciumGoalMg,
+        upperLimitMg: calciumUpperLimitMg,
+        onSave: appState.setDailyCalciumGoalMg,
+      );
+
+  /// Goal dialog for iron/calcium. A goal above the daily upper limit needs a
+  /// second tap ("Save anyway"), since the ring would otherwise reward an
+  /// unsafe intake. It isn't blocked outright: doctors do prescribe more.
+  void _editMineralGoal(
+    BuildContext context, {
+    required String title,
+    required int currentMg,
+    required int upperLimitMg,
+    required ValueChanged<int> onSave,
+  }) {
     final l10n = AppLocalizations.of(context);
-    final controller =
-        TextEditingController(text: appState.dailyCalciumGoalMg.toString());
+    final controller = TextEditingController(text: currentMg.toString());
+    var confirmingOverLimit = false;
     showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(l10n.changeCalciumGoal),
-        content: TextField(
-          controller: controller,
-          keyboardType: TextInputType.number,
-          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-          decoration: InputDecoration(
-            hintText: l10n.mgPerDay,
-            suffixText: 'mg',
-          ),
-          autofocus: true,
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text(l10n.cancel),
-          ),
-          FilledButton(
-            onPressed: () {
-              final value = int.tryParse(controller.text);
-              if (value != null && value > 0) {
-                appState.setDailyCalciumGoalMg(value);
-                Navigator.pop(ctx);
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => AlertDialog(
+          title: Text(title),
+          content: TextField(
+            controller: controller,
+            keyboardType: TextInputType.number,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            decoration: InputDecoration(
+              hintText: l10n.mgPerDay,
+              suffixText: 'mg',
+              errorText: confirmingOverLimit
+                  ? l10n.goalAboveUpperLimit(upperLimitMg)
+                  : null,
+              errorMaxLines: 4,
+            ),
+            autofocus: true,
+            style: Theme.of(context).textTheme.titleLarge,
+            onChanged: (_) {
+              if (confirmingOverLimit) {
+                setDialogState(() => confirmingOverLimit = false);
               }
             },
-            child: Text(l10n.save),
           ),
-        ],
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text(l10n.cancel),
+            ),
+            FilledButton(
+              onPressed: () {
+                final value = int.tryParse(controller.text);
+                if (value == null || value <= 0) return;
+                if (value > upperLimitMg && !confirmingOverLimit) {
+                  setDialogState(() => confirmingOverLimit = true);
+                  return;
+                }
+                onSave(value);
+                Navigator.pop(ctx);
+              },
+              child: Text(confirmingOverLimit ? l10n.saveAnyway : l10n.save),
+            ),
+          ],
+        ),
       ),
     );
   }

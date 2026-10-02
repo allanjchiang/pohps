@@ -361,6 +361,24 @@ class AppLocalizations {
         '追踪食物中的钙质。多数成人每日约需 1,000 mg，50 岁以上女性及 70 岁以上者约需 1,200 mg。不吃乳制品时，良好来源包括以钙凝固的豆腐、钙强化植物奶，以及青菜、羽衣甘蓝等蔬菜。此处数值以钙强化植物奶与钙凝固豆腐计算，请参考产品标签。请咨询医生适合您的目标。',
       );
 
+  String _formatLimitMg(int mg) => '${NumberFormat('#,##0').format(mg)} mg';
+
+  /// Shown under an iron/calcium ring when the day's intake is above the
+  /// upper limit, in place of the goal-reached message.
+  String overDailyUpperLimit(int limitMg) => _t(
+        'Above the ${_formatLimitMg(limitMg)} daily upper limit. More isn\'t better here, so ask your doctor before going this high.',
+        '已超過每日 ${_formatLimitMg(limitMg)} 的攝取上限。攝取越多不一定越好，如需攝取這麼多，請先諮詢醫師。',
+        '已超过每日 ${_formatLimitMg(limitMg)} 的摄入上限。摄入越多不一定越好，如需摄入这么多，请先咨询医生。',
+      );
+
+  String goalAboveUpperLimit(int limitMg) => _t(
+        'This is above the ${_formatLimitMg(limitMg)} daily upper limit for adults. Only set a goal this high if your doctor advised it.',
+        '此目標超過成人每日 ${_formatLimitMg(limitMg)} 的攝取上限。除非醫師建議，否則請勿設定這麼高的目標。',
+        '此目标超过成人每日 ${_formatLimitMg(limitMg)} 的摄入上限。除非医生建议，否则请勿设置这么高的目标。',
+      );
+
+  String get saveAnyway => _t('Save anyway', '仍要儲存', '仍要保存');
+
   String get changeCalciumGoal =>
       _t('Change Calcium Goal', '更改鈣質目標', '更改钙质目标');
 
